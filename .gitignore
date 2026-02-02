@@ -1,0 +1,44 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build output
+/dist/
+/build/
+/.next/
+/.nuxt/
+
+# TypeScript
+*.tsbuildinfo
+
+# Env files
+.env*
+.envrc
+
+# VS Code
+.vscode/
+
+# MacOS
+.DS_Store
+
+# Logs
+logs/
+*.log
+
+# Coverage
+coverage/
+
+# Others
+*.swp
+*.swo
+
+# Monorepo packages
+packages/*/node_modules/
+apps/*/node_modules/
+
+# Ignore local dev files
+*.local.js
+*.local.ts
