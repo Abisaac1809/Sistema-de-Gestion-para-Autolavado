@@ -1,0 +1,363 @@
+// Prisma Schema for Car Wash Management System
+// Generated with modern best practices for PostgreSQL + TypeScript
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum ExchangeRateSource {
+  BCV_USD
+  BCV_EUR
+  CUSTOM
+}
+
+enum UnitType {
+  LITERS
+  MILLILITERS
+  KILOGRAMS
+  GRAMS
+  UNITS
+  BOXES
+  BOTTLES
+}
+
+enum AdjustmentType {
+  IN
+  OUT
+}
+
+enum AdjustmentReason {
+  DAMAGED
+  EXPIRED
+  THEFT
+  AUDIT_CORRECTION
+  SPILLED
+  OTHER
+}
+
+enum OrderStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum Currency {
+  USD
+  VES
+  EUR
+}
+
+enum SaleStatus {
+  COMPLETED
+  REFUNDED
+  CANCELLED
+}
+
+// ============================================================================
+// MODELS
+// ============================================================================
+
+model StoreInfo {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String    @db.VarChar(100)
+  rif         String    @unique @db.VarChar(20)
+  address     String?   @db.Text
+  phone       String?   @db.VarChar(20)
+  email       String?   @db.VarChar(100)
+  logoUrl     String?   @map("logo_url") @db.Text
+  lastUpdated DateTime  @default(now()) @map("last_updated") @db.Timestamp(6)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamp(6)
+
+  @@map("store_info")
+}
+
+model ExchangeRateConfig {
+  id           String             @id @default(uuid()) @db.Uuid
+  activeSource ExchangeRateSource @default(BCV_USD) @map("active_source")
+  customRate   Decimal            @default(0) @map("custom_rate") @db.Decimal(15, 4)
+  bcvUsdRate   Decimal            @default(0) @map("bcv_usd_rate") @db.Decimal(15, 4)
+  bcvEurRate   Decimal            @default(0) @map("bcv_eur_rate") @db.Decimal(15, 4)
+  autoUpdate   Boolean            @default(true) @map("auto_update")
+  lastSync     DateTime           @default(now()) @map("last_sync") @db.Timestamp(6)
+  createdAt    DateTime           @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt    DateTime           @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt    DateTime?          @map("deleted_at") @db.Timestamp(6)
+
+  @@map("exchange_rate_config")
+}
+
+model NotificationContact {
+  id             String    @id @default(uuid()) @db.Uuid
+  fullName       String?   @map("full_name") @db.VarChar(100)
+  email          String    @unique @db.VarChar(100)
+  receiveReports Boolean   @default(true) @map("receive_reports")
+  isActive       Boolean   @default(true) @map("is_active")
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt      DateTime? @map("deleted_at") @db.Timestamp(6)
+
+  @@map("notification_contacts")
+}
+
+model ProductCategory {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String    @unique @db.VarChar(50)
+  description String?   @db.Text
+  status      Boolean   @default(true)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamp(6)
+
+  // Relations
+  products Product[]
+
+  @@map("product_categories")
+}
+
+model Product {
+  id         String    @id @default(uuid()) @db.Uuid
+  categoryId String?   @map("category_id") @db.Uuid
+  name       String    @db.VarChar(100)
+  stock      Decimal   @default(0) @db.Decimal(10, 2)
+  minStock   Decimal   @default(0) @map("min_stock") @db.Decimal(10, 2)
+  unitType   UnitType? @map("unit_type")
+  costPrice  Decimal   @map("cost_price") @db.Decimal(10, 2)
+  isForSale  Boolean   @default(false) @map("is_for_sale")
+  status     Boolean   @default(true)
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt  DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt  DateTime? @map("deleted_at") @db.Timestamp(6)
+
+  // Relations
+  category             ProductCategory?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  inventoryAdjustments InventoryAdjustment[]
+  orderDetails         OrderDetail[]
+  saleDetails          SaleDetail[]
+  purchaseDetails      PurchaseDetail[]
+
+  @@index([categoryId])
+  @@index([name])
+  @@index([status])
+  @@map("products")
+}
+
+model InventoryAdjustment {
+  id             String           @id @default(uuid()) @db.Uuid
+  productId      String           @map("product_id") @db.Uuid
+  adjustmentType AdjustmentType   @map("adjustment_type")
+  quantity       Decimal          @db.Decimal(10, 2)
+  stockBefore    Decimal          @map("stock_before") @db.Decimal(10, 2)
+  stockAfter     Decimal          @map("stock_after") @db.Decimal(10, 2)
+  reason         AdjustmentReason
+  notes          String?          @db.Text
+  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt      DateTime         @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt      DateTime?        @map("deleted_at") @db.Timestamp(6)
+
+  // Relations
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([adjustmentType])
+  @@index([createdAt])
+  @@map("inventory_adjustments")
+}
+
+model Service {
+  id              String    @id @default(uuid()) @db.Uuid
+  name            String    @db.VarChar(100)
+  description     String?   @db.Text
+  price           Decimal   @db.Decimal(10, 2)
+  durationMinutes Int?      @map("duration_minutes")
+  status          Boolean   @default(true)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt       DateTime? @map("deleted_at") @db.Timestamp(6)
+
+  // Relations
+  orderDetails OrderDetail[]
+  saleDetails  SaleDetail[]
+
+  @@index([status])
+  @@map("services")
+}
+
+model Customer {
+  id       String    @id @default(uuid()) @db.Uuid
+  fullName String    @map("full_name") @db.VarChar(100)
+  idNumber String?   @unique @map("id_number") @db.VarChar(20)
+  phone    String?   @db.VarChar(20)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamp(6)
+
+  // Relations
+  orders Order[]
+
+  @@index([phone])
+  @@map("customers")
+}
+
+model PaymentMethod {
+  id             String    @id @default(uuid()) @db.Uuid
+  name           String    @db.VarChar(100)
+  description    String?   @db.Text
+  currency       Currency?
+  bankName       String?   @map("bank_name") @db.VarChar(100)
+  accountHolder  String?   @map("account_holder") @db.VarChar(100)
+  accountNumber  String?   @map("account_number") @db.VarChar(50)
+  idCard         String?   @map("id_card") @db.VarChar(20)
+  phoneNumber    String?   @map("phone_number") @db.VarChar(20)
+  email          String?   @db.VarChar(100)
+  isActive       Boolean   @default(true) @map("is_active")
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt      DateTime? @map("deleted_at") @db.Timestamp(6)
+
+  // Relations
+  sales Sale[]
+
+  @@index([isActive])
+  @@map("payment_methods")
+}
+
+model Order {
+  id              String      @id @default(uuid()) @db.Uuid
+  customerId      String?     @map("customer_id") @db.Uuid
+  vehiclePlate    String      @map("vehicle_plate") @db.VarChar(20)
+  vehicleModel    String?     @map("vehicle_model") @db.VarChar(50)
+  status          OrderStatus @default(PENDING)
+  totalEstimated  Decimal     @map("total_estimated") @db.Decimal(10, 2)
+  createdAt       DateTime    @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt       DateTime    @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt       DateTime?   @map("deleted_at") @db.Timestamp(6)
+
+  // Relations
+  customer     Customer?      @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  orderDetails OrderDetail[]
+  sale         Sale?
+
+  @@index([customerId])
+  @@index([status])
+  @@index([vehiclePlate])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+model OrderDetail {
+  id          String   @id @default(uuid()) @db.Uuid
+  orderId     String   @map("order_id") @db.Uuid
+  serviceId   String?  @map("service_id") @db.Uuid
+  productId   String?  @map("product_id") @db.Uuid
+  quantity    Decimal  @db.Decimal(10, 2)
+  priceAtTime Decimal  @map("price_at_time") @db.Decimal(10, 2)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamp(6)
+
+  // Relations
+  order   Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  service Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  product Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+  @@index([serviceId])
+  @@index([productId])
+  @@map("order_details")
+}
+
+model Sale {
+  id              String     @id @default(uuid()) @db.Uuid
+  orderId         String?    @unique @map("order_id") @db.Uuid
+  paymentMethodId String     @map("payment_method_id") @db.Uuid
+  total           Decimal    @db.Decimal(10, 2)
+  dollarRate      Decimal    @map("dollar_rate") @db.Decimal(10, 2)
+  status          SaleStatus @default(COMPLETED)
+  createdAt       DateTime   @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt       DateTime   @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt       DateTime?  @map("deleted_at") @db.Timestamp(6)
+
+  // Relations
+  order         Order?         @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  paymentMethod PaymentMethod  @relation(fields: [paymentMethodId], references: [id], onDelete: Restrict)
+  saleDetails   SaleDetail[]
+
+  @@index([paymentMethodId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("sales")
+}
+
+model SaleDetail {
+  id        String    @id @default(uuid()) @db.Uuid
+  saleId    String    @map("sale_id") @db.Uuid
+  serviceId String?   @map("service_id") @db.Uuid
+  productId String?   @map("product_id") @db.Uuid
+  quantity  Decimal   @db.Decimal(10, 2)
+  unitPrice Decimal   @map("unit_price") @db.Decimal(10, 2)
+  subtotal  Decimal   @db.Decimal(10, 2)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamp(6)
+
+  // Relations
+  sale    Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  service Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  product Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([saleId])
+  @@index([serviceId])
+  @@index([productId])
+  @@map("sale_details")
+}
+
+model Purchase {
+  id              String    @id @default(uuid()) @db.Uuid
+  providerName    String    @map("provider_name") @db.VarChar(100)
+  purchaseDate    DateTime  @default(now()) @map("purchase_date") @db.Timestamp(6)
+  dollarRate      Decimal   @map("dollar_rate") @db.Decimal(10, 2)
+  totalUsd        Decimal   @map("total_usd") @db.Decimal(10, 2)
+  notes           String?   @db.Text
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt       DateTime? @map("deleted_at") @db.Timestamp(6)
+
+  // Relations
+  purchaseDetails PurchaseDetail[]
+
+  @@index([purchaseDate])
+  @@map("purchases")
+}
+
+model PurchaseDetail {
+  id          String    @id @default(uuid()) @db.Uuid
+  purchaseId  String    @map("purchase_id") @db.Uuid
+  productId   String    @map("product_id") @db.Uuid
+  quantity    Decimal   @db.Decimal(10, 2)
+  unitCostUsd Decimal   @map("unit_cost_usd") @db.Decimal(10, 2)
+  subtotalUsd Decimal   @map("subtotal_usd") @db.Decimal(10, 2)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamp(6)
+
+  // Relations
+  purchase Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([purchaseId])
+  @@index([productId])
+  @@map("purchase_details")
+}
