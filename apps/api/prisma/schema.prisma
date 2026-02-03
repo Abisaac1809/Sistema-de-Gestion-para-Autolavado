@@ -8,7 +8,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 // ============================================================================
@@ -142,7 +141,7 @@ model Product {
   deletedAt  DateTime? @map("deleted_at") @db.Timestamp(6)
 
   // Relations
-  category             ProductCategory?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  category             ProductCategory?      @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   inventoryAdjustments InventoryAdjustment[]
   orderDetails         OrderDetail[]
   saleDetails          SaleDetail[]
@@ -196,12 +195,12 @@ model Service {
 }
 
 model Customer {
-  id       String    @id @default(uuid()) @db.Uuid
-  fullName String    @map("full_name") @db.VarChar(100)
-  idNumber String?   @unique @map("id_number") @db.VarChar(20)
-  phone    String?   @db.VarChar(20)
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+  id        String    @id @default(uuid()) @db.Uuid
+  fullName  String    @map("full_name") @db.VarChar(100)
+  idNumber  String?   @unique @map("id_number") @db.VarChar(20)
+  phone     String?   @db.VarChar(20)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)
   deletedAt DateTime? @map("deleted_at") @db.Timestamp(6)
 
   // Relations
@@ -212,20 +211,20 @@ model Customer {
 }
 
 model PaymentMethod {
-  id             String    @id @default(uuid()) @db.Uuid
-  name           String    @db.VarChar(100)
-  description    String?   @db.Text
-  currency       Currency?
-  bankName       String?   @map("bank_name") @db.VarChar(100)
-  accountHolder  String?   @map("account_holder") @db.VarChar(100)
-  accountNumber  String?   @map("account_number") @db.VarChar(50)
-  idCard         String?   @map("id_card") @db.VarChar(20)
-  phoneNumber    String?   @map("phone_number") @db.VarChar(20)
-  email          String?   @db.VarChar(100)
-  isActive       Boolean   @default(true) @map("is_active")
-  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)
-  deletedAt      DateTime? @map("deleted_at") @db.Timestamp(6)
+  id            String    @id @default(uuid()) @db.Uuid
+  name          String    @db.VarChar(100)
+  description   String?   @db.Text
+  currency      Currency?
+  bankName      String?   @map("bank_name") @db.VarChar(100)
+  accountHolder String?   @map("account_holder") @db.VarChar(100)
+  accountNumber String?   @map("account_number") @db.VarChar(50)
+  idCard        String?   @map("id_card") @db.VarChar(20)
+  phoneNumber   String?   @map("phone_number") @db.VarChar(20)
+  email         String?   @db.VarChar(100)
+  isActive      Boolean   @default(true) @map("is_active")
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt     DateTime? @map("deleted_at") @db.Timestamp(6)
 
   // Relations
   sales Sale[]
@@ -235,18 +234,18 @@ model PaymentMethod {
 }
 
 model Order {
-  id              String      @id @default(uuid()) @db.Uuid
-  customerId      String?     @map("customer_id") @db.Uuid
-  vehiclePlate    String      @map("vehicle_plate") @db.VarChar(20)
-  vehicleModel    String?     @map("vehicle_model") @db.VarChar(50)
-  status          OrderStatus @default(PENDING)
-  totalEstimated  Decimal     @map("total_estimated") @db.Decimal(10, 2)
-  createdAt       DateTime    @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt       DateTime    @updatedAt @map("updated_at") @db.Timestamp(6)
-  deletedAt       DateTime?   @map("deleted_at") @db.Timestamp(6)
+  id             String      @id @default(uuid()) @db.Uuid
+  customerId     String?     @map("customer_id") @db.Uuid
+  vehiclePlate   String      @map("vehicle_plate") @db.VarChar(20)
+  vehicleModel   String?     @map("vehicle_model") @db.VarChar(50)
+  status         OrderStatus @default(PENDING)
+  totalEstimated Decimal     @map("total_estimated") @db.Decimal(10, 2)
+  createdAt      DateTime    @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt      DateTime    @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt      DateTime?   @map("deleted_at") @db.Timestamp(6)
 
   // Relations
-  customer     Customer?      @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  customer     Customer?     @relation(fields: [customerId], references: [id], onDelete: SetNull)
   orderDetails OrderDetail[]
   sale         Sale?
 
@@ -258,14 +257,14 @@ model Order {
 }
 
 model OrderDetail {
-  id          String   @id @default(uuid()) @db.Uuid
-  orderId     String   @map("order_id") @db.Uuid
-  serviceId   String?  @map("service_id") @db.Uuid
-  productId   String?  @map("product_id") @db.Uuid
-  quantity    Decimal  @db.Decimal(10, 2)
-  priceAtTime Decimal  @map("price_at_time") @db.Decimal(10, 2)
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+  id          String    @id @default(uuid()) @db.Uuid
+  orderId     String    @map("order_id") @db.Uuid
+  serviceId   String?   @map("service_id") @db.Uuid
+  productId   String?   @map("product_id") @db.Uuid
+  quantity    Decimal   @db.Decimal(10, 2)
+  priceAtTime Decimal   @map("price_at_time") @db.Decimal(10, 2)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)
   deletedAt   DateTime? @map("deleted_at") @db.Timestamp(6)
 
   // Relations
@@ -291,8 +290,8 @@ model Sale {
   deletedAt       DateTime?  @map("deleted_at") @db.Timestamp(6)
 
   // Relations
-  order         Order?         @relation(fields: [orderId], references: [id], onDelete: SetNull)
-  paymentMethod PaymentMethod  @relation(fields: [paymentMethodId], references: [id], onDelete: Restrict)
+  order         Order?        @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  paymentMethod PaymentMethod @relation(fields: [paymentMethodId], references: [id], onDelete: Restrict)
   saleDetails   SaleDetail[]
 
   @@index([paymentMethodId])
@@ -325,15 +324,15 @@ model SaleDetail {
 }
 
 model Purchase {
-  id              String    @id @default(uuid()) @db.Uuid
-  providerName    String    @map("provider_name") @db.VarChar(100)
-  purchaseDate    DateTime  @default(now()) @map("purchase_date") @db.Timestamp(6)
-  dollarRate      Decimal   @map("dollar_rate") @db.Decimal(10, 2)
-  totalUsd        Decimal   @map("total_usd") @db.Decimal(10, 2)
-  notes           String?   @db.Text
-  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)
-  deletedAt       DateTime? @map("deleted_at") @db.Timestamp(6)
+  id           String    @id @default(uuid()) @db.Uuid
+  providerName String    @map("provider_name") @db.VarChar(100)
+  purchaseDate DateTime  @default(now()) @map("purchase_date") @db.Timestamp(6)
+  dollarRate   Decimal   @map("dollar_rate") @db.Decimal(10, 2)
+  totalUsd     Decimal   @map("total_usd") @db.Decimal(10, 2)
+  notes        String?   @db.Text
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt    DateTime? @map("deleted_at") @db.Timestamp(6)
 
   // Relations
   purchaseDetails PurchaseDetail[]
