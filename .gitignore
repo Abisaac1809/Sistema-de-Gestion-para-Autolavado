@@ -46,4 +46,9 @@ apps/*/node_modules/
 # ia
 CLAUDE.md
 .claude/
+.gemini/
+.opencode/
 .context/
+
+# GSD planning (local-only)
+.planning/
