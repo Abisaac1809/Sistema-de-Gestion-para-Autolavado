@@ -42,3 +42,8 @@ apps/*/node_modules/
 # Ignore local dev files
 *.local.js
 *.local.ts
+
+# ia
+CLAUDE.md
+.claude/
+.context/
