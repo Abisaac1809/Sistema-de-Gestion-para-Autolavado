@@ -49,3 +49,14 @@ export class ServiceInactiveError extends BusinessError {
     public readonly name = 'ServiceInactiveError';
     public readonly statusCode = 400;
 }
+
+// PaymentMethod-specific errors
+export class PaymentMethodNotFoundError extends BusinessError {
+    public readonly name = 'PaymentMethodNotFoundError';
+    public readonly statusCode = 404;
+}
+
+export class PaymentMethodAlreadyExistsError extends BusinessError {
+    public readonly name = 'PaymentMethodAlreadyExistsError';
+    public readonly statusCode = 409;
+}
