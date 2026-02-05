@@ -6,6 +6,7 @@ import pg from 'pg';
 import globalErrorHandler from './middlewares/GlobalErrorHandler';
 import createCategoryRouter from './routers/CategoryRouter';
 import createProductRouter from './routers/ProductRouter';
+import createServiceRouter from './routers/ServiceRouter';
 import { createContainer } from './container/Container';
 import httpLogger from './middlewares/HttpLogger';
 
@@ -23,6 +24,7 @@ const container = createContainer(prisma);
 
 app.use('/api/categories', createCategoryRouter(container.categoryService));
 app.use('/api/products', createProductRouter(container.productService));
+app.use('/api/services', createServiceRouter(container.serviceService));
 
 app.use(globalErrorHandler);
 

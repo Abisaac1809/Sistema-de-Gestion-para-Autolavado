@@ -1,4 +1,4 @@
-import { PrismaClient } from '../generated/prisma';
+import { PrismaClient, Prisma } from '../generated/prisma';
 import Category from '../entities/Category';
 import ICategoryRepository from '../interfaces/IRepositories/ICategoryRepository';
 import { CategoryToCreateType } from '../schemas/Category.schema';
@@ -8,7 +8,7 @@ import {
 } from '../types/dtos/Category.dto';
 
 export default class PrismaCategoryRepository implements ICategoryRepository {
-    constructor(private prisma: PrismaClient) {}
+    constructor(private prisma: PrismaClient) { }
 
     async createCategory(data: CategoryToCreateType): Promise<Category> {
         const created = await this.prisma.productCategory.create({
@@ -18,7 +18,7 @@ export default class PrismaCategoryRepository implements ICategoryRepository {
                 status: data.status !== undefined ? data.status : true,
             },
         });
-        return new Category(created);
+        return this.mapToEntity(created);
     }
 
     async getCategoryById(id: string): Promise<Category | null> {
@@ -28,7 +28,7 @@ export default class PrismaCategoryRepository implements ICategoryRepository {
                 deletedAt: null,
             },
         });
-        return category ? new Category(category) : null;
+        return category ? this.mapToEntity(category) : null;
     }
 
     async getCategoryByName(name: string): Promise<Category | null> {
@@ -38,7 +38,7 @@ export default class PrismaCategoryRepository implements ICategoryRepository {
                 deletedAt: null,
             },
         });
-        return category ? new Category(category) : null;
+        return category ? this.mapToEntity(category) : null;
     }
 
     async getListOfCategories(filters: CategoryFiltersForRepository): Promise<Category[]> {
@@ -68,7 +68,7 @@ export default class PrismaCategoryRepository implements ICategoryRepository {
             },
         });
 
-        return categories.map((c: any) => new Category(c));
+        return categories.map(c => this.mapToEntity(c));
     }
 
     async getCountOfCategories(filters: CategoryFiltersForCount): Promise<number> {
@@ -103,7 +103,7 @@ export default class PrismaCategoryRepository implements ICategoryRepository {
                 status: data.status,
             },
         });
-        return new Category(updated);
+        return this.mapToEntity(updated);
     }
 
     async softDeleteCategory(id: string): Promise<void> {
@@ -122,6 +122,18 @@ export default class PrismaCategoryRepository implements ICategoryRepository {
                 deletedAt: null,
             },
         });
-        return new Category(restored);
+        return this.mapToEntity(restored);
+    }
+
+    private mapToEntity(prismaCategory: Prisma.ProductCategoryGetPayload<{}>): Category {
+        return new Category({
+            id: prismaCategory.id,
+            name: prismaCategory.name,
+            description: prismaCategory.description,
+            status: prismaCategory.status,
+            createdAt: prismaCategory.createdAt,
+            updatedAt: prismaCategory.updatedAt,
+            deletedAt: prismaCategory.deletedAt,
+        });
     }
 }

@@ -33,3 +33,19 @@ export class ProductAlreadyExistsError extends BusinessError {
     public readonly name = 'ProductAlreadyExistsError';
     public readonly statusCode = 409;
 }
+
+// Service-specific errors
+export class ServiceNotFoundError extends BusinessError {
+    public readonly name = 'ServiceNotFoundError';
+    public readonly statusCode = 404;
+}
+
+export class ServiceAlreadyExistsError extends BusinessError {
+    public readonly name = 'ServiceAlreadyExistsError';
+    public readonly statusCode = 409;
+}
+
+export class ServiceInactiveError extends BusinessError {
+    public readonly name = 'ServiceInactiveError';
+    public readonly statusCode = 400;
+}

@@ -2,12 +2,12 @@ import { PrismaClient, Prisma } from '../generated/prisma';
 import Product from '../entities/Product';
 import IProductRepository from '../interfaces/IRepositories/IProductRepository';
 import { ProductToCreateType, ProductToUpdateType } from '../schemas/Product.schema';
-import { ProductFiltersForRepository, ProductFiltersForCount } from '../types/dtos/Product.dto';
+import { ProductFiltersForRepository, ProductFiltersForCount, RawProduct } from '../types/dtos/Product.dto';
 import { UnitType } from '../types/enums';
 
 export default class PrismaProductRepository implements IProductRepository {
-    constructor(private prisma: PrismaClient) {}
-    
+    constructor(private prisma: PrismaClient) { }
+
     async create(data: ProductToCreateType): Promise<Product> {
         const created = await this.prisma.product.create({
             data: {
@@ -23,30 +23,30 @@ export default class PrismaProductRepository implements IProductRepository {
         });
         return this.mapToEntity(created);
     }
-    
+
     async get(id: string): Promise<Product | null> {
         const product = await this.prisma.product.findFirst({
             where: { id, deletedAt: null },
         });
         return product ? this.mapToEntity(product) : null;
     }
-    
+
     async getByName(name: string): Promise<Product | null> {
         const product = await this.prisma.product.findFirst({
             where: { name: { equals: name, mode: 'insensitive' } },
         });
         return product ? this.mapToEntity(product) : null;
     }
-    
+
     async list(filters: ProductFiltersForRepository): Promise<Product[]> {
         if (filters.lowStock) {
             return this.listLowStock(filters);
         }
-        
+
         const where: Prisma.ProductWhereInput = {
             deletedAt: null,
         };
-        
+
         if (filters.search) {
             where.name = { contains: filters.search, mode: 'insensitive' };
         }
@@ -59,20 +59,20 @@ export default class PrismaProductRepository implements IProductRepository {
         if (filters.status !== undefined) {
             where.status = filters.status;
         }
-        
+
         const products = await this.prisma.product.findMany({
             where,
             skip: filters.offset,
             take: filters.limit,
             orderBy: { createdAt: 'desc' },
         });
-        
+
         return products.map(p => this.mapToEntity(p));
     }
-    
+
     private async listLowStock(filters: ProductFiltersForRepository): Promise<Product[]> {
         const conditionsSql: Prisma.Sql[] = [Prisma.sql`deleted_at IS NULL`, Prisma.sql`stock < min_stock`];
-        
+
         if (filters.search) {
             conditionsSql.push(Prisma.sql`name ILIKE ${'%' + filters.search + '%'}`);
         }
@@ -85,28 +85,28 @@ export default class PrismaProductRepository implements IProductRepository {
         if (filters.status !== undefined) {
             conditionsSql.push(Prisma.sql`status = ${filters.status}`);
         }
-        
+
         const whereSql = Prisma.sql`WHERE ${Prisma.join(conditionsSql, ' AND ')}`;
-        
-        const products = await this.prisma.$queryRaw<any[]>`
+
+        const products = await this.prisma.$queryRaw<RawProduct[]>`
         SELECT * FROM products
         ${whereSql}
         ORDER BY created_at DESC
         LIMIT ${filters.limit} OFFSET ${filters.offset}
         `;
-        
+
         return products.map(p => this.mapRawToEntity(p));
     }
-    
+
     async count(filters: ProductFiltersForCount): Promise<number> {
         if (filters.lowStock) {
             return this.countLowStock(filters);
         }
-        
+
         const where: Prisma.ProductWhereInput = {
             deletedAt: null,
         };
-        
+
         if (filters.search) {
             where.name = { contains: filters.search, mode: 'insensitive' };
         }
@@ -119,13 +119,13 @@ export default class PrismaProductRepository implements IProductRepository {
         if (filters.status !== undefined) {
             where.status = filters.status;
         }
-        
+
         return await this.prisma.product.count({ where });
     }
-    
+
     private async countLowStock(filters: ProductFiltersForCount): Promise<number> {
         const conditionsSql: Prisma.Sql[] = [Prisma.sql`deleted_at IS NULL`, Prisma.sql`stock < min_stock`];
-        
+
         if (filters.search) {
             conditionsSql.push(Prisma.sql`name ILIKE ${'%' + filters.search + '%'}`);
         }
@@ -138,17 +138,17 @@ export default class PrismaProductRepository implements IProductRepository {
         if (filters.status !== undefined) {
             conditionsSql.push(Prisma.sql`status = ${filters.status}`);
         }
-        
+
         const whereSql = Prisma.sql`WHERE ${Prisma.join(conditionsSql, ' AND ')}`;
-        
-        const result = await this.prisma.$queryRaw<any[]>`
+
+        const result = await this.prisma.$queryRaw<{ count: number }[]>`
         SELECT COUNT(*)::int as count FROM products
         ${whereSql}
         `;
-        
+
         return result[0]?.count || 0;
     }
-    
+
     async update(id: string, data: ProductToUpdateType): Promise<Product> {
         const updated = await this.prisma.product.update({
             where: { id },
@@ -164,21 +164,21 @@ export default class PrismaProductRepository implements IProductRepository {
         });
         return this.mapToEntity(updated);
     }
-    
+
     async softDelete(id: string): Promise<void> {
         await this.prisma.product.update({
             where: { id },
             data: { deletedAt: new Date() },
         });
     }
-    
+
     async restore(id: string): Promise<void> {
         await this.prisma.product.update({
             where: { id },
             data: { deletedAt: null },
         });
     }
-    
+
     async countByCategoryId(categoryId: string): Promise<number> {
         return await this.prisma.product.count({
             where: {
@@ -187,38 +187,38 @@ export default class PrismaProductRepository implements IProductRepository {
             },
         });
     }
-    
-    private mapToEntity(p: any): Product {
+
+    private mapToEntity(prismaProduct: Prisma.ProductGetPayload<{}>): Product {
         return new Product({
-            id: p.id,
-            categoryId: p.categoryId,
-            name: p.name,
-            stock: p.stock.toNumber(),
-            minStock: p.minStock.toNumber(),
-            unitType: p.unitType,
-            costPrice: p.costPrice.toNumber(),
-            isForSale: p.isForSale,
-            status: p.status,
-            createdAt: p.createdAt,
-            updatedAt: p.updatedAt,
-            deletedAt: p.deletedAt,
+            id: prismaProduct.id,
+            categoryId: prismaProduct.categoryId,
+            name: prismaProduct.name,
+            stock: prismaProduct.stock.toNumber(),
+            minStock: prismaProduct.minStock.toNumber(),
+            unitType: prismaProduct.unitType as UnitType | null,
+            costPrice: prismaProduct.costPrice.toNumber(),
+            isForSale: prismaProduct.isForSale,
+            status: prismaProduct.status,
+            createdAt: prismaProduct.createdAt,
+            updatedAt: prismaProduct.updatedAt,
+            deletedAt: prismaProduct.deletedAt,
         });
     }
-    
-    private mapRawToEntity(p: any): Product {
+
+    private mapRawToEntity(rawProduct: RawProduct): Product {
         return new Product({
-            id: p.id,
-            categoryId: p.category_id,
-            name: p.name,
-            stock: Number(p.stock),
-            minStock: Number(p.min_stock),
-            unitType: p.unit_type,
-            costPrice: Number(p.cost_price),
-            isForSale: p.is_for_sale,
-            status: p.status,
-            createdAt: p.created_at,
-            updatedAt: p.updated_at,
-            deletedAt: p.deleted_at,
+            id: rawProduct.id,
+            categoryId: rawProduct.category_id,
+            name: rawProduct.name,
+            stock: Number(rawProduct.stock),
+            minStock: Number(rawProduct.min_stock),
+            unitType: rawProduct.unit_type as UnitType | null,
+            costPrice: Number(rawProduct.cost_price),
+            isForSale: rawProduct.is_for_sale,
+            status: rawProduct.status,
+            createdAt: rawProduct.created_at,
+            updatedAt: rawProduct.updated_at,
+            deletedAt: rawProduct.deleted_at,
         });
     }
 }
