@@ -9,6 +9,7 @@ import createProductRouter from './routers/ProductRouter';
 import createServiceRouter from './routers/ServiceRouter';
 import createPaymentMethodRouter from './routers/PaymentMethodRouter';
 import createCustomerRouter from './routers/CustomerRouter';
+import createNotificationContactRouter from './routers/NotificationContactRouter';
 import { createContainer } from './container/Container';
 import httpLogger from './middlewares/HttpLogger';
 
@@ -29,6 +30,7 @@ app.use('/api/products', createProductRouter(container.productService));
 app.use('/api/services', createServiceRouter(container.serviceService));
 app.use('/api/payment-methods', createPaymentMethodRouter(container.paymentMethodService));
 app.use('/api/customers', createCustomerRouter(container.customerService));
+app.use('/api/config/notifications', createNotificationContactRouter(container.notificationContactService));
 
 app.use(globalErrorHandler);
 

@@ -49,6 +49,8 @@ CLAUDE.md
 .gemini/
 .opencode/
 .context/
+.agent/
 
 # GSD planning (local-only)
 .planning/
+.gsd/

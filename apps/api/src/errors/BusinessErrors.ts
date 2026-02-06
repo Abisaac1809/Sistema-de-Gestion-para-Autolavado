@@ -85,3 +85,14 @@ export class CustomerAlreadyExistsError extends BusinessError {
     public readonly statusCode = 409;
 
 }
+
+// NotificationContact-specific errors
+export class NotificationContactNotFoundError extends BusinessError {
+    public readonly name = 'NotificationContactNotFoundError';
+    public readonly statusCode = 404;
+}
+
+export class NotificationContactAlreadyExistsError extends BusinessError {
+    public readonly name = 'NotificationContactAlreadyExistsError';
+    public readonly statusCode = 409;
+}
