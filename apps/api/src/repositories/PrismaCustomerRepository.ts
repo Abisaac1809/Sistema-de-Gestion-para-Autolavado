@@ -115,6 +115,13 @@ export default class PrismaCustomerRepository implements ICustomerRepository {
         return this.mapToEntity(restored);
     }
 
+    async getBulkByIds(ids: string[]): Promise<Customer[]> {
+        const results = await this.prisma.customer.findMany({
+            where: { id: { in: ids }, deletedAt: null },
+        });
+        return results.map((r) => this.mapToEntity(r));
+    }
+
     private mapToEntity(data: Prisma.CustomerGetPayload<{}>): Customer {
         return new Customer({
             id: data.id,

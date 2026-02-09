@@ -15,4 +15,5 @@ export interface ICustomerRepository {
     count(filters: CustomerFiltersForCount): Promise<number>;
     softDelete(id: string): Promise<void>;
     restore(id: string): Promise<Customer>;
+    getBulkByIds(ids: string[]): Promise<Customer[]>;
 }

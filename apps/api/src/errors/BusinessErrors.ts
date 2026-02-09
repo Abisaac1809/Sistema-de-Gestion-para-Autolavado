@@ -96,3 +96,29 @@ export class NotificationContactAlreadyExistsError extends BusinessError {
     public readonly name = 'NotificationContactAlreadyExistsError';
     public readonly statusCode = 409;
 }
+
+// Order-specific errors
+export class OrderNotFoundError extends BusinessError {
+    public readonly name = 'OrderNotFoundError';
+    public readonly statusCode = 404;
+}
+
+export class InvalidOrderStatusTransitionError extends BusinessError {
+    public readonly name = 'InvalidOrderStatusTransitionError';
+    public readonly statusCode = 400;
+}
+
+export class InsufficientStockError extends BusinessError {
+    public readonly name = 'InsufficientStockError';
+    public readonly statusCode = 400;
+}
+
+export class OrderDetailNotFoundError extends BusinessError {
+    public readonly name = 'OrderDetailNotFoundError';
+    public readonly statusCode = 404;
+}
+
+export class InvalidOrderDetailError extends BusinessError {
+    public readonly name = 'InvalidOrderDetailError';
+    public readonly statusCode = 400;
+}

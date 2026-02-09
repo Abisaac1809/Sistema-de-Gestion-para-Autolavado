@@ -12,4 +12,5 @@ export default interface IProductRepository {
     softDelete(id: string): Promise<void>;
     restore(id: string): Promise<void>;
     countByCategoryId(categoryId: string): Promise<number>;
+    updateStock(id: string, newStock: number): Promise<void>;
 }

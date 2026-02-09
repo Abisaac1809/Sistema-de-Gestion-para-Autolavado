@@ -188,6 +188,13 @@ export default class PrismaProductRepository implements IProductRepository {
         });
     }
 
+    async updateStock(id: string, newStock: number): Promise<void> {
+        await this.prisma.product.update({
+            where: { id },
+            data: { stock: newStock },
+        });
+    }
+
     private mapToEntity(prismaProduct: Prisma.ProductGetPayload<{}>): Product {
         return new Product({
             id: prismaProduct.id,

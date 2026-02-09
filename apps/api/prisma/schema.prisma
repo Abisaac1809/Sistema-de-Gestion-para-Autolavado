@@ -239,6 +239,8 @@ model Order {
   vehiclePlate   String?     @map("vehicle_plate") @db.VarChar(20)
   vehicleModel   String      @map("vehicle_model") @db.VarChar(50)
   status         OrderStatus @default(PENDING)
+  startedAt      DateTime?   @map("started_at") @db.Timestamp(6)
+  completedAt    DateTime?   @map("completed_at") @db.Timestamp(6)
   totalEstimated Decimal     @map("total_estimated") @db.Decimal(10, 2)
   createdAt      DateTime    @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt      DateTime    @updatedAt @map("updated_at") @db.Timestamp(6)
