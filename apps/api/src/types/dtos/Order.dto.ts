@@ -1,4 +1,4 @@
-import { OrderStatus } from '../enums';
+import { OrderStatus, PaymentStatus } from '../enums';
 import { OrderToCreateType, OrderToUpdateType, OrderStatusChangeType, OrderFiltersType } from '../../schemas/Order.schema';
 import { PublicOrderDetail } from './OrderDetail.dto';
 import { PublicCustomer } from './Customer.dto';
@@ -35,6 +35,7 @@ export type OrderType = {
     vehiclePlate: string | null;
     vehicleModel: string;
     status: OrderStatus;
+    paymentStatus: PaymentStatus;
     totalEstimated: number;
     startedAt: Date | null;
     completedAt: Date | null;
@@ -56,6 +57,7 @@ export type PublicOrder = {
     vehiclePlate: string | null;
     vehicleModel: string;
     status: OrderStatus;
+    paymentStatus: PaymentStatus;
     totalEstimated: number;
     startedAt: Date | null;
     completedAt: Date | null;

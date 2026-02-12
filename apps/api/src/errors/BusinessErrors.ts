@@ -122,3 +122,24 @@ export class InvalidOrderDetailError extends BusinessError {
     public readonly name = 'InvalidOrderDetailError';
     public readonly statusCode = 400;
 }
+
+// Sale-specific errors
+export class SaleNotFoundError extends BusinessError {
+    public readonly name = 'SaleNotFoundError';
+    public readonly statusCode = 404;
+}
+
+export class InvalidSaleStatusTransitionError extends BusinessError {
+    public readonly name = 'InvalidSaleStatusTransitionError';
+    public readonly statusCode = 400;
+}
+
+export class OrderAlreadyHasSaleError extends BusinessError {
+    public readonly name = 'OrderAlreadyHasSaleError';
+    public readonly statusCode = 409;
+}
+
+export class InvalidOrderForSaleError extends BusinessError {
+    public readonly name = 'InvalidOrderForSaleError';
+    public readonly statusCode = 400;
+}

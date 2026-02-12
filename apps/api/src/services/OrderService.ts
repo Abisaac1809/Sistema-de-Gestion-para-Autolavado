@@ -26,7 +26,7 @@ import {
     InvalidOrderStatusTransitionError,
 } from '../errors/BusinessErrors';
 import OrderMapper from '../mappers/OrderMapper';
-import { OrderStatus } from '../types/enums';
+import { OrderStatus, PaymentStatus } from '../types/enums';
 
 export default class OrderService implements IOrderService {
     private readonly VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
@@ -224,6 +224,17 @@ export default class OrderService implements IOrderService {
         }
 
         const updatedOrder = await this.orderRepository.updateStatus(id, data.status, timestamps);
+
+        return OrderMapper.toPublicOrder(updatedOrder);
+    }
+
+    async updatePaymentStatus(id: string, status: PaymentStatus): Promise<PublicOrder> {
+        const order = await this.orderRepository.getById(id);
+        if (!order) {
+            throw new OrderNotFoundError(`Order with ID ${id} not found`);
+        }
+
+        const updatedOrder = await this.orderRepository.updatePaymentStatus(id, status);
 
         return OrderMapper.toPublicOrder(updatedOrder);
     }

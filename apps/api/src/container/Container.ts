@@ -8,6 +8,8 @@ import PrismaCustomerRepository from '../repositories/PrismaCustomerRepository';
 import PrismaNotificationContactRepository from '../repositories/PrismaNotificationContactRepository';
 import PrismaOrderRepository from '../repositories/PrismaOrderRepository';
 import PrismaOrderDetailRepository from '../repositories/PrismaOrderDetailRepository';
+import PrismaExchangeRateRepository from '../repositories/PrismaExchangeRateRepository';
+import PrismaSaleRepository from '../repositories/PrismaSaleRepository';
 
 import CategoryService from '../services/CategoryService';
 import ProductService from '../services/ProductService';
@@ -16,6 +18,7 @@ import PaymentMethodService from '../services/PaymentMethodService';
 import CustomerService from '../services/CustomerService';
 import NotificationContactService from '../services/NotificationContactService';
 import OrderService from '../services/OrderService';
+import SaleService from '../services/SaleService';
 
 export interface Container {
     prisma: PrismaClient;
@@ -28,6 +31,8 @@ export interface Container {
     notificationContactRepository: PrismaNotificationContactRepository;
     orderRepository: PrismaOrderRepository;
     orderDetailRepository: PrismaOrderDetailRepository;
+    exchangeRateRepository: PrismaExchangeRateRepository;
+    saleRepository: PrismaSaleRepository;
     categoryService: CategoryService;
     productService: ProductService;
     serviceService: ServiceService;
@@ -35,6 +40,7 @@ export interface Container {
     customerService: CustomerService;
     notificationContactService: NotificationContactService;
     orderService: OrderService;
+    saleService: SaleService;
 }
 
 export function createContainer(prisma: PrismaClient): Container {
@@ -46,6 +52,8 @@ export function createContainer(prisma: PrismaClient): Container {
     const notificationContactRepository = new PrismaNotificationContactRepository(prisma);
     const orderRepository = new PrismaOrderRepository(prisma);
     const orderDetailRepository = new PrismaOrderDetailRepository(prisma);
+    const exchangeRateRepository = new PrismaExchangeRateRepository(prisma);
+    const saleRepository = new PrismaSaleRepository(prisma);
 
     const categoryService = new CategoryService(categoryRepository, productRepository);
     const productService = new ProductService(productRepository, categoryRepository);
@@ -60,6 +68,13 @@ export function createContainer(prisma: PrismaClient): Container {
         productRepository,
         serviceRepository
     );
+    const saleService = new SaleService(
+        saleRepository,
+        productRepository,
+        serviceRepository,
+        orderRepository,
+        exchangeRateRepository
+    );
 
     return {
         prisma,
@@ -71,6 +86,8 @@ export function createContainer(prisma: PrismaClient): Container {
         notificationContactRepository,
         orderRepository,
         orderDetailRepository,
+        exchangeRateRepository,
+        saleRepository,
         categoryService,
         productService,
         serviceService,
@@ -78,5 +95,6 @@ export function createContainer(prisma: PrismaClient): Container {
         customerService,
         notificationContactService,
         orderService,
+        saleService,
     };
 }

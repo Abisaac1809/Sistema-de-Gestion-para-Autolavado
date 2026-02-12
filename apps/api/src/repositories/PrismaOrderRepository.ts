@@ -7,7 +7,7 @@ import Service from '../entities/Service';
 import Product from '../entities/Product';
 import { OrderToUpdateType } from '../types/dtos/Order.dto';
 import { OrderFiltersForRepository, OrderFiltersForCount } from '../types/dtos/Order.dto';
-import { OrderStatus } from '../types/enums';
+import { OrderStatus, PaymentStatus } from '../types/enums';
 
 export default class PrismaOrderRepository implements IOrderRepository {
     constructor(private prisma: PrismaClient) { }
@@ -162,6 +162,15 @@ export default class PrismaOrderRepository implements IOrderRepository {
         return this.mapToEntity(updated);
     }
 
+    async updatePaymentStatus(id: string, status: PaymentStatus): Promise<Order> {
+        const updated = await this.prisma.order.update({
+            where: { id },
+            data: { paymentStatus: status },
+            include: this.includeRelations,
+        });
+        return this.mapToEntity(updated);
+    }
+
     async updateTotal(id: string, totalEstimated: number): Promise<Order> {
         const updated = await this.prisma.order.update({
             where: { id },
@@ -236,6 +245,7 @@ export default class PrismaOrderRepository implements IOrderRepository {
             vehiclePlate: prismaOrder.vehiclePlate,
             vehicleModel: prismaOrder.vehicleModel,
             status: prismaOrder.status as OrderStatus,
+            paymentStatus: prismaOrder.paymentStatus as any,
             totalEstimated: prismaOrder.totalEstimated.toNumber(),
             startedAt: prismaOrder.startedAt,
             completedAt: prismaOrder.completedAt,

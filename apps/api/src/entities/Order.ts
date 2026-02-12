@@ -1,4 +1,4 @@
-import { OrderStatus } from "../types/enums";
+import { OrderStatus, PaymentStatus } from "../types/enums";
 import Customer from "./Customer";
 import OrderDetail from "./OrderDetail";
 import { OrderType } from "../types/dtos/Order.dto";
@@ -10,6 +10,7 @@ export default class Order {
     public vehiclePlate: string | null;
     public vehicleModel: string;
     public status: OrderStatus;
+    public paymentStatus: PaymentStatus;
     public totalEstimated: number;
     public startedAt: Date | null;
     public completedAt: Date | null;
@@ -24,6 +25,7 @@ export default class Order {
         this.vehiclePlate = data.vehiclePlate;
         this.vehicleModel = data.vehicleModel;
         this.status = data.status;
+        this.paymentStatus = data.paymentStatus;
         this.totalEstimated = data.totalEstimated;
         this.startedAt = data.startedAt;
         this.completedAt = data.completedAt;

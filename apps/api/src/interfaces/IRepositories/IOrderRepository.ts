@@ -1,7 +1,7 @@
 import Order from '../../entities/Order';
 import { OrderToSave, OrderToUpdateType } from '../../types/dtos/Order.dto';
 import { OrderFiltersForRepository, OrderFiltersForCount } from '../../types/dtos/Order.dto';
-import { OrderStatus } from '../../types/enums';
+import { OrderStatus, PaymentStatus } from '../../types/enums';
 
 export default interface IOrderRepository {
     create(data: OrderToSave): Promise<Order>;
@@ -14,6 +14,7 @@ export default interface IOrderRepository {
         startedAt?: Date;
         completedAt?: Date;
     }): Promise<Order>;
+    updatePaymentStatus(id: string, status: PaymentStatus): Promise<Order>;
     updateTotal(id: string, totalEstimated: number): Promise<Order>;
     softDelete(id: string): Promise<void>;
 }

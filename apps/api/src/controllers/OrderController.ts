@@ -1,10 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
 import IOrderService from '../interfaces/IServices/IOrderService';
+import ISaleService from '../interfaces/IServices/ISaleService';
 import { OrderToCreateType, OrderToUpdateType, OrderStatusChangeType, OrderFiltersForService } from '../types/dtos/Order.dto';
 import { OrderDetailToCreateType } from '../types/dtos/OrderDetail.dto';
+import { OrderPaymentStatusChangeType } from '../schemas/Order.schema';
+import { OrderStatus, PaymentStatus } from '../types/enums';
 
 export default class OrderController {
-    constructor(private orderService: IOrderService) { }
+    constructor(
+        private orderService: IOrderService,
+        private saleService: ISaleService
+    ) { }
 
     create = async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -74,8 +80,48 @@ export default class OrderController {
             }
             const statusData: OrderStatusChangeType = req.body;
             const updatedOrder = await this.orderService.changeOrderStatus(id, statusData);
+
+            // Trigger: If order is COMPLETED and PAID, auto-create sale
+            if (updatedOrder.status === OrderStatus.COMPLETED && updatedOrder.paymentStatus === PaymentStatus.PAID) {
+                try {
+                    await this.saleService.createFromOrder(id);
+                } catch (saleError) {
+                    // Log but don't fail the status update - sale creation is secondary
+                    console.error('Failed to auto-create sale from order:', saleError);
+                }
+            }
+
             res.status(200).json({
                 message: 'Order status updated successfully',
+                order: updatedOrder,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    updatePaymentStatus = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { id } = req.params;
+            if (!id || typeof id !== 'string') {
+                res.status(400).json({ message: 'Order ID is required' });
+                return;
+            }
+            const { status }: OrderPaymentStatusChangeType = req.body;
+            const updatedOrder = await this.orderService.updatePaymentStatus(id, status);
+
+            // Trigger: If order is COMPLETED and PAID, auto-create sale
+            if (updatedOrder.status === OrderStatus.COMPLETED && updatedOrder.paymentStatus === PaymentStatus.PAID) {
+                try {
+                    await this.saleService.createFromOrder(id);
+                } catch (saleError) {
+                    // Log but don't fail the payment update - sale creation is secondary
+                    console.error('Failed to auto-create sale from order:', saleError);
+                }
+            }
+
+            res.status(200).json({
+                message: 'Order payment status updated successfully',
                 order: updatedOrder,
             });
         } catch (error) {

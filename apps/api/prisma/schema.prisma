@@ -51,6 +51,11 @@ enum OrderStatus {
   CANCELLED
 }
 
+enum PaymentStatus {
+  PENDING
+  PAID
+}
+
 enum Currency {
   USD
   VES
@@ -205,6 +210,7 @@ model Customer {
 
   // Relations
   orders Order[]
+  sales  Sale[]
 
   @@index([phone])
   @@map("customers")
@@ -234,17 +240,18 @@ model PaymentMethod {
 }
 
 model Order {
-  id             String      @id @default(uuid()) @db.Uuid
-  customerId     String      @map("customer_id") @db.Uuid
-  vehiclePlate   String?     @map("vehicle_plate") @db.VarChar(20)
-  vehicleModel   String      @map("vehicle_model") @db.VarChar(50)
-  status         OrderStatus @default(PENDING)
-  startedAt      DateTime?   @map("started_at") @db.Timestamp(6)
-  completedAt    DateTime?   @map("completed_at") @db.Timestamp(6)
-  totalEstimated Decimal     @map("total_estimated") @db.Decimal(10, 2)
-  createdAt      DateTime    @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt      DateTime    @updatedAt @map("updated_at") @db.Timestamp(6)
-  deletedAt      DateTime?   @map("deleted_at") @db.Timestamp(6)
+  id             String        @id @default(uuid()) @db.Uuid
+  customerId     String        @map("customer_id") @db.Uuid
+  vehiclePlate   String?       @map("vehicle_plate") @db.VarChar(20)
+  vehicleModel   String        @map("vehicle_model") @db.VarChar(50)
+  status         OrderStatus   @default(PENDING)
+  paymentStatus  PaymentStatus @default(PENDING) @map("payment_status")
+  startedAt      DateTime?     @map("started_at") @db.Timestamp(6)
+  completedAt    DateTime?     @map("completed_at") @db.Timestamp(6)
+  totalEstimated Decimal       @map("total_estimated") @db.Decimal(10, 2)
+  createdAt      DateTime      @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt      DateTime      @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt      DateTime?     @map("deleted_at") @db.Timestamp(6)
 
   // Relations
   customer     Customer      @relation(fields: [customerId], references: [id], onDelete: Restrict)
@@ -282,8 +289,9 @@ model OrderDetail {
 
 model Sale {
   id              String     @id @default(uuid()) @db.Uuid
+  customerId      String     @map("customer_id") @db.Uuid
   orderId         String?    @unique @map("order_id") @db.Uuid
-  paymentMethodId String     @map("payment_method_id") @db.Uuid
+  paymentMethodId String?    @map("payment_method_id") @db.Uuid
   total           Decimal    @db.Decimal(10, 2)
   dollarRate      Decimal    @map("dollar_rate") @db.Decimal(10, 2)
   status          SaleStatus @default(COMPLETED)
@@ -292,10 +300,12 @@ model Sale {
   deletedAt       DateTime?  @map("deleted_at") @db.Timestamp(6)
 
   // Relations
-  order         Order?        @relation(fields: [orderId], references: [id], onDelete: SetNull)
-  paymentMethod PaymentMethod @relation(fields: [paymentMethodId], references: [id], onDelete: Restrict)
+  customer      Customer       @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  order         Order?         @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  paymentMethod PaymentMethod? @relation(fields: [paymentMethodId], references: [id], onDelete: Restrict)
   saleDetails   SaleDetail[]
 
+  @@index([customerId])
   @@index([paymentMethodId])
   @@index([status])
   @@index([createdAt])

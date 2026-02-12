@@ -17,6 +17,7 @@ export default class OrderMapper {
             vehiclePlate: order.vehiclePlate,
             vehicleModel: order.vehicleModel,
             status: order.status,
+            paymentStatus: order.paymentStatus,
             totalEstimated: order.totalEstimated,
             startedAt: order.startedAt,
             completedAt: order.completedAt,

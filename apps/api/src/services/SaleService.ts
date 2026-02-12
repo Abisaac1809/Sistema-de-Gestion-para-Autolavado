@@ -1,0 +1,220 @@
+import ISaleService from '../interfaces/IServices/ISaleService';
+import ISaleRepository from '../interfaces/IRepositories/ISaleRepository';
+import IProductRepository from '../interfaces/IRepositories/IProductRepository';
+import IServiceRepository from '../interfaces/IRepositories/IServiceRepository';
+import IOrderRepository from '../interfaces/IRepositories/IOrderRepository';
+import IExchangeRateRepository from '../interfaces/IRepositories/IExchangeRateRepository';
+import {
+    SaleToSave,
+    SaleDetailType,
+    PublicSale,
+    SaleFiltersForService,
+    ListOfSales,
+} from '../types/dtos/Sale.dto';
+import { SaleStatus, OrderStatus, PaymentStatus } from '../types/enums';
+import {
+    SaleNotFoundError,
+    InvalidSaleStatusTransitionError,
+    OrderNotFoundError,
+    OrderAlreadyHasSaleError,
+    InvalidOrderForSaleError,
+    ProductNotFoundError,
+    InsufficientStockError,
+    ServiceNotFoundError,
+    ServiceInactiveError,
+} from '../errors/BusinessErrors';
+import SaleMapper from '../mappers/SaleMapper';
+
+export default class SaleService implements ISaleService {
+    private readonly VALID_TRANSITIONS: Record<SaleStatus, SaleStatus[]> = {
+        [SaleStatus.COMPLETED]: [SaleStatus.REFUNDED],
+        [SaleStatus.REFUNDED]: [SaleStatus.CANCELLED],
+        [SaleStatus.CANCELLED]: [],
+    };
+
+    constructor(
+        private saleRepository: ISaleRepository,
+        private productRepository: IProductRepository,
+        private serviceRepository: IServiceRepository,
+        private orderRepository: IOrderRepository,
+        private exchangeRateRepository: IExchangeRateRepository
+    ) { }
+
+    async createQuickSale(data: SaleToSave): Promise<PublicSale> {
+        const dollarRate = await this.exchangeRateRepository.getCurrentRate();
+
+        const resolvedDetails: SaleDetailType[] = [];
+        const productsToDeduct: Array<{ id: string; newStock: number }> = [];
+
+        for (const detail of data.details) {
+            if (detail.serviceId) {
+                const service = await this.serviceRepository.getById(detail.serviceId);
+                if (!service) {
+                    throw new ServiceNotFoundError(`Service with ID ${detail.serviceId} not found`);
+                }
+                if (!service.status) {
+                    throw new ServiceInactiveError(`Service "${service.name}" is inactive and cannot be sold`);
+                }
+
+                const unitPrice = detail.unitPrice ?? service.price;
+                resolvedDetails.push({
+                    serviceId: detail.serviceId,
+                    productId: undefined,
+                    quantity: detail.quantity,
+                    unitPrice,
+                });
+            } else if (detail.productId) {
+                const product = await this.productRepository.get(detail.productId);
+                if (!product) {
+                    throw new ProductNotFoundError(`Product with ID ${detail.productId} not found`);
+                }
+
+                if (product.stock < detail.quantity) {
+                    throw new InsufficientStockError(
+                        `Product "${product.name}" has insufficient stock. Available: ${product.stock}, Requested: ${detail.quantity}`
+                    );
+                }
+
+                const unitPrice = detail.unitPrice ?? product.costPrice;
+                resolvedDetails.push({
+                    serviceId: undefined,
+                    productId: detail.productId,
+                    quantity: detail.quantity,
+                    unitPrice,
+                });
+
+                productsToDeduct.push({
+                    id: detail.productId,
+                    newStock: product.stock - detail.quantity,
+                });
+            }
+        }
+
+        for (const productUpdate of productsToDeduct) {
+            await this.productRepository.updateStock(productUpdate.id, productUpdate.newStock);
+        }
+
+        const saleData: SaleToSave = {
+            customerId: data.customerId,
+            paymentMethodId: data.paymentMethodId,
+            dollarRate,
+            details: resolvedDetails,
+        };
+
+        const sale = await this.saleRepository.create(saleData);
+
+        return SaleMapper.toPublicSale(sale);
+    }
+
+    async createFromOrder(orderId: string): Promise<PublicSale> {
+        const order = await this.orderRepository.getById(orderId);
+        if (!order) {
+            throw new OrderNotFoundError(`Order with ID ${orderId} not found`);
+        }
+
+        if (order.status !== OrderStatus.COMPLETED) {
+            throw new InvalidOrderForSaleError(
+                `Order must be in COMPLETED status to create a sale. Current status: ${order.status}`
+            );
+        }
+
+        if (order.paymentStatus !== PaymentStatus.PAID) {
+            throw new InvalidOrderForSaleError(
+                `Order payment must be PAID to create a sale. Current payment status: ${order.paymentStatus}`
+            );
+        }
+
+        const existingSales = await this.saleRepository.list({
+            orderId,
+            limit: 1,
+            offset: 0,
+        });
+        if (existingSales.length > 0) {
+            throw new OrderAlreadyHasSaleError(`Order ${orderId} already has a sale associated with it`);
+        }
+
+        const dollarRate = await this.exchangeRateRepository.getCurrentRate();
+
+        const saleDetails: SaleDetailType[] = order.orderDetails.map((detail) => ({
+            serviceId: detail.serviceId ?? undefined,
+            productId: detail.productId ?? undefined,
+            quantity: detail.quantity,
+            unitPrice: detail.priceAtTime,
+        }));
+
+        const saleData: SaleToSave = {
+            customerId: order.customerId,
+            orderId: order.id,
+            paymentMethodId: undefined,
+            dollarRate,
+            details: saleDetails,
+        };
+
+        const sale = await this.saleRepository.create(saleData);
+
+        return SaleMapper.toPublicSale(sale);
+    }
+
+    async getById(id: string): Promise<PublicSale> {
+        const sale = await this.saleRepository.getById(id);
+        if (!sale) {
+            throw new SaleNotFoundError(`Sale with ID ${id} not found`);
+        }
+
+        return SaleMapper.toPublicSale(sale);
+    }
+
+    async list(filters: SaleFiltersForService): Promise<ListOfSales> {
+        const offset = (filters.page - 1) * filters.limit;
+
+        const [sales, totalRecords] = await Promise.all([
+            this.saleRepository.list({
+                search: filters.search,
+                status: filters.status,
+                orderId: filters.orderId,
+                fromDate: filters.fromDate,
+                toDate: filters.toDate,
+                limit: filters.limit,
+                offset,
+            }),
+            this.saleRepository.count({
+                search: filters.search,
+                status: filters.status,
+                orderId: filters.orderId,
+                fromDate: filters.fromDate,
+                toDate: filters.toDate,
+            }),
+        ]);
+
+        const data = sales.map((sale) => SaleMapper.toPublicSale(sale));
+
+        const totalPages = Math.ceil(totalRecords / filters.limit);
+
+        return {
+            data,
+            meta: {
+                totalRecords,
+                currentPage: filters.page,
+                limit: filters.limit,
+                totalPages,
+            },
+        };
+    }
+
+    async updateStatus(id: string, status: SaleStatus): Promise<PublicSale> {
+        const sale = await this.saleRepository.getById(id);
+        if (!sale) {
+            throw new SaleNotFoundError(`Sale with ID ${id} not found`);
+        }
+
+        if (!this.VALID_TRANSITIONS[sale.status].includes(status)) {
+            throw new InvalidSaleStatusTransitionError(
+                `Cannot transition from ${sale.status} to ${status}. Valid transitions: ${this.VALID_TRANSITIONS[sale.status].join(', ')}`
+            );
+        }
+
+        const updatedSale = await this.saleRepository.updateStatus(id, status);
+
+        return SaleMapper.toPublicSale(updatedSale);
+    }
+}

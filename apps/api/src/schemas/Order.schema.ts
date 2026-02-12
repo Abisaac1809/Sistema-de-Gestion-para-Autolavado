@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { OrderStatus } from '../types/enums';
+import { OrderStatus, PaymentStatus } from '../types/enums';
 import { OrderDetailToCreate } from './OrderDetail.schema';
 
 export const OrderToCreate = z.object({
@@ -31,6 +31,12 @@ export const OrderStatusChange = z.object({
 });
 
 export type OrderStatusChangeType = z.infer<typeof OrderStatusChange>;
+
+export const OrderPaymentStatusChange = z.object({
+    status: z.nativeEnum(PaymentStatus)
+});
+
+export type OrderPaymentStatusChangeType = z.infer<typeof OrderPaymentStatusChange>;
 
 export const OrderFilters = z.object({
     search: z.string().min(1).optional(),

@@ -35,6 +35,11 @@ export enum OrderStatus {
     CANCELLED = 'CANCELLED',
 }
 
+export enum PaymentStatus {
+    PENDING = 'PENDING',
+    PAID = 'PAID',
+}
+
 export enum Currency {
     USD = 'USD',
     VES = 'VES',
