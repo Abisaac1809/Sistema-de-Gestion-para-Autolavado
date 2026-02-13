@@ -6,3 +6,12 @@ export abstract class InternalServerError extends Error {
         super(message);
     }
 }
+
+export class InvalidExchangeRateSourceError extends InternalServerError {
+    public readonly name = "InvalidExchangeRateSourceError";
+    public readonly statusCode = 500;
+
+    constructor(source: string) {
+        super(`The exchange rate source '${source}' is invalid or not supported.`);
+    }
+}

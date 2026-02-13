@@ -6,7 +6,7 @@ export default class ExchangeRateConfig {
     public customRate: number;
     public bcvUsdRate: number;
     public bcvEurRate: number;
-    public autoUpdate: Date;
+    public autoUpdate: boolean;
     public lastSync: Date;
     public createdAt: Date;
     public updatedAt: Date;

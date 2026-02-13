@@ -1,9 +1,9 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
 import { Agent } from "https";
-import IExchangeRateProviderService from "../interfaces/IServices/IExchangeProviderService";
+import IExchangeRateProviderService from "../interfaces/IServices/IExchangeProviderService.js";
 
-export default class BCVExchangeRatesService implements IExchangeRateProviderService {
+export default class BCVExchangeRateProviderService implements IExchangeRateProviderService {
     private httpsAgent: Agent;
     private usdRate: number;
     private eurRate: number;
@@ -44,10 +44,15 @@ export default class BCVExchangeRatesService implements IExchangeRateProviderSer
     }
 
     private async updateRates(): Promise<void> {
-        const exchangeRates = await this.getExchangeRatesFromBCV();
-        this.usdRate = exchangeRates._dolar;
-        this.eurRate = exchangeRates._euro;
-        this.lastUpdated = Date.now();
+        try {
+            const exchangeRates = await this.getExchangeRatesFromBCV();
+            this.usdRate = exchangeRates._dolar;
+            this.eurRate = exchangeRates._euro;
+            this.lastUpdated = Date.now();
+        } catch (error) {
+            console.error('Error fetching exchange rates from BCV:', error);
+            throw error; // Propagar para que el servicio use fallback
+        }
     }
 
     private async getExchangeRatesFromBCV() {

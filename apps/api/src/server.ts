@@ -14,6 +14,7 @@ import createOrderRouter from './routers/OrderRouter';
 import createSaleRouter from './routers/SaleRouter';
 import { createContainer } from './container/Container';
 import httpLogger from './middlewares/HttpLogger';
+import createExchangeRateRouter from './routers/ExchangeRateRouter';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -35,6 +36,7 @@ app.use('/api/customers', createCustomerRouter(container.customerService));
 app.use('/api/config/notifications', createNotificationContactRouter(container.notificationContactService));
 app.use('/api/orders', createOrderRouter(container.orderService, container.saleService));
 app.use('/api/sales', createSaleRouter(container.saleService));
+app.use('/api/exchange-rates', createExchangeRateRouter(container.exchangeRateService));
 
 app.use(globalErrorHandler);
 
