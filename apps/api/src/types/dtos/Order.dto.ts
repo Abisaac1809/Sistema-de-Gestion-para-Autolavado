@@ -2,8 +2,10 @@ import { OrderStatus, PaymentStatus } from '../enums';
 import { OrderToCreateType, OrderToUpdateType, OrderStatusChangeType, OrderFiltersType } from '../../schemas/Order.schema';
 import { PublicOrderDetail } from './OrderDetail.dto';
 import { PublicCustomer } from './Customer.dto';
+import { PublicPayment } from './Payment.dto';
 import Customer from '../../entities/Customer';
 import OrderDetail from '../../entities/OrderDetail';
+import Payment from '../../entities/Payment';
 
 export type { OrderToCreateType, OrderToUpdateType, OrderStatusChangeType, OrderFiltersType };
 
@@ -16,7 +18,7 @@ export type OrderItemSummary = {
 export type OrderSummary = {
     id: string;
     status: OrderStatus;
-    totalEstimated: number;
+    totalUSD: number;
     createdAt: Date;
     startedAt: Date | null;
     completedAt: Date | null;
@@ -32,11 +34,16 @@ export type OrderType = {
     id: string;
     customer: Customer;
     orderDetails: OrderDetail[];
+    payments?: Payment[];
     vehiclePlate: string | null;
     vehicleModel: string;
     status: OrderStatus;
     paymentStatus: PaymentStatus;
-    totalEstimated: number;
+    dollarRate: number;
+    totalUSD: number;
+    totalVES: number;
+    totalPaidUSD: number;
+    totalPaidVES: number;
     startedAt: Date | null;
     completedAt: Date | null;
     createdAt: Date;
@@ -48,7 +55,15 @@ export type OrderToSave = {
     customerId: string;
     vehiclePlate: string | null;
     vehicleModel: string;
-    totalEstimated: number;
+    dollarRate: number;
+    totalUSD: number;
+    totalVES: number;
+}
+
+export type OrderDurations = {
+    pendingMinutes: number | null;
+    inProgressMinutes: number | null;
+    totalMinutes: number | null;
 }
 
 export type PublicOrder = {
@@ -58,24 +73,25 @@ export type PublicOrder = {
     vehicleModel: string;
     status: OrderStatus;
     paymentStatus: PaymentStatus;
-    totalEstimated: number;
+    dollarRate: number;
+    totalUSD: number;
+    totalVES: number;
+    totalPaidUSD: number;
+    totalPaidVES: number;
     startedAt: Date | null;
     completedAt: Date | null;
     createdAt: Date;
     updatedAt: Date;
     customer: PublicCustomer;
     orderDetails: PublicOrderDetail[];
-    durations: {
-        pendingMinutes: number | null;
-        inProgressMinutes: number | null;
-        totalMinutes: number | null;
-    };
+    payments: PublicPayment[];
+    durations: OrderDurations;
 }
 
 export type PublicOrderListItem = {
     id: string;
     status: OrderStatus;
-    totalEstimated: number;
+    totalUSD: number;
     createdAt: Date;
     updatedAt: Date;
     startedAt: Date | null;

@@ -5,14 +5,16 @@ import OrderDetail from '../entities/OrderDetail';
 import Customer from '../entities/Customer';
 import Service from '../entities/Service';
 import Product from '../entities/Product';
-import { OrderToUpdateType } from '../types/dtos/Order.dto';
+import Payment from '../entities/Payment';
+import PaymentMethod from '../entities/PaymentMethod';
+import { OrderToSave, OrderToUpdateType } from '../types/dtos/Order.dto';
 import { OrderFiltersForRepository, OrderFiltersForCount } from '../types/dtos/Order.dto';
 import { OrderStatus, PaymentStatus } from '../types/enums';
 
 export default class PrismaOrderRepository implements IOrderRepository {
     constructor(private prisma: PrismaClient) { }
 
-    private readonly includeRelations = {
+    private readonly includeRelationsBase = {
         customer: true,
         orderDetails: {
             where: { deletedAt: null },
@@ -24,25 +26,34 @@ export default class PrismaOrderRepository implements IOrderRepository {
         }
     } as const;
 
-    async create(data: {
-        customerId: string;
-        vehiclePlate: string | null;
-        vehicleModel: string;
-        totalEstimated: number;
-    }): Promise<Order> {
-        // Ensure totalEstimated is a valid number
-        const validTotal = isNaN(data.totalEstimated) || !isFinite(data.totalEstimated) 
-            ? 0 
-            : data.totalEstimated;
+    private readonly includeRelationsDetail = {
+        customer: true,
+        orderDetails: {
+            where: { deletedAt: null },
+            include: {
+                service: true,
+                product: true
+            },
+            orderBy: { createdAt: 'asc' as const }
+        },
+        payments: {
+            where: { deletedAt: null },
+            include: { paymentMethod: true },
+            orderBy: { paymentDate: 'asc' as const }
+        }
+    } as const;
 
+    async create(data: OrderToSave): Promise<Order> {
         const created = await this.prisma.order.create({
             data: {
                 customerId: data.customerId,
                 vehiclePlate: data.vehiclePlate,
                 vehicleModel: data.vehicleModel,
-                totalEstimated: validTotal,
+                dollarRate: data.dollarRate,
+                totalUsd: data.totalUSD,
+                totalVes: data.totalVES,
             },
-            include: this.includeRelations,
+            include: this.includeRelationsBase,
         });
         return this.mapToEntity(created);
     }
@@ -50,11 +61,10 @@ export default class PrismaOrderRepository implements IOrderRepository {
     async getById(id: string): Promise<Order | null> {
         const order = await this.prisma.order.findFirst({
             where: { id, deletedAt: null },
-            include: this.includeRelations,
+            include: this.includeRelationsDetail,
         });
         return order ? this.mapToEntity(order) : null;
     }
-
 
     async list(filters: OrderFiltersForRepository): Promise<Order[]> {
         const where: Prisma.OrderWhereInput = {
@@ -93,7 +103,7 @@ export default class PrismaOrderRepository implements IOrderRepository {
             skip: filters.offset,
             take: filters.limit,
             orderBy: { createdAt: 'desc' },
-            include: this.includeRelations,
+            include: this.includeRelationsBase,
         });
 
         return orders.map(o => this.mapToEntity(o));
@@ -141,7 +151,7 @@ export default class PrismaOrderRepository implements IOrderRepository {
                 vehiclePlate: data.vehiclePlate,
                 vehicleModel: data.vehicleModel,
             },
-            include: this.includeRelations,
+            include: this.includeRelationsBase,
         });
         return this.mapToEntity(updated);
     }
@@ -157,7 +167,7 @@ export default class PrismaOrderRepository implements IOrderRepository {
                 ...(timestamps.startedAt && { startedAt: timestamps.startedAt }),
                 ...(timestamps.completedAt && { completedAt: timestamps.completedAt }),
             },
-            include: this.includeRelations,
+            include: this.includeRelationsBase,
         });
         return this.mapToEntity(updated);
     }
@@ -166,16 +176,25 @@ export default class PrismaOrderRepository implements IOrderRepository {
         const updated = await this.prisma.order.update({
             where: { id },
             data: { paymentStatus: status },
-            include: this.includeRelations,
+            include: this.includeRelationsBase,
         });
         return this.mapToEntity(updated);
     }
 
-    async updateTotal(id: string, totalEstimated: number): Promise<Order> {
+    async updateTotal(id: string, totalUSD: number, totalVES: number): Promise<Order> {
         const updated = await this.prisma.order.update({
             where: { id },
-            data: { totalEstimated },
-            include: this.includeRelations,
+            data: { totalUsd: totalUSD, totalVes: totalVES },
+            include: this.includeRelationsBase,
+        });
+        return this.mapToEntity(updated);
+    }
+
+    async updateTotalPaid(id: string, totalPaidUSD: number, totalPaidVES: number): Promise<Order> {
+        const updated = await this.prisma.order.update({
+            where: { id },
+            data: { totalPaidUsd: totalPaidUSD, totalPaidVes: totalPaidVES },
+            include: this.includeRelationsBase,
         });
         return this.mapToEntity(updated);
     }
@@ -238,15 +257,56 @@ export default class PrismaOrderRepository implements IOrderRepository {
             });
         });
 
+        const payments = prismaOrder.payments
+            ? prismaOrder.payments.map((p: any) => {
+                const paymentMethod = new PaymentMethod({
+                    id: p.paymentMethod.id,
+                    name: p.paymentMethod.name,
+                    description: p.paymentMethod.description,
+                    currency: p.paymentMethod.currency,
+                    bankName: p.paymentMethod.bankName,
+                    accountHolder: p.paymentMethod.accountHolder,
+                    accountNumber: p.paymentMethod.accountNumber,
+                    idCard: p.paymentMethod.idCard,
+                    phoneNumber: p.paymentMethod.phoneNumber,
+                    email: p.paymentMethod.email,
+                    isActive: p.paymentMethod.isActive,
+                    createdAt: p.paymentMethod.createdAt,
+                    updatedAt: p.paymentMethod.updatedAt,
+                    deletedAt: p.paymentMethod.deletedAt,
+                });
+                return new Payment({
+                    id: p.id,
+                    orderId: p.orderId,
+                    saleId: p.saleId,
+                    paymentMethod,
+                    amountUsd: p.amountUsd.toNumber(),
+                    exchangeRate: p.exchangeRate.toNumber(),
+                    amountVes: p.amountVes.toNumber(),
+                    originalCurrency: p.originalCurrency,
+                    paymentDate: p.paymentDate,
+                    notes: p.notes,
+                    createdAt: p.createdAt,
+                    updatedAt: p.updatedAt,
+                    deletedAt: p.deletedAt,
+                });
+            })
+            : undefined;
+
         return new Order({
             id: prismaOrder.id,
             customer,
             orderDetails,
+            payments,
             vehiclePlate: prismaOrder.vehiclePlate,
             vehicleModel: prismaOrder.vehicleModel,
             status: prismaOrder.status as OrderStatus,
-            paymentStatus: prismaOrder.paymentStatus as any,
-            totalEstimated: prismaOrder.totalEstimated.toNumber(),
+            paymentStatus: prismaOrder.paymentStatus as PaymentStatus,
+            dollarRate: prismaOrder.dollarRate.toNumber(),
+            totalUSD: prismaOrder.totalUsd.toNumber(),
+            totalVES: prismaOrder.totalVes.toNumber(),
+            totalPaidUSD: prismaOrder.totalPaidUsd.toNumber(),
+            totalPaidVES: prismaOrder.totalPaidVes.toNumber(),
             startedAt: prismaOrder.startedAt,
             completedAt: prismaOrder.completedAt,
             createdAt: prismaOrder.createdAt,

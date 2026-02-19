@@ -155,7 +155,7 @@ export default class PaymentService implements IPaymentService {
 
         const currentTotal = await this.paymentRepository.sumByOrderId(orderId);
         const newTotal = currentTotal + amountUsd;
-        const orderTotal = order.totalEstimated;
+        const orderTotal = order.totalUSD;
 
         if (amountUsd > 0) {
             if (newTotal > orderTotal + this.ROUNDING_TOLERANCE) {

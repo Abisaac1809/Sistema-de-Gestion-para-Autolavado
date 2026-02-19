@@ -74,16 +74,17 @@ export function createContainer(prisma: PrismaClient): Container {
     const paymentMethodService = new PaymentMethodService(paymentMethodRepository);
     const customerService = new CustomerService(customerRepository);
     const notificationContactService = new NotificationContactService(notificationContactRepository);
+    const exchangeRateService = new ExchangeRateService(
+        exchangeRateRepository,
+        bcvExchangeRateProviderService
+    );
     const orderService = new OrderService(
         orderRepository,
         orderDetailRepository,
         customerRepository,
         productRepository,
-        serviceRepository
-    );
-    const exchangeRateService = new ExchangeRateService(
-        exchangeRateRepository,
-        bcvExchangeRateProviderService
+        serviceRepository,
+        exchangeRateService
     );
     const saleService = new SaleService(
         saleRepository,

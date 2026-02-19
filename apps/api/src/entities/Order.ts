@@ -1,17 +1,23 @@
 import { OrderStatus, PaymentStatus } from "../types/enums";
 import Customer from "./Customer";
 import OrderDetail from "./OrderDetail";
+import Payment from "./Payment";
 import { OrderType } from "../types/dtos/Order.dto";
 
 export default class Order {
     public readonly id: string;
     public readonly customer: Customer;
     public readonly orderDetails: OrderDetail[];
+    public payments?: Payment[];
     public vehiclePlate: string | null;
     public vehicleModel: string;
     public status: OrderStatus;
     public paymentStatus: PaymentStatus;
-    public totalEstimated: number;
+    public dollarRate: number;
+    public totalUSD: number;
+    public totalVES: number;
+    public totalPaidUSD: number;
+    public totalPaidVES: number;
     public startedAt: Date | null;
     public completedAt: Date | null;
     public createdAt: Date;
@@ -22,11 +28,16 @@ export default class Order {
         this.id = data.id;
         this.customer = data.customer;
         this.orderDetails = data.orderDetails;
+        this.payments = data.payments;
         this.vehiclePlate = data.vehiclePlate;
         this.vehicleModel = data.vehicleModel;
         this.status = data.status;
         this.paymentStatus = data.paymentStatus;
-        this.totalEstimated = data.totalEstimated;
+        this.dollarRate = data.dollarRate;
+        this.totalUSD = data.totalUSD;
+        this.totalVES = data.totalVES;
+        this.totalPaidUSD = data.totalPaidUSD;
+        this.totalPaidVES = data.totalPaidVES;
         this.startedAt = data.startedAt;
         this.completedAt = data.completedAt;
         this.createdAt = data.createdAt;

@@ -15,6 +15,7 @@ export default interface IOrderRepository {
         completedAt?: Date;
     }): Promise<Order>;
     updatePaymentStatus(id: string, status: PaymentStatus): Promise<Order>;
-    updateTotal(id: string, totalEstimated: number): Promise<Order>;
+    updateTotal(id: string, totalUSD: number, totalVES: number): Promise<Order>;
+    updateTotalPaid(id: string, totalPaidUSD: number, totalPaidVES: number): Promise<Order>;
     softDelete(id: string): Promise<void>;
 }

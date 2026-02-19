@@ -8,6 +8,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // ============================================================================
@@ -248,7 +249,11 @@ model Order {
   paymentStatus  PaymentStatus @default(PENDING) @map("payment_status")
   startedAt      DateTime?     @map("started_at") @db.Timestamp(6)
   completedAt    DateTime?     @map("completed_at") @db.Timestamp(6)
-  totalEstimated Decimal       @map("total_estimated") @db.Decimal(10, 2)
+  dollarRate     Decimal       @default(1)  @map("dollar_rate")     @db.Decimal(10, 2)
+  totalUsd       Decimal                    @map("total_usd")        @db.Decimal(10, 2)
+  totalVes       Decimal       @default(0)  @map("total_ves")        @db.Decimal(12, 2)
+  totalPaidUsd   Decimal       @default(0)  @map("total_paid_usd")   @db.Decimal(10, 2)
+  totalPaidVes   Decimal       @default(0)  @map("total_paid_ves")   @db.Decimal(12, 2)
   createdAt      DateTime      @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt      DateTime      @updatedAt @map("updated_at") @db.Timestamp(6)
   deletedAt      DateTime?     @map("deleted_at") @db.Timestamp(6)

@@ -4,6 +4,7 @@ import IOrderDetailRepository from '../interfaces/IRepositories/IOrderDetailRepo
 import { ICustomerRepository } from '../interfaces/IRepositories/ICustomerRepository';
 import IProductRepository from '../interfaces/IRepositories/IProductRepository';
 import IServiceRepository from '../interfaces/IRepositories/IServiceRepository';
+import IExchangeService from '../interfaces/IServices/IExchangeService';
 import {
     OrderToCreateType,
     OrderToUpdateType,
@@ -33,7 +34,7 @@ export default class OrderService implements IOrderService {
         [OrderStatus.PENDING]: [OrderStatus.IN_PROGRESS, OrderStatus.CANCELLED],
         [OrderStatus.IN_PROGRESS]: [OrderStatus.COMPLETED, OrderStatus.CANCELLED],
         [OrderStatus.COMPLETED]: [OrderStatus.CANCELLED],
-        [OrderStatus.CANCELLED]: [], 
+        [OrderStatus.CANCELLED]: [],
     };
 
     constructor(
@@ -41,7 +42,8 @@ export default class OrderService implements IOrderService {
         private orderDetailRepository: IOrderDetailRepository,
         private customerRepository: ICustomerRepository,
         private productRepository: IProductRepository,
-        private serviceRepository: IServiceRepository
+        private serviceRepository: IServiceRepository,
+        private exchangeRateService: IExchangeService
     ) { }
 
     async createOrder(data: OrderToCreateType): Promise<PublicOrder> {
@@ -72,7 +74,7 @@ export default class OrderService implements IOrderService {
                     quantity: detail.quantity,
                     priceAtTime,
                 });
-            } 
+            }
             else if (detail.productId) {
                 const product = await this.productRepository.get(detail.productId);
                 if (!product) {
@@ -99,7 +101,8 @@ export default class OrderService implements IOrderService {
                 });
             }
         }
-        const totalEstimated = resolvedDetails.reduce(
+
+        const totalUSD = resolvedDetails.reduce(
             (sum, detail) => {
                 const price = Number(detail.priceAtTime) || 0;
                 const quantity = Number(detail.quantity) || 0;
@@ -108,26 +111,20 @@ export default class OrderService implements IOrderService {
             0
         );
 
-        // Ensure totalEstimated is valid and non-negative
-        const validTotal = isNaN(totalEstimated) || totalEstimated < 0 ? 0 : totalEstimated;
-        
-        console.log('💰 Order total calculation:', { 
-            resolvedDetailsCount: resolvedDetails.length,
-            totalEstimated, 
-            validTotal,
-            details: resolvedDetails.map(d => ({
-                price: d.priceAtTime,
-                qty: d.quantity,
-                subtotal: (d.priceAtTime ?? 0) * d.quantity
-            }))
-        });
+        const validTotalUSD = isNaN(totalUSD) || totalUSD < 0 ? 0 : totalUSD;
+
+        const dollarRate = await this.exchangeRateService.getCurrentRate();
+        const totalVES = Math.round(validTotalUSD * dollarRate * 100) / 100;
 
         const createdOrder = await this.orderRepository.create({
             customerId: data.customerId,
             vehiclePlate: data.vehiclePlate ?? null,
             vehicleModel: data.vehicleModel,
-            totalEstimated: validTotal,
+            dollarRate,
+            totalUSD: validTotalUSD,
+            totalVES,
         });
+
         const detailsToCreate = resolvedDetails.map(detail => ({
             orderId: createdOrder.id,
             serviceId: detail.serviceId ?? null,
@@ -305,8 +302,9 @@ export default class OrderService implements IOrderService {
 
         const allDetails = await this.orderDetailRepository.getByOrderId(orderId);
         const newTotal = allDetails.reduce((sum, detail) => sum + detail.quantity * detail.priceAtTime, 0);
+        const newTotalVES = Math.round(newTotal * order.dollarRate * 100) / 100;
 
-        await this.orderRepository.updateTotal(orderId, newTotal);
+        await this.orderRepository.updateTotal(orderId, newTotal, newTotalVES);
 
         const updatedOrder = await this.orderRepository.getById(orderId);
         if (!updatedOrder) {
@@ -343,8 +341,8 @@ export default class OrderService implements IOrderService {
 
         const allDetails = await this.orderDetailRepository.getByOrderId(orderId);
         const newTotal = allDetails.reduce((sum, d) => sum + d.quantity * d.priceAtTime, 0);
+        const newTotalVES = Math.round(newTotal * order.dollarRate * 100) / 100;
 
-        // Update order with new total
-        await this.orderRepository.updateTotal(orderId, newTotal);
+        await this.orderRepository.updateTotal(orderId, newTotal, newTotalVES);
     }
 }
