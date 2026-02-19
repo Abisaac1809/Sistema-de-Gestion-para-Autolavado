@@ -4,6 +4,7 @@ import { PublicSale, PublicSaleDetail } from "../types/dtos/Sale.dto";
 import CustomerMapper from "./CustomerMapper";
 import ProductMapper from "./ProductMapper";
 import ServiceMapper from "./ServiceMapper";
+import PaymentMapper from "./PaymentMapper";
 
 export default class SaleMapper {
     static toPublicSale(sale: Sale): PublicSale {
@@ -11,8 +12,11 @@ export default class SaleMapper {
             id: sale.id,
             customerId: sale.customerId,
             orderId: sale.orderId,
-            total: sale.total,
             dollarRate: sale.dollarRate,
+            totalUSD: sale.totalUSD,
+            totalVES: sale.totalVES,
+            totalPaidUSD: sale.totalPaidUSD,
+            totalPaidVES: sale.totalPaidVES,
             status: sale.status,
             paymentStatus: sale.paymentStatus,
             createdAt: sale.createdAt,
@@ -21,6 +25,7 @@ export default class SaleMapper {
             saleDetails: sale.saleDetails.map((detail) =>
                 this.toPublicSaleDetail(detail)
             ),
+            payments: sale.payments?.map(p => PaymentMapper.toPublicPayment(p)) ?? [],
         };
     }
 

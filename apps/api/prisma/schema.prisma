@@ -8,7 +8,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 // ============================================================================
@@ -293,8 +292,11 @@ model Sale {
   id            String        @id @default(uuid()) @db.Uuid
   customerId    String        @map("customer_id") @db.Uuid
   orderId       String?       @unique @map("order_id") @db.Uuid
-  total         Decimal       @db.Decimal(10, 2)
+  totalUsd      Decimal       @map("total_usd") @db.Decimal(10, 2)
+  totalVes      Decimal       @map("total_ves") @db.Decimal(12, 2)
   dollarRate    Decimal       @map("dollar_rate") @db.Decimal(10, 2)
+  totalPaidUsd  Decimal       @default(0) @map("total_paid_usd") @db.Decimal(10, 2)
+  totalPaidVes  Decimal       @default(0) @map("total_paid_ves") @db.Decimal(12, 2)
   status        SaleStatus    @default(COMPLETED)
   paymentStatus PaymentStatus @default(PENDING) @map("payment_status")
   createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamp(6)
@@ -391,9 +393,9 @@ model Payment {
   deletedAt        DateTime? @map("deleted_at") @db.Timestamp(6)
 
   // Relations
-  order         Order?         @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  sale          Sale?          @relation(fields: [saleId], references: [id], onDelete: Cascade)
-  paymentMethod PaymentMethod  @relation(fields: [paymentMethodId], references: [id], onDelete: Restrict)
+  order         Order?        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  sale          Sale?         @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  paymentMethod PaymentMethod @relation(fields: [paymentMethodId], references: [id], onDelete: Restrict)
 
   @@index([orderId])
   @@index([saleId])

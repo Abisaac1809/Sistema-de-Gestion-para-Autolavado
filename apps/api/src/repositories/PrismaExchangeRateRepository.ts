@@ -90,21 +90,6 @@ export default class PrismaExchangeRateRepository implements IExchangeRateReposi
         });
     }
 
-    async getCurrentRate(): Promise<number> {
-        const config = await this.getExchangeRateConfig();
-
-        switch (config.activeSource) {
-            case 'BCV_USD':
-                return config.bcvUsdRate || 1.0;
-            case 'BCV_EUR':
-                return config.bcvEurRate || 1.0;
-            case 'CUSTOM':
-                return config.customRate || 1.0;
-            default:
-                return 1.0;
-        }
-    }
-
     async updateBCVRates(usdRate: number, eurRate: number): Promise<void> {
         await this.prisma.exchangeRateConfig.updateMany({
             where: { deletedAt: null },

@@ -7,6 +7,8 @@ import Order from '../entities/Order';
 import Service from '../entities/Service';
 import Product from '../entities/Product';
 import OrderDetail from '../entities/OrderDetail';
+import Payment from '../entities/Payment';
+import PaymentMethod from '../entities/PaymentMethod';
 import { SaleToSave } from '../types/dtos/Sale.dto';
 import { SaleFiltersForRepository, SaleFiltersForCount } from '../types/dtos/Sale.dto';
 import { SaleStatus, PaymentStatus } from '../types/enums';
@@ -14,7 +16,7 @@ import { SaleStatus, PaymentStatus } from '../types/enums';
 export default class PrismaSaleRepository implements ISaleRepository {
     constructor(private prisma: PrismaClient) { }
 
-    private readonly includeRelations = {
+    private readonly includeRelationsBase = {
         customer: true,
         order: {
             include: {
@@ -38,32 +40,34 @@ export default class PrismaSaleRepository implements ISaleRepository {
         }
     } as const;
 
-    async create(data: SaleToSave): Promise<Sale> {
-        // Calculate total from details
-        const total = data.details.reduce((sum, detail) =>
-            sum + (detail.quantity * detail.unitPrice), 0
-        );
+    private readonly includeRelationsDetail = {
+        ...this.includeRelationsBase,
+        payments: {
+            where: { deletedAt: null },
+            include: { paymentMethod: true },
+            orderBy: { paymentDate: 'asc' as const }
+        }
+    } as const;
 
+    async create(data: SaleToSave): Promise<Sale> {
         const created = await this.prisma.sale.create({
             data: {
                 customerId: data.customerId,
                 orderId: data.orderId ?? null,
-                total,
+                totalUsd: data.totalUsd,
+                totalVes: data.totalVes,
                 dollarRate: data.dollarRate,
                 saleDetails: {
-                    create: data.details.map(detail => {
-                        const subtotal = detail.quantity * detail.unitPrice;
-                        return {
-                            serviceId: detail.serviceId ?? null,
-                            productId: detail.productId ?? null,
-                            quantity: detail.quantity,
-                            unitPrice: detail.unitPrice,
-                            subtotal
-                        };
-                    })
+                    create: data.details.map(detail => ({
+                        serviceId: detail.serviceId ?? null,
+                        productId: detail.productId ?? null,
+                        quantity: detail.quantity,
+                        unitPrice: detail.unitPrice,
+                        subtotal: detail.subtotal,
+                    }))
                 }
             },
-            include: this.includeRelations,
+            include: this.includeRelationsBase,
         });
 
         return this.mapToEntity(created);
@@ -72,7 +76,7 @@ export default class PrismaSaleRepository implements ISaleRepository {
     async getById(id: string): Promise<Sale | null> {
         const sale = await this.prisma.sale.findFirst({
             where: { id, deletedAt: null },
-            include: this.includeRelations,
+            include: this.includeRelationsDetail,
         });
         return sale ? this.mapToEntity(sale) : null;
     }
@@ -125,7 +129,7 @@ export default class PrismaSaleRepository implements ISaleRepository {
             skip: filters.offset,
             take: filters.limit,
             orderBy: { createdAt: 'desc' },
-            include: this.includeRelations,
+            include: this.includeRelationsBase,
         });
 
         return sales.map(s => this.mapToEntity(s));
@@ -181,7 +185,7 @@ export default class PrismaSaleRepository implements ISaleRepository {
         const updated = await this.prisma.sale.update({
             where: { id },
             data: { status },
-            include: this.includeRelations,
+            include: this.includeRelationsBase,
         });
         return this.mapToEntity(updated);
     }
@@ -190,7 +194,16 @@ export default class PrismaSaleRepository implements ISaleRepository {
         const updated = await this.prisma.sale.update({
             where: { id },
             data: { paymentStatus: status },
-            include: this.includeRelations,
+            include: this.includeRelationsBase,
+        });
+        return this.mapToEntity(updated);
+    }
+
+    async updateTotalPaid(id: string, totalPaidUSD: number, totalPaidVES: number): Promise<Sale> {
+        const updated = await this.prisma.sale.update({
+            where: { id },
+            data: { totalPaidUsd: totalPaidUSD, totalPaidVes: totalPaidVES },
+            include: this.includeRelationsBase,
         });
         return this.mapToEntity(updated);
     }
@@ -249,13 +262,53 @@ export default class PrismaSaleRepository implements ISaleRepository {
             });
         });
 
+        const payments = prismaSale.payments
+            ? prismaSale.payments.map((p: any) => {
+                const paymentMethod = new PaymentMethod({
+                    id: p.paymentMethod.id,
+                    name: p.paymentMethod.name,
+                    description: p.paymentMethod.description,
+                    currency: p.paymentMethod.currency,
+                    bankName: p.paymentMethod.bankName,
+                    accountHolder: p.paymentMethod.accountHolder,
+                    accountNumber: p.paymentMethod.accountNumber,
+                    idCard: p.paymentMethod.idCard,
+                    phoneNumber: p.paymentMethod.phoneNumber,
+                    email: p.paymentMethod.email,
+                    isActive: p.paymentMethod.isActive,
+                    createdAt: p.paymentMethod.createdAt,
+                    updatedAt: p.paymentMethod.updatedAt,
+                    deletedAt: p.paymentMethod.deletedAt,
+                });
+                return new Payment({
+                    id: p.id,
+                    orderId: p.orderId,
+                    saleId: p.saleId,
+                    paymentMethod,
+                    amountUsd: p.amountUsd.toNumber(),
+                    exchangeRate: p.exchangeRate.toNumber(),
+                    amountVes: p.amountVes.toNumber(),
+                    originalCurrency: p.originalCurrency,
+                    paymentDate: p.paymentDate,
+                    notes: p.notes,
+                    createdAt: p.createdAt,
+                    updatedAt: p.updatedAt,
+                    deletedAt: p.deletedAt,
+                });
+            })
+            : undefined;
+
         return new Sale({
             id: prismaSale.id,
             customer,
             order,
             saleDetails,
-            total: prismaSale.total.toNumber(),
+            payments,
+            totalUSD: prismaSale.totalUsd.toNumber(),
+            totalVES: prismaSale.totalVes.toNumber(),
             dollarRate: prismaSale.dollarRate.toNumber(),
+            totalPaidUSD: prismaSale.totalPaidUsd.toNumber(),
+            totalPaidVES: prismaSale.totalPaidVes.toNumber(),
             status: prismaSale.status as SaleStatus,
             paymentStatus: prismaSale.paymentStatus as PaymentStatus,
             createdAt: prismaSale.createdAt,

@@ -1,5 +1,5 @@
 import Product from '../../entities/Product';
-import { ProductToCreateType, ProductToUpdateType } from '../../types/dtos/Product.dto';
+import { ProductToCreateType, ProductToUpdateType, StockUpdate } from '../../types/dtos/Product.dto';
 import { ProductFiltersForRepository, ProductFiltersForCount } from '../../types/dtos/Product.dto';
 
 export default interface IProductRepository {
@@ -13,4 +13,5 @@ export default interface IProductRepository {
     restore(id: string): Promise<void>;
     countByCategoryId(categoryId: string): Promise<number>;
     updateStock(id: string, newStock: number): Promise<void>;
+    bulkUpdateStock(updates: StockUpdate[]): Promise<void>;
 }

@@ -3,7 +3,7 @@ import ISaleRepository from '../interfaces/IRepositories/ISaleRepository';
 import IProductRepository from '../interfaces/IRepositories/IProductRepository';
 import IServiceRepository from '../interfaces/IRepositories/IServiceRepository';
 import IOrderRepository from '../interfaces/IRepositories/IOrderRepository';
-import IExchangeRateRepository from '../interfaces/IRepositories/IExchangeRateRepository';
+import IExchangeService from '../interfaces/IServices/IExchangeService';
 import {
     SaleToSave,
     SaleDetailType,
@@ -37,11 +37,11 @@ export default class SaleService implements ISaleService {
         private productRepository: IProductRepository,
         private serviceRepository: IServiceRepository,
         private orderRepository: IOrderRepository,
-        private exchangeRateRepository: IExchangeRateRepository
+        private exchangeService: IExchangeService
     ) { }
 
     async createQuickSale(data: SaleToSave): Promise<PublicSale> {
-        const dollarRate = await this.exchangeRateRepository.getCurrentRate();
+        const dollarRate = await this.exchangeService.getCurrentRate();
 
         const resolvedDetails: SaleDetailType[] = [];
         const productsToDeduct: Array<{ id: string; newStock: number }> = [];
@@ -62,6 +62,7 @@ export default class SaleService implements ISaleService {
                     productId: undefined,
                     quantity: detail.quantity,
                     unitPrice,
+                    subtotal: detail.quantity * unitPrice,
                 });
             } else if (detail.productId) {
                 const product = await this.productRepository.get(detail.productId);
@@ -81,6 +82,7 @@ export default class SaleService implements ISaleService {
                     productId: detail.productId,
                     quantity: detail.quantity,
                     unitPrice,
+                    subtotal: detail.quantity * unitPrice,
                 });
 
                 productsToDeduct.push({
@@ -90,13 +92,16 @@ export default class SaleService implements ISaleService {
             }
         }
 
-        for (const productUpdate of productsToDeduct) {
-            await this.productRepository.updateStock(productUpdate.id, productUpdate.newStock);
-        }
+        await this.productRepository.bulkUpdateStock(productsToDeduct);
+
+        const totalUsd = resolvedDetails.reduce((sum, d) => sum + d.subtotal, 0);
+        const totalVes = totalUsd * dollarRate;
 
         const saleData: SaleToSave = {
             customerId: data.customerId,
             dollarRate,
+            totalUsd,
+            totalVes,
             details: resolvedDetails,
         };
 
@@ -132,19 +137,25 @@ export default class SaleService implements ISaleService {
             throw new OrderAlreadyHasSaleError(`Order ${orderId} already has a sale associated with it`);
         }
 
-        const dollarRate = await this.exchangeRateRepository.getCurrentRate();
+        const dollarRate = await this.exchangeService.getCurrentRate();
 
         const saleDetails: SaleDetailType[] = order.orderDetails.map((detail) => ({
             serviceId: detail.serviceId ?? undefined,
             productId: detail.productId ?? undefined,
             quantity: detail.quantity,
             unitPrice: detail.priceAtTime,
+            subtotal: detail.quantity * detail.priceAtTime,
         }));
+
+        const totalUsd = saleDetails.reduce((sum, d) => sum + d.subtotal, 0);
+        const totalVes = totalUsd * dollarRate;
 
         const saleData: SaleToSave = {
             customerId: order.customerId,
             orderId: order.id,
             dollarRate,
+            totalUsd,
+            totalVes,
             details: saleDetails,
         };
 
@@ -184,12 +195,10 @@ export default class SaleService implements ISaleService {
             }),
         ]);
 
-        const data = sales.map((sale) => SaleMapper.toPublicSale(sale));
-
         const totalPages = Math.ceil(totalRecords / filters.limit);
 
         return {
-            data,
+            data: sales.map((sale) => SaleMapper.toPublicSale(sale)),
             meta: {
                 totalRecords,
                 currentPage: filters.page,

@@ -10,4 +10,5 @@ export default interface ISaleRepository {
     count(filters: SaleFiltersForCount): Promise<number>;
     updateStatus(id: string, status: SaleStatus): Promise<Sale>;
     updatePaymentStatus(id: string, status: PaymentStatus): Promise<Sale>;
+    updateTotalPaid(id: string, totalPaidUSD: number, totalPaidVES: number): Promise<Sale>;
 }

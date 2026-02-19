@@ -9,6 +9,7 @@ export type SaleDetailType = {
     productId?: string;
     quantity: number;
     unitPrice: number;
+    subtotal: number;
 }
 
 export type PublicSaleDetail = {

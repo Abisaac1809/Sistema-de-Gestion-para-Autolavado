@@ -3,14 +3,19 @@ import { SaleType } from "../types/dtos/Sale.dto";
 import Customer from "./Customer";
 import Order from "./Order";
 import SaleDetail from "./SaleDetail";
+import Payment from "./Payment";
 
 export default class Sale {
     public readonly id: string;
     public readonly customer: Customer;
     public readonly order: Order | null;
     public readonly saleDetails: SaleDetail[];
-    public total: number;
+    public readonly payments?: Payment[];
     public dollarRate: number;
+    public totalUSD: number;
+    public totalVES: number;
+    public totalPaidUSD: number;
+    public totalPaidVES: number;
     public status: SaleStatus;
     public paymentStatus: PaymentStatus;
     public createdAt: Date;
@@ -22,8 +27,12 @@ export default class Sale {
         this.customer = data.customer;
         this.order = data.order;
         this.saleDetails = data.saleDetails;
-        this.total = data.total;
+        this.payments = data.payments;
         this.dollarRate = data.dollarRate;
+        this.totalUSD = data.totalUSD;
+        this.totalVES = data.totalVES;
+        this.totalPaidUSD = data.totalPaidUSD;
+        this.totalPaidVES = data.totalPaidVES;
         this.status = data.status;
         this.paymentStatus = data.paymentStatus;
         this.createdAt = data.createdAt;

@@ -1,7 +1,7 @@
 import { PrismaClient, Prisma } from '../generated/prisma';
 import Product from '../entities/Product';
 import IProductRepository from '../interfaces/IRepositories/IProductRepository';
-import { ProductToCreateType, ProductToUpdateType } from '../types/dtos/Product.dto';
+import { ProductToCreateType, ProductToUpdateType, StockUpdate } from '../types/dtos/Product.dto';
 import { ProductFiltersForRepository, ProductFiltersForCount, RawProduct } from '../types/dtos/Product.dto';
 import { UnitType } from '../types/enums';
 
@@ -193,6 +193,17 @@ export default class PrismaProductRepository implements IProductRepository {
             where: { id },
             data: { stock: newStock },
         });
+    }
+
+    async bulkUpdateStock(updates: StockUpdate[]): Promise<void> {
+        await this.prisma.$transaction(
+            updates.map(({ id, newStock }) =>
+                this.prisma.product.update({
+                    where: { id },
+                    data: { stock: newStock },
+                })
+            )
+        );
     }
 
     private mapToEntity(prismaProduct: Prisma.ProductGetPayload<{}>): Product {

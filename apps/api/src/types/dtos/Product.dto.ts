@@ -46,6 +46,8 @@ export type PublicProduct = {
     status: boolean;
 };
 
+export type StockUpdate = { id: string; newStock: number };
+
 export type ProductFiltersForService = ProductFiltersType;
 
 export type ProductFiltersForRepository = {
