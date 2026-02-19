@@ -1,4 +1,4 @@
-import { SaleStatus, PaymentStatus } from '../enums';
+import { SaleStatus } from '../enums';
 import { PublicCustomer } from './Customer.dto';
 import { SaleDetailType, PublicSaleDetail } from './SaleDetail.dto';
 import { PublicPayment } from './Payment.dto';
@@ -18,10 +18,7 @@ export type SaleType = {
     totalUSD: number;
     totalVES: number;
     dollarRate: number;
-    totalPaidUSD: number;
-    totalPaidVES: number;
     status: SaleStatus;
-    paymentStatus: PaymentStatus;
     createdAt: Date;
     updatedAt: Date;
     deletedAt?: Date | null;
@@ -43,10 +40,7 @@ export type PublicSale = {
     dollarRate: number;
     totalUSD: number;
     totalVES: number;
-    totalPaidUSD: number;
-    totalPaidVES: number;
     status: SaleStatus;
-    paymentStatus: PaymentStatus;
     createdAt: Date;
     updatedAt: Date;
     customer: PublicCustomer;

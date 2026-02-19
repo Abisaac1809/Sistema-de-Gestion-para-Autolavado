@@ -300,10 +300,7 @@ model Sale {
   totalUsd      Decimal       @map("total_usd") @db.Decimal(10, 2)
   totalVes      Decimal       @map("total_ves") @db.Decimal(12, 2)
   dollarRate    Decimal       @map("dollar_rate") @db.Decimal(10, 2)
-  totalPaidUsd  Decimal       @default(0) @map("total_paid_usd") @db.Decimal(10, 2)
-  totalPaidVes  Decimal       @default(0) @map("total_paid_ves") @db.Decimal(12, 2)
   status        SaleStatus    @default(COMPLETED)
-  paymentStatus PaymentStatus @default(PENDING) @map("payment_status")
   createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt     DateTime      @updatedAt @map("updated_at") @db.Timestamp(6)
   deletedAt     DateTime?     @map("deleted_at") @db.Timestamp(6)
@@ -316,7 +313,6 @@ model Sale {
 
   @@index([customerId])
   @@index([status])
-  @@index([paymentStatus])
   @@index([createdAt])
   @@map("sales")
 }

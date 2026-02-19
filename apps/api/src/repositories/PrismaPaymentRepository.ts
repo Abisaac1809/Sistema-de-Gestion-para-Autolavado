@@ -6,6 +6,7 @@ import {
   PaymentToSave,
   PaymentFiltersForRepository,
   PaymentFiltersForCount,
+  PaymentSumsResult,
 } from "../types/dtos/Payment.dto";
 
 export default class PrismaPaymentRepository implements IPaymentRepository {
@@ -64,18 +65,15 @@ export default class PrismaPaymentRepository implements IPaymentRepository {
     return await this.prisma.payment.count({ where });
   }
 
-  async sumByOrderId(orderId: string): Promise<number> {
+  async sumByOrderId(orderId: string): Promise<PaymentSumsResult> {
     const result = await this.prisma.payment.aggregate({
-      where: {
-        orderId,
-        deletedAt: null,
-      },
-      _sum: {
-        amountUsd: true,
-      },
+      where: { orderId, deletedAt: null },
+      _sum: { amountUsd: true, amountVes: true },
     });
-    // Convert Decimal to number, default to 0 if no payments
-    return result._sum.amountUsd?.toNumber() ?? 0;
+    return {
+      usd: result._sum.amountUsd?.toNumber() ?? 0,
+      ves: result._sum.amountVes?.toNumber() ?? 0,
+    };
   }
 
   async sumBySaleId(saleId: string): Promise<number> {

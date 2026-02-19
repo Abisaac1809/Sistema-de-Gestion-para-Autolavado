@@ -18,7 +18,6 @@ import {
     PaymentExceedsOrderTotalError,
     PaymentExceedsSaleTotalError,
     OrderAlreadyPaidError,
-    SaleAlreadyPaidError,
     InvalidPaymentAmountError,
     PaymentMethodNotFoundError,
     PaymentMethodInactiveError,
@@ -153,14 +152,15 @@ export default class PaymentService implements IPaymentService {
             }
         }
 
-        const currentTotal = await this.paymentRepository.sumByOrderId(orderId);
-        const newTotal = currentTotal + amountUsd;
+        const { usd: currentTotalUSD, ves: currentTotalVES } = await this.paymentRepository.sumByOrderId(orderId);
+        const newTotal = currentTotalUSD + amountUsd;
+        const newTotalVES = currentTotalVES + amountVes;
         const orderTotal = order.totalUSD;
 
         if (amountUsd > 0) {
             if (newTotal > orderTotal + this.ROUNDING_TOLERANCE) {
                 throw new PaymentExceedsOrderTotalError(
-                    `Payment would exceed order total. Order total: ${orderTotal}, Already paid: ${currentTotal}, This payment: ${amountUsd}`
+                    `Payment would exceed order total. Order total: ${orderTotal}, Already paid: ${currentTotalUSD}, This payment: ${amountUsd}`
                 );
             }
         }
@@ -175,6 +175,8 @@ export default class PaymentService implements IPaymentService {
                 amountVes,
                 originalCurrency,
                 notes: data.notes ?? null,
+                newTotalPaidUSD: newTotal,
+                newTotalPaidVES: newTotalVES,
             });
         }
 
@@ -189,6 +191,8 @@ export default class PaymentService implements IPaymentService {
         };
 
         const createdPayment = await this.paymentRepository.create(paymentData);
+
+        await this.orderRepository.updateTotalPaid(orderId, newTotal, newTotalVES);
 
         if (isFullyPaid) {
             await this.orderRepository.updatePaymentStatus(
@@ -217,12 +221,6 @@ export default class PaymentService implements IPaymentService {
         ) {
             throw new SaleNotFoundError(
                 `Sale ${saleId} is ${sale.status} and cannot accept payments`
-            );
-        }
-
-        if (sale.paymentStatus === PaymentStatus.PAID) {
-            throw new SaleAlreadyPaidError(
-                `Sale ${saleId} is already fully paid. No additional payments allowed.`
             );
         }
 
@@ -298,15 +296,6 @@ export default class PaymentService implements IPaymentService {
 
         const createdPayment = await this.paymentRepository.create(paymentData);
 
-        if (isFullyPaid) {
-            await this.saleRepository.updatePaymentStatus(saleId, PaymentStatus.PAID);
-        } else if (newTotal < saleTotal - this.ROUNDING_TOLERANCE) {
-            await this.saleRepository.updatePaymentStatus(
-                saleId,
-                PaymentStatus.PENDING
-            );
-        }
-
         return PaymentMapper.toPublicPayment(createdPayment);
     }
     
@@ -319,6 +308,8 @@ export default class PaymentService implements IPaymentService {
             amountVes: number;
             originalCurrency: 'USD' | 'VES';
             notes: string | null;
+            newTotalPaidUSD: number;
+            newTotalPaidVES: number;
         }
     ): Promise<PublicPayment> {
         const payment = await this.paymentRepository.create({
@@ -330,8 +321,9 @@ export default class PaymentService implements IPaymentService {
             originalCurrency: paymentData.originalCurrency,
             ...(paymentData.notes && { notes: paymentData.notes }),
         });
-        
+
         await this.orderRepository.updatePaymentStatus(orderId, PaymentStatus.PAID);
+        await this.orderRepository.updateTotalPaid(orderId, paymentData.newTotalPaidUSD, paymentData.newTotalPaidVES);
         
         const orderWithDetails = await this.orderRepository.getById(orderId);
         
@@ -345,12 +337,18 @@ export default class PaymentService implements IPaymentService {
             ...(detail.productId && { productId: detail.productId }),
             quantity: detail.quantity,
             unitPrice: detail.priceAtTime,
+            subtotal: detail.quantity * detail.priceAtTime,
         }));
+
+        const totalUsd = saleDetails.reduce((sum, detail) => sum + detail.subtotal, 0);
+        const totalVes = totalUsd * paymentData.exchangeRate;
         
         await this.saleRepository.create({
             customerId: orderWithDetails.customerId,
             orderId,
             dollarRate: paymentData.exchangeRate,
+            totalUsd,
+            totalVes,
             details: saleDetails,
         });
         

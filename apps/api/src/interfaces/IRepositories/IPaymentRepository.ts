@@ -3,6 +3,7 @@ import {
   PaymentToSave,
   PaymentFiltersForRepository,
   PaymentFiltersForCount,
+  PaymentSumsResult,
 } from "../../types/dtos/Payment.dto";
 
 export default interface IPaymentRepository {
@@ -10,6 +11,6 @@ export default interface IPaymentRepository {
   getById(id: string): Promise<Payment | null>;
   listByTarget(filters: PaymentFiltersForRepository): Promise<Payment[]>;
   countByTarget(filters: PaymentFiltersForCount): Promise<number>;
-  sumByOrderId(orderId: string): Promise<number>;
+  sumByOrderId(orderId: string): Promise<PaymentSumsResult>;
   sumBySaleId(saleId: string): Promise<number>;
 }

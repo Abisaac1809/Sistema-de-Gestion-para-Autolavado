@@ -83,7 +83,6 @@ export default class OrderMapper {
                     quantity: detail.quantity,
                 };
             }
-            // Edge case: should never happen with proper validation
             return {
                 type: 'service' as const,
                 name: 'Unknown',
@@ -95,6 +94,9 @@ export default class OrderMapper {
             id: order.id,
             status: order.status,
             totalUSD: order.totalUSD,
+            totalVES: order.totalVES,
+            totalPaidUSD: order.totalPaidUSD,
+            totalPaidVES: order.totalPaidVES,
             createdAt: order.createdAt,
             startedAt: order.startedAt,
             completedAt: order.completedAt,
@@ -110,53 +112,49 @@ export default class OrderMapper {
     static calculateDurations(order: Order): OrderDurations {
         const now = new Date();
 
-        let pendingMinutes: number | null = null;
-        let inProgressMinutes: number | null = null;
-        let totalMinutes: number | null = null;
-
-        // Calculate pendingMinutes
-        if (order.status === OrderStatus.CANCELLED && !order.startedAt) {
-            // Cancelled before starting - no pending time
-            pendingMinutes = null;
-        } else if (order.startedAt) {
-            // Order was started - calculate time from creation to start
-            pendingMinutes = this.diffInMinutes(order.createdAt, order.startedAt);
-        } else {
-            // Still pending - calculate time from creation to now
-            pendingMinutes = this.diffInMinutes(order.createdAt, now);
-        }
-
-        // Calculate inProgressMinutes
-        if (order.completedAt && order.startedAt) {
-            // Order completed - calculate time from start to completion
-            inProgressMinutes = this.diffInMinutes(
-                order.startedAt,
-                order.completedAt,
-            );
-        } else if (order.status === OrderStatus.IN_PROGRESS && order.startedAt) {
-            // Currently in progress - calculate time from start to now
-            inProgressMinutes = this.diffInMinutes(order.startedAt, now);
-        } else {
-            inProgressMinutes = null;
-        }
-
-        // Calculate totalMinutes
-        if (order.completedAt) {
-            // Order completed - calculate total time from creation to completion
-            totalMinutes = this.diffInMinutes(order.createdAt, order.completedAt);
-        } else if (order.status === OrderStatus.CANCELLED) {
-            // Order cancelled - calculate time from creation to last update (cancellation time)
-            totalMinutes = this.diffInMinutes(order.createdAt, order.updatedAt);
-        } else {
-            // Order still active - calculate time from creation to now
-            totalMinutes = this.diffInMinutes(order.createdAt, now);
-        }
-
         return {
-            pendingMinutes,
-            inProgressMinutes,
-            totalMinutes,
+            pendingMinutes: this.calculatePendingMinutes(order, now),
+            inProgressMinutes: this.calculateInProgressMinutes(order, now),
+            totalMinutes: this.calculateTotalMinutes(order, now),
         };
+    }
+
+    private static calculatePendingMinutes(order: Order, now: Date): number | null {
+        if (order.status === OrderStatus.CANCELLED && !order.startedAt) {
+            // Cancelada antes de iniciar - sin tiempo pendiente
+            return null;
+        } else if (order.startedAt) {
+            // Orden iniciada - calcular tiempo desde la creación hasta el inicio
+            return this.diffInMinutes(order.createdAt, order.startedAt);
+        } else {
+            // Aún pendiente - calcular tiempo desde la creación hasta ahora
+            return this.diffInMinutes(order.createdAt, now);
+        }
+    }
+
+    private static calculateInProgressMinutes(order: Order, now: Date): number | null {
+        if (order.completedAt && order.startedAt) {
+            // Orden completada - calcular tiempo desde el inicio hasta la finalización
+            return this.diffInMinutes(order.startedAt, order.completedAt);
+        } else if (order.status === OrderStatus.IN_PROGRESS && order.startedAt) {
+            // Actualmente en progreso - calcular tiempo desde el inicio hasta ahora
+            return this.diffInMinutes(order.startedAt, now);
+        } else {
+            return null;
+        }
+    }
+
+    private static calculateTotalMinutes(order: Order, now: Date): number | null {
+        if (order.completedAt) {
+            // Orden completada - calcular tiempo total desde la creación hasta la finalización
+            return this.diffInMinutes(order.createdAt, order.completedAt);
+        } else if (order.status === OrderStatus.CANCELLED) {
+            // Orden cancelada - calcular tiempo desde la creación hasta la última actualización (momento de cancelación)
+            return this.diffInMinutes(order.createdAt, order.updatedAt);
+        } else {
+            // Orden aún activa - calcular tiempo desde la creación hasta ahora
+            return this.diffInMinutes(order.createdAt, now);
+        }
     }
 
     static calculateTimeInCurrentState(order: Order): number {
@@ -167,15 +165,15 @@ export default class OrderMapper {
                 return this.diffInMinutes(order.createdAt, now);
 
             case OrderStatus.IN_PROGRESS:
-                // Use startedAt if available, otherwise fall back to createdAt
+                // Usar startedAt si está disponible, de lo contrario usar createdAt
                 return this.diffInMinutes(order.startedAt || order.createdAt, now);
 
             case OrderStatus.COMPLETED:
-                // Use completedAt if available, otherwise fall back to updatedAt
+                // Usar completedAt si está disponible, de lo contrario usar updatedAt
                 return this.diffInMinutes(order.completedAt || order.updatedAt, now);
 
             case OrderStatus.CANCELLED:
-                // Terminal state - return 0
+                // Estado terminal - retornar 0
                 return 0;
 
             default:

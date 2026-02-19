@@ -19,6 +19,9 @@ export type OrderSummary = {
     id: string;
     status: OrderStatus;
     totalUSD: number;
+    totalVES: number;
+    totalPaidUSD: number;
+    totalPaidVES: number;
     createdAt: Date;
     startedAt: Date | null;
     completedAt: Date | null;

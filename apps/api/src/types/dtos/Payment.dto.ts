@@ -3,6 +3,11 @@ import { PublicPaymentMethod } from './PaymentMethod.dto';
 
 export type Currency = 'USD' | 'VES';
 
+export type PaymentSumsResult = {
+    usd: number;
+    ves: number;
+};
+
 export type PaymentType = {
     id: string;
     orderId: string | null;

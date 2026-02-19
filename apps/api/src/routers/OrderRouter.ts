@@ -25,7 +25,6 @@ export default function createOrderRouter(orderService: IOrderService, saleServi
     router.post('/:id/details', validateSchema(OrderDetailToCreate), controller.addDetail);
     router.delete('/:id/details/:detailId', controller.removeDetail);
 
-    // Payment routes - nested under orders
     router.use('/:id/payments', createOrderPaymentsRouter(paymentService));
 
     return router;

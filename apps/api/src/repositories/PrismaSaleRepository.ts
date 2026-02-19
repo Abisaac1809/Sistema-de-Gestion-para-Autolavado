@@ -11,7 +11,7 @@ import Payment from '../entities/Payment';
 import PaymentMethod from '../entities/PaymentMethod';
 import { SaleToSave } from '../types/dtos/Sale.dto';
 import { SaleFiltersForRepository, SaleFiltersForCount } from '../types/dtos/Sale.dto';
-import { SaleStatus, PaymentStatus } from '../types/enums';
+import { SaleStatus } from '../types/enums';
 
 export default class PrismaSaleRepository implements ISaleRepository {
     constructor(private prisma: PrismaClient) { }
@@ -190,24 +190,6 @@ export default class PrismaSaleRepository implements ISaleRepository {
         return this.mapToEntity(updated);
     }
 
-    async updatePaymentStatus(id: string, status: PaymentStatus): Promise<Sale> {
-        const updated = await this.prisma.sale.update({
-            where: { id },
-            data: { paymentStatus: status },
-            include: this.includeRelationsBase,
-        });
-        return this.mapToEntity(updated);
-    }
-
-    async updateTotalPaid(id: string, totalPaidUSD: number, totalPaidVES: number): Promise<Sale> {
-        const updated = await this.prisma.sale.update({
-            where: { id },
-            data: { totalPaidUsd: totalPaidUSD, totalPaidVes: totalPaidVES },
-            include: this.includeRelationsBase,
-        });
-        return this.mapToEntity(updated);
-    }
-
     private mapToEntity(prismaSale: any): Sale {
         const customer = new Customer({
             id: prismaSale.customer.id,
@@ -307,10 +289,7 @@ export default class PrismaSaleRepository implements ISaleRepository {
             totalUSD: prismaSale.totalUsd.toNumber(),
             totalVES: prismaSale.totalVes.toNumber(),
             dollarRate: prismaSale.dollarRate.toNumber(),
-            totalPaidUSD: prismaSale.totalPaidUsd.toNumber(),
-            totalPaidVES: prismaSale.totalPaidVes.toNumber(),
             status: prismaSale.status as SaleStatus,
-            paymentStatus: prismaSale.paymentStatus as PaymentStatus,
             createdAt: prismaSale.createdAt,
             updatedAt: prismaSale.updatedAt,
             deletedAt: prismaSale.deletedAt,

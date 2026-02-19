@@ -1,4 +1,4 @@
-import { SaleStatus, PaymentStatus } from "../types/enums";
+import { SaleStatus } from "../types/enums";
 import { SaleType } from "../types/dtos/Sale.dto";
 import Customer from "./Customer";
 import Order from "./Order";
@@ -14,10 +14,7 @@ export default class Sale {
     public dollarRate: number;
     public totalUSD: number;
     public totalVES: number;
-    public totalPaidUSD: number;
-    public totalPaidVES: number;
     public status: SaleStatus;
-    public paymentStatus: PaymentStatus;
     public createdAt: Date;
     public updatedAt: Date;
     public deletedAt: Date | null | undefined;
@@ -31,10 +28,7 @@ export default class Sale {
         this.dollarRate = data.dollarRate;
         this.totalUSD = data.totalUSD;
         this.totalVES = data.totalVES;
-        this.totalPaidUSD = data.totalPaidUSD;
-        this.totalPaidVES = data.totalPaidVES;
         this.status = data.status;
-        this.paymentStatus = data.paymentStatus;
         this.createdAt = data.createdAt;
         this.updatedAt = data.updatedAt;
         this.deletedAt = data.deletedAt;
