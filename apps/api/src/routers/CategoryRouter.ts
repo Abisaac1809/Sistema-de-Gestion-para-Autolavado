@@ -13,19 +13,14 @@ export default function createCategoryRouter(categoryService: ICategoryService):
     const router = Router();
     const controller = new CategoryController(categoryService);
 
-    // Create category
     router.post('/', validateSchema(CategoryToCreate), controller.create);
 
-    // Update category
     router.patch('/:id', validateSchema(CategoryToUpdate), controller.update);
 
-    // Get category by ID
     router.get('/:id', controller.getById);
 
-    // List categories with filters
     router.get('/', validateQueryParams(CategoryFilters), controller.getList);
 
-    // Delete category
     router.delete('/:id', controller.delete);
 
     return router;

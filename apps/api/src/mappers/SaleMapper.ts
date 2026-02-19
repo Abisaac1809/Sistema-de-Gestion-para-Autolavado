@@ -2,7 +2,6 @@ import Sale from "../entities/Sale";
 import SaleDetail from "../entities/SaleDetail";
 import { PublicSale, PublicSaleDetail } from "../types/dtos/Sale.dto";
 import CustomerMapper from "./CustomerMapper";
-import PaymentMethodMapper from "./PaymentMethodMapper";
 import ProductMapper from "./ProductMapper";
 import ServiceMapper from "./ServiceMapper";
 
@@ -12,14 +11,13 @@ export default class SaleMapper {
             id: sale.id,
             customerId: sale.customerId,
             orderId: sale.orderId,
-            paymentMethodId: sale.paymentMethodId,
             total: sale.total,
             dollarRate: sale.dollarRate,
             status: sale.status,
+            paymentStatus: sale.paymentStatus,
             createdAt: sale.createdAt,
             updatedAt: sale.updatedAt,
             customer: CustomerMapper.toPublic(sale.customer),
-            paymentMethod: sale.paymentMethod ? PaymentMethodMapper.toPublic(sale.paymentMethod) : null,
             saleDetails: sale.saleDetails.map((detail) =>
                 this.toPublicSaleDetail(detail)
             ),

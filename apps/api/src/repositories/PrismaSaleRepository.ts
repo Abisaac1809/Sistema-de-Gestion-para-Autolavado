@@ -4,13 +4,12 @@ import ISaleRepository from '../interfaces/IRepositories/ISaleRepository';
 import SaleDetail from '../entities/SaleDetail';
 import Customer from '../entities/Customer';
 import Order from '../entities/Order';
-import PaymentMethod from '../entities/PaymentMethod';
 import Service from '../entities/Service';
 import Product from '../entities/Product';
 import OrderDetail from '../entities/OrderDetail';
 import { SaleToSave } from '../types/dtos/Sale.dto';
 import { SaleFiltersForRepository, SaleFiltersForCount } from '../types/dtos/Sale.dto';
-import { SaleStatus } from '../types/enums';
+import { SaleStatus, PaymentStatus } from '../types/enums';
 
 export default class PrismaSaleRepository implements ISaleRepository {
     constructor(private prisma: PrismaClient) { }
@@ -29,7 +28,6 @@ export default class PrismaSaleRepository implements ISaleRepository {
                 }
             }
         },
-        paymentMethod: true,
         saleDetails: {
             where: { deletedAt: null },
             include: {
@@ -50,7 +48,6 @@ export default class PrismaSaleRepository implements ISaleRepository {
             data: {
                 customerId: data.customerId,
                 orderId: data.orderId ?? null,
-                paymentMethodId: data.paymentMethodId ?? null,
                 total,
                 dollarRate: data.dollarRate,
                 saleDetails: {
@@ -189,6 +186,15 @@ export default class PrismaSaleRepository implements ISaleRepository {
         return this.mapToEntity(updated);
     }
 
+    async updatePaymentStatus(id: string, status: PaymentStatus): Promise<Sale> {
+        const updated = await this.prisma.sale.update({
+            where: { id },
+            data: { paymentStatus: status },
+            include: this.includeRelations,
+        });
+        return this.mapToEntity(updated);
+    }
+
     private mapToEntity(prismaSale: any): Sale {
         const customer = new Customer({
             id: prismaSale.customer.id,
@@ -201,23 +207,6 @@ export default class PrismaSaleRepository implements ISaleRepository {
         });
 
         const order = prismaSale.order ? this.mapOrderToEntity(prismaSale.order) : null;
-
-        const paymentMethod = prismaSale.paymentMethod ? new PaymentMethod({
-            id: prismaSale.paymentMethod.id,
-            name: prismaSale.paymentMethod.name,
-            description: prismaSale.paymentMethod.description,
-            currency: prismaSale.paymentMethod.currency,
-            bankName: prismaSale.paymentMethod.bankName,
-            accountHolder: prismaSale.paymentMethod.accountHolder,
-            accountNumber: prismaSale.paymentMethod.accountNumber,
-            idCard: prismaSale.paymentMethod.idCard,
-            phoneNumber: prismaSale.paymentMethod.phoneNumber,
-            email: prismaSale.paymentMethod.email,
-            isActive: prismaSale.paymentMethod.isActive,
-            createdAt: prismaSale.paymentMethod.createdAt,
-            updatedAt: prismaSale.paymentMethod.updatedAt,
-            deletedAt: prismaSale.paymentMethod.deletedAt,
-        }) : null;
 
         const saleDetails = prismaSale.saleDetails.map((detail: any) => {
             const service = detail.service ? new Service({
@@ -264,11 +253,11 @@ export default class PrismaSaleRepository implements ISaleRepository {
             id: prismaSale.id,
             customer,
             order,
-            paymentMethod,
             saleDetails,
             total: prismaSale.total.toNumber(),
             dollarRate: prismaSale.dollarRate.toNumber(),
             status: prismaSale.status as SaleStatus,
+            paymentStatus: prismaSale.paymentStatus as PaymentStatus,
             createdAt: prismaSale.createdAt,
             updatedAt: prismaSale.updatedAt,
             deletedAt: prismaSale.deletedAt,

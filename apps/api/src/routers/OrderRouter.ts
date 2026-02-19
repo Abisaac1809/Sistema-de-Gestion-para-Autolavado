@@ -2,12 +2,14 @@ import { Router } from 'express';
 import OrderController from '../controllers/OrderController';
 import IOrderService from '../interfaces/IServices/IOrderService';
 import ISaleService from '../interfaces/IServices/ISaleService';
+import IPaymentService from '../interfaces/IServices/IPaymentService';
 import validateSchema from '../middlewares/ValidateSchema';
 import validateQueryParams from '../middlewares/ValidateQueryParams';
 import { OrderToCreate, OrderToUpdate, OrderStatusChange, OrderPaymentStatusChange, OrderFilters } from '../schemas/Order.schema';
 import { OrderDetailToCreate } from '../schemas/OrderDetail.schema';
+import { createOrderPaymentsRouter } from './PaymentRouter';
 
-export default function createOrderRouter(orderService: IOrderService, saleService: ISaleService): Router {
+export default function createOrderRouter(orderService: IOrderService, saleService: ISaleService, paymentService: IPaymentService): Router {
     const router = Router();
     const controller = new OrderController(orderService, saleService);
 
@@ -22,6 +24,9 @@ export default function createOrderRouter(orderService: IOrderService, saleServi
 
     router.post('/:id/details', validateSchema(OrderDetailToCreate), controller.addDetail);
     router.delete('/:id/details/:detailId', controller.removeDetail);
+
+    // Payment routes - nested under orders
+    router.use('/:id/payments', createOrderPaymentsRouter(paymentService));
 
     return router;
 }

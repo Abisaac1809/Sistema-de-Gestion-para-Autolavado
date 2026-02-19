@@ -143,3 +143,44 @@ export class InvalidOrderForSaleError extends BusinessError {
     public readonly name = 'InvalidOrderForSaleError';
     public readonly statusCode = 400;
 }
+
+// Payment-specific errors
+export class PaymentNotFoundError extends BusinessError {
+    public readonly name = 'PaymentNotFoundError';
+    public readonly statusCode = 404;
+}
+
+export class PaymentExceedsOrderTotalError extends BusinessError {
+    public readonly name = 'PaymentExceedsOrderTotalError';
+    public readonly statusCode = 400;
+}
+
+export class OrderAlreadyPaidError extends BusinessError {
+    public readonly name = 'OrderAlreadyPaidError';
+    public readonly statusCode = 400;
+}
+
+export class InvalidPaymentAmountError extends BusinessError {
+    public readonly name = 'InvalidPaymentAmountError';
+    public readonly statusCode = 400;
+}
+
+export class PaymentMethodInactiveError extends BusinessError {
+    public readonly name = 'PaymentMethodInactiveError';
+    public readonly statusCode = 400;
+}
+
+export class ReversalRequiresNotesError extends BusinessError {
+    public readonly name = 'ReversalRequiresNotesError';
+    public readonly statusCode = 400;
+}
+
+export class SaleAlreadyPaidError extends BusinessError {
+    public readonly name = 'SaleAlreadyPaidError';
+    public readonly statusCode = 400;
+}
+
+export class PaymentExceedsSaleTotalError extends BusinessError {
+    public readonly name = 'PaymentExceedsSaleTotalError';
+    public readonly statusCode = 400;
+}

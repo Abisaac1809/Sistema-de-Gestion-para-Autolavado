@@ -96,7 +96,6 @@ export default class SaleService implements ISaleService {
 
         const saleData: SaleToSave = {
             customerId: data.customerId,
-            paymentMethodId: data.paymentMethodId,
             dollarRate,
             details: resolvedDetails,
         };
@@ -145,7 +144,6 @@ export default class SaleService implements ISaleService {
         const saleData: SaleToSave = {
             customerId: order.customerId,
             orderId: order.id,
-            paymentMethodId: undefined,
             dollarRate,
             details: saleDetails,
         };

@@ -8,6 +8,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // ============================================================================
@@ -233,7 +234,7 @@ model PaymentMethod {
   deletedAt     DateTime? @map("deleted_at") @db.Timestamp(6)
 
   // Relations
-  sales Sale[]
+  payments Payment[]
 
   @@index([isActive])
   @@map("payment_methods")
@@ -257,6 +258,7 @@ model Order {
   customer     Customer      @relation(fields: [customerId], references: [id], onDelete: Restrict)
   orderDetails OrderDetail[]
   sale         Sale?
+  payments     Payment[]
 
   @@index([customerId])
   @@index([status])
@@ -288,26 +290,26 @@ model OrderDetail {
 }
 
 model Sale {
-  id              String     @id @default(uuid()) @db.Uuid
-  customerId      String     @map("customer_id") @db.Uuid
-  orderId         String?    @unique @map("order_id") @db.Uuid
-  paymentMethodId String?    @map("payment_method_id") @db.Uuid
-  total           Decimal    @db.Decimal(10, 2)
-  dollarRate      Decimal    @map("dollar_rate") @db.Decimal(10, 2)
-  status          SaleStatus @default(COMPLETED)
-  createdAt       DateTime   @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt       DateTime   @updatedAt @map("updated_at") @db.Timestamp(6)
-  deletedAt       DateTime?  @map("deleted_at") @db.Timestamp(6)
+  id            String        @id @default(uuid()) @db.Uuid
+  customerId    String        @map("customer_id") @db.Uuid
+  orderId       String?       @unique @map("order_id") @db.Uuid
+  total         Decimal       @db.Decimal(10, 2)
+  dollarRate    Decimal       @map("dollar_rate") @db.Decimal(10, 2)
+  status        SaleStatus    @default(COMPLETED)
+  paymentStatus PaymentStatus @default(PENDING) @map("payment_status")
+  createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt     DateTime      @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt     DateTime?     @map("deleted_at") @db.Timestamp(6)
 
   // Relations
-  customer      Customer       @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  order         Order?         @relation(fields: [orderId], references: [id], onDelete: SetNull)
-  paymentMethod PaymentMethod? @relation(fields: [paymentMethodId], references: [id], onDelete: Restrict)
-  saleDetails   SaleDetail[]
+  customer    Customer     @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  order       Order?       @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  saleDetails SaleDetail[]
+  payments    Payment[]
 
   @@index([customerId])
-  @@index([paymentMethodId])
   @@index([status])
+  @@index([paymentStatus])
   @@index([createdAt])
   @@map("sales")
 }
@@ -371,4 +373,31 @@ model PurchaseDetail {
   @@index([purchaseId])
   @@index([productId])
   @@map("purchase_details")
+}
+
+model Payment {
+  id               String    @id @default(uuid()) @db.Uuid
+  orderId          String?   @map("order_id") @db.Uuid
+  saleId           String?   @map("sale_id") @db.Uuid
+  paymentMethodId  String    @map("payment_method_id") @db.Uuid
+  amountUsd        Decimal   @map("amount_usd") @db.Decimal(10, 2)
+  exchangeRate     Decimal   @map("exchange_rate") @db.Decimal(15, 4)
+  amountVes        Decimal   @map("amount_ves") @db.Decimal(15, 2)
+  originalCurrency Currency  @default(USD) @map("original_currency")
+  paymentDate      DateTime  @default(now()) @map("payment_date") @db.Timestamp(6)
+  notes            String?   @db.Text
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt        DateTime? @map("deleted_at") @db.Timestamp(6)
+
+  // Relations
+  order         Order?         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  sale          Sale?          @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  paymentMethod PaymentMethod  @relation(fields: [paymentMethodId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+  @@index([saleId])
+  @@index([paymentMethodId])
+  @@index([paymentDate])
+  @@map("payments")
 }

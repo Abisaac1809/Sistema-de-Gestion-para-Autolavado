@@ -4,7 +4,6 @@ import { SaleDetailToCreate } from './SaleDetail.schema';
 
 export const SaleToCreate = z.object({
     customerId: z.string().uuid('Invalid customer ID format'),
-    paymentMethodId: z.string().uuid('Invalid payment method ID format').optional(),
     dollarRate: z.number().positive('Dollar rate must be greater than 0'),
     details: z.array(SaleDetailToCreate).min(1, 'Sale must have at least one item'),
 });

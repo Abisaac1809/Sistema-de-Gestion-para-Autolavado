@@ -1,10 +1,8 @@
-import { SaleStatus } from '../enums';
+import { SaleStatus, PaymentStatus } from '../enums';
 import { PublicCustomer } from './Customer.dto';
-import { PublicPaymentMethod } from './PaymentMethod.dto';
 import { SaleDetailType, PublicSaleDetail } from './SaleDetail.dto';
 import Customer from '../../entities/Customer';
 import Order from '../../entities/Order';
-import PaymentMethod from '../../entities/PaymentMethod';
 import SaleDetail from '../../entities/SaleDetail';
 
 export type { SaleDetailType, PublicSaleDetail };
@@ -13,11 +11,11 @@ export type SaleType = {
     id: string;
     customer: Customer;
     order: Order | null;
-    paymentMethod: PaymentMethod | null;
     saleDetails: SaleDetail[];
     total: number;
     dollarRate: number;
     status: SaleStatus;
+    paymentStatus: PaymentStatus;
     createdAt: Date;
     updatedAt: Date;
     deletedAt?: Date | null;
@@ -26,7 +24,6 @@ export type SaleType = {
 export type SaleToSave = {
     customerId: string;
     orderId?: string;
-    paymentMethodId?: string;
     dollarRate: number;
     details: SaleDetailType[];
 }
@@ -35,14 +32,13 @@ export type PublicSale = {
     id: string;
     customerId: string;
     orderId: string | null;
-    paymentMethodId: string | null;
     total: number;
     dollarRate: number;
     status: SaleStatus;
+    paymentStatus: PaymentStatus;
     createdAt: Date;
     updatedAt: Date;
     customer: PublicCustomer;
-    paymentMethod: PublicPaymentMethod | null;
     saleDetails: PublicSaleDetail[];
 }
 
