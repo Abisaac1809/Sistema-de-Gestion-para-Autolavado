@@ -184,3 +184,14 @@ export class PaymentExceedsSaleTotalError extends BusinessError {
     public readonly name = 'PaymentExceedsSaleTotalError';
     public readonly statusCode = 400;
 }
+
+// InventoryAdjustment-specific errors
+export class InventoryAdjustmentNotFoundError extends BusinessError {
+    public readonly name = 'InventoryAdjustmentNotFoundError';
+    public readonly statusCode = 404;
+}
+
+export class InsufficientAdjustmentStockError extends BusinessError {
+    public readonly name = 'InsufficientAdjustmentStockError';
+    public readonly statusCode = 422;
+}

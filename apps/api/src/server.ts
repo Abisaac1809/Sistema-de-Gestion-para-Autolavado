@@ -13,6 +13,7 @@ import createNotificationContactRouter from './routers/NotificationContactRouter
 import createOrderRouter from './routers/OrderRouter';
 import createSaleRouter from './routers/SaleRouter';
 import { createPaymentsRouter } from './routers/PaymentRouter';
+import createInventoryAdjustmentRouter from './routers/InventoryAdjustmentRouter';
 import { createContainer } from './container/Container';
 import httpLogger from './middlewares/HttpLogger';
 import createExchangeRateRouter from './routers/ExchangeRateRouter';
@@ -39,6 +40,7 @@ app.use('/api/orders', createOrderRouter(container.orderService, container.saleS
 app.use('/api/sales', createSaleRouter(container.saleService, container.paymentService));
 app.use('/api/payments', createPaymentsRouter(container.paymentService));
 app.use('/api/exchange-rates', createExchangeRateRouter(container.exchangeRateService));
+app.use('/api/inventory/adjustments', createInventoryAdjustmentRouter(container.inventoryAdjustmentService));
 
 app.use(globalErrorHandler);
 
