@@ -13,4 +13,5 @@ export default interface IPaymentRepository {
   countByTarget(filters: PaymentFiltersForCount): Promise<number>;
   sumByOrderId(orderId: string): Promise<PaymentSumsResult>;
   sumBySaleId(saleId: string): Promise<number>;
+  linkPaymentsToSale(orderId: string, saleId: string): Promise<void>;
 }

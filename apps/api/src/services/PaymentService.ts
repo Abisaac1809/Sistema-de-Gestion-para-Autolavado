@@ -4,6 +4,7 @@ import IOrderRepository from "../interfaces/IRepositories/IOrderRepository";
 import ISaleRepository from "../interfaces/IRepositories/ISaleRepository";
 import IPaymentMethodRepository from "../interfaces/IRepositories/IPaymentMethodRepository";
 import IExchangeRateService from "../interfaces/IServices/IExchangeRateService";
+import ISaleService from "../interfaces/IServices/ISaleService";
 import { PaymentToCreateType } from "../schemas/Payment.schema";
 import {
     PublicPayment,
@@ -33,7 +34,8 @@ export default class PaymentService implements IPaymentService {
         private orderRepository: IOrderRepository,
         private saleRepository: ISaleRepository,
         private paymentMethodRepository: IPaymentMethodRepository,
-        private exchangeRateService: IExchangeRateService
+        private exchangeRateService: IExchangeRateService,
+        private saleService: ISaleService,
     ) {}
     
     async getPaymentById(id: string): Promise<PublicPayment> {
@@ -324,34 +326,9 @@ export default class PaymentService implements IPaymentService {
 
         await this.orderRepository.updatePaymentStatus(orderId, PaymentStatus.PAID);
         await this.orderRepository.updateTotalPaid(orderId, paymentData.newTotalPaidUSD, paymentData.newTotalPaidVES);
-        
-        const orderWithDetails = await this.orderRepository.getById(orderId);
-        
-        if (!orderWithDetails) {
-            throw new OrderNotFoundError(`Order ${orderId} not found`);
-        }
-        
-        // Si detail.service existe, se incluye serviceId, si detail.product existe, se incluye productId
-        const saleDetails = orderWithDetails.orderDetails.map((detail) => ({
-            ...(detail.serviceId && { serviceId: detail.serviceId }),
-            ...(detail.productId && { productId: detail.productId }),
-            quantity: detail.quantity,
-            unitPrice: detail.priceAtTime,
-            subtotal: detail.quantity * detail.priceAtTime,
-        }));
 
-        const totalUsd = saleDetails.reduce((sum, detail) => sum + detail.subtotal, 0);
-        const totalVes = totalUsd * paymentData.exchangeRate;
-        
-        await this.saleRepository.create({
-            customerId: orderWithDetails.customerId,
-            orderId,
-            dollarRate: paymentData.exchangeRate,
-            totalUsd,
-            totalVes,
-            details: saleDetails,
-        });
-        
+        await this.saleService.createSaleFromOrder(orderId);
+
         return PaymentMapper.toPublicPayment(payment);
     }
 }

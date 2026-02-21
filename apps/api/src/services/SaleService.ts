@@ -4,6 +4,7 @@ import IProductRepository from '../interfaces/IRepositories/IProductRepository';
 import IServiceRepository from '../interfaces/IRepositories/IServiceRepository';
 import IOrderRepository from '../interfaces/IRepositories/IOrderRepository';
 import IPaymentMethodRepository from '../interfaces/IRepositories/IPaymentMethodRepository';
+import IPaymentRepository from '../interfaces/IRepositories/IPaymentRepository';
 import IExchangeRateService from '../interfaces/IServices/IExchangeRateService';
 import {
     SaleToSave,
@@ -47,6 +48,7 @@ export default class SaleService implements ISaleService {
         private orderRepository: IOrderRepository,
         private exchangeService: IExchangeRateService,
         private paymentMethodRepository: IPaymentMethodRepository,
+        private paymentRepository: IPaymentRepository,
     ) { }
 
     async createQuickSale(data: SaleToCreateType): Promise<PublicSale> {
@@ -215,6 +217,41 @@ export default class SaleService implements ISaleService {
         };
 
         const sale = await this.saleRepository.create(saleData);
+
+        return SaleMapper.toPublicSale(sale);
+    }
+
+    async createSaleFromOrder(orderId: string): Promise<PublicSale> {
+        const order = await this.orderRepository.getById(orderId);
+        if (!order) {
+            throw new OrderNotFoundError(`Order with ID ${orderId} not found`);
+        }
+
+        const dollarRate = await this.exchangeService.getCurrentRate();
+
+        const saleDetails: SaleDetailType[] = order.orderDetails.map((detail) => ({
+            serviceId: detail.serviceId ?? undefined,
+            productId: detail.productId ?? undefined,
+            quantity: detail.quantity,
+            unitPrice: detail.priceAtTime,
+            subtotal: detail.quantity * detail.priceAtTime,
+        }));
+
+        const totalUsd = saleDetails.reduce((sum, d) => sum + d.subtotal, 0);
+        const totalVes = totalUsd * dollarRate;
+
+        const saleData: SaleToSave = {
+            customerId: order.customerId,
+            orderId: order.id,
+            dollarRate,
+            totalUsd,
+            totalVes,
+            details: saleDetails,
+        };
+
+        const sale = await this.saleRepository.create(saleData);
+
+        await this.paymentRepository.linkPaymentsToSale(orderId, sale.id);
 
         return SaleMapper.toPublicSale(sale);
     }

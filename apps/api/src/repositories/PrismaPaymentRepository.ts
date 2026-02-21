@@ -89,6 +89,13 @@ export default class PrismaPaymentRepository implements IPaymentRepository {
     return result._sum.amountUsd?.toNumber() ?? 0;
   }
 
+  async linkPaymentsToSale(orderId: string, saleId: string): Promise<void> {
+    await this.prisma.payment.updateMany({
+      where: { orderId, deletedAt: null },
+      data: { saleId },
+    });
+  }
+
   private mapToEntity(prismaPayment: any): Payment {
     const paymentMethod = new PaymentMethod({
       id: prismaPayment.paymentMethod.id,
