@@ -1,0 +1,14 @@
+export { default as ICategoryRepository } from "./ICategoryRepository";
+export { default as IProductRepository } from "./IProductRepository";
+export { default as IServiceRepository } from "./IServiceRepository";
+export { default as IPaymentMethodRepository } from "./IPaymentMethodRepository";
+export { ICustomerRepository } from "./ICustomerRepository";
+export { default as INotificationContactRepository } from "./INotificationContactRepository";
+export { default as IOrderRepository } from "./IOrderRepository";
+export { default as IOrderDetailRepository } from "./IOrderDetailRepository";
+export { default as IExchangeRateRepository } from "./IExchangeRateRepository";
+export { default as ISaleRepository } from "./ISaleRepository";
+export { default as IPaymentRepository } from "./IPaymentRepository";
+export { default as IInventoryAdjustmentRepository } from "./IInventoryAdjustmentRepository";
+export { default as IStoreInfoRepository } from "./IStoreInfoRepository";
+export { default as IDashboardRepository } from "./IDashboardRepository";

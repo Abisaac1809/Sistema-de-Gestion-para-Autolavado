@@ -96,7 +96,7 @@ export default class PaymentController {
     }
   };
 
-  getById = async (req: Request, res: Response, next: NextFunction) => {
+  get = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
       if (!id || typeof id !== "string") {

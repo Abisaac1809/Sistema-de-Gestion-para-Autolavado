@@ -10,8 +10,8 @@ export default function createNotificationContactRouter(notificationContactServi
     const controller = new NotificationContactController(notificationContactService);
 
     router.post('/', validateSchema(NotificationContactToCreate), controller.create);
-    router.get('/', validateQueryParams(NotificationContactFilters), controller.getAll);
-    router.get('/:id', controller.getById);
+    router.get('/', validateQueryParams(NotificationContactFilters), controller.list);
+    router.get('/:id', controller.get);
     router.put('/:id', validateSchema(NotificationContactToUpdate), controller.update);
     router.delete('/:id', controller.delete);
 

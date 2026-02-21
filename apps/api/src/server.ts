@@ -4,22 +4,26 @@ import { PrismaClient } from './generated/prisma';
 import { PrismaPg } from '@prisma/adapter-pg';
 import pg from 'pg';
 import globalErrorHandler from './middlewares/GlobalErrorHandler';
-import createCategoryRouter from './routers/CategoryRouter';
-import createProductRouter from './routers/ProductRouter';
-import createServiceRouter from './routers/ServiceRouter';
-import createPaymentMethodRouter from './routers/PaymentMethodRouter';
-import createCustomerRouter from './routers/CustomerRouter';
-import createNotificationContactRouter from './routers/NotificationContactRouter';
-import createOrderRouter from './routers/OrderRouter';
-import createSaleRouter from './routers/SaleRouter';
-import { createPaymentsRouter } from './routers/PaymentRouter';
-import createInventoryAdjustmentRouter from './routers/InventoryAdjustmentRouter';
-import createStoreInfoRouter from './routers/StoreInfoRouter';
-import { createContainer } from './container/Container';
 import httpLogger from './middlewares/HttpLogger';
-import createExchangeRateRouter from './routers/ExchangeRateRouter';
-import createDashboardRouter from './routers/DashboardRouter';
-import createReportRouter from './routers/ReportRouter';
+
+import {
+    createCategoryRouter,
+    createProductRouter,
+    createServiceRouter,
+    createPaymentMethodRouter,
+    createCustomerRouter,
+    createNotificationContactRouter,
+    createOrderRouter,
+    createSaleRouter,
+    createPaymentRouter,
+    createInventoryAdjustmentRouter,
+    createStoreInfoRouter,
+    createExchangeRateRouter,
+    createDashboardRouter,
+    createReportRouter,
+} from './routers';
+
+import { createContainer } from './container/Container';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -41,7 +45,7 @@ app.use('/api/customers', createCustomerRouter(container.customerService));
 app.use('/api/config/notifications', createNotificationContactRouter(container.notificationContactService));
 app.use('/api/orders', createOrderRouter(container.orderService, container.saleService, container.paymentService));
 app.use('/api/sales', createSaleRouter(container.saleService, container.paymentService));
-app.use('/api/payments', createPaymentsRouter(container.paymentService));
+app.use('/api/payments', createPaymentRouter(container.paymentService));
 app.use('/api/exchange-rates', createExchangeRateRouter(container.exchangeRateService));
 app.use('/api/inventory/adjustments', createInventoryAdjustmentRouter(container.inventoryAdjustmentService));
 app.use('/api/config/store', createStoreInfoRouter(container.storeInfoService));

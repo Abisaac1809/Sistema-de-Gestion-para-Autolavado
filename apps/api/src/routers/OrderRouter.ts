@@ -7,7 +7,7 @@ import validateSchema from '../middlewares/ValidateSchema';
 import validateQueryParams from '../middlewares/ValidateQueryParams';
 import { OrderToCreate, OrderToUpdate, OrderStatusChange, OrderPaymentStatusChange, OrderFilters } from '../schemas/Order.schema';
 import { OrderDetailToCreate } from '../schemas/OrderDetail.schema';
-import { createOrderPaymentsRouter } from './PaymentRouter';
+import createOrderPaymentRouter from './OrderPaymentRouter';
 
 export default function createOrderRouter(orderService: IOrderService, saleService: ISaleService, paymentService: IPaymentService): Router {
     const router = Router();
@@ -25,7 +25,7 @@ export default function createOrderRouter(orderService: IOrderService, saleServi
     router.post('/:id/details', validateSchema(OrderDetailToCreate), controller.addDetail);
     router.delete('/:id/details/:detailId', controller.removeDetail);
 
-    router.use('/:id/payments', createOrderPaymentsRouter(paymentService));
+    router.use('/:id/payments', createOrderPaymentRouter(paymentService));
 
     return router;
 }

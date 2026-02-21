@@ -15,9 +15,9 @@ export default function createCustomerRouter(customerService: ICustomerService):
 
     router.post('/', validateSchema(CustomerToCreate), controller.create);
 
-    router.get('/', validateQueryParams(CustomerFilters), controller.getAll);
+    router.get('/', validateQueryParams(CustomerFilters), controller.list);
 
-    router.get('/:id', controller.getById);
+    router.get('/:id', controller.get);
 
     router.put('/:id', validateSchema(CustomerToUpdate), controller.update);
 

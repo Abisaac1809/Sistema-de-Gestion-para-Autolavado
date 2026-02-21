@@ -18,7 +18,7 @@ export default class NotificationContactController {
         }
     };
 
-    getById = async (req: Request, res: Response, next: NextFunction) => {
+    get = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { id } = req.params;
             if (!id || typeof id !== 'string') {
@@ -35,7 +35,7 @@ export default class NotificationContactController {
         }
     };
 
-    getAll = async (req: Request, res: Response, next: NextFunction) => {
+    list = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const filters: NotificationContactFiltersForService = res.locals.validatedQuery;
             const result = await this.notificationContactService.getAll(filters);

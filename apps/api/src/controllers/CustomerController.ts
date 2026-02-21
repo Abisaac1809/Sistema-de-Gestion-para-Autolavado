@@ -50,7 +50,7 @@ export default class CustomerController {
         }
     };
 
-    getById = async (req: Request, res: Response, next: NextFunction) => {
+    get = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { id } = req.params;
             if (!id || typeof id !== 'string') {
@@ -67,7 +67,7 @@ export default class CustomerController {
         }
     };
 
-    getAll = async (req: Request, res: Response, next: NextFunction) => {
+    list = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const filters: CustomerFiltersType = res.locals.validatedQuery;
             const customers = await this.customerService.getAll(filters);

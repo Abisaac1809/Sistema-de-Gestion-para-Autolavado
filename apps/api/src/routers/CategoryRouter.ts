@@ -17,9 +17,9 @@ export default function createCategoryRouter(categoryService: ICategoryService):
 
     router.patch('/:id', validateSchema(CategoryToUpdate), controller.update);
 
-    router.get('/:id', controller.getById);
+    router.get('/:id', controller.get);
 
-    router.get('/', validateQueryParams(CategoryFilters), controller.getList);
+    router.get('/', validateQueryParams(CategoryFilters), controller.list);
 
     router.delete('/:id', controller.delete);
 

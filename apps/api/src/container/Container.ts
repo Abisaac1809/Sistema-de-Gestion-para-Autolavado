@@ -1,35 +1,39 @@
 import { PrismaClient } from '../generated/prisma';
 
-import PrismaCategoryRepository from '../repositories/PrismaCategoryRepository';
-import PrismaProductRepository from '../repositories/PrismaProductRepository';
-import PrismaServiceRepository from '../repositories/PrismaServiceRepository';
-import PrismaPaymentMethodRepository from '../repositories/PrismaPaymentMethodRepository';
-import PrismaCustomerRepository from '../repositories/PrismaCustomerRepository';
-import PrismaNotificationContactRepository from '../repositories/PrismaNotificationContactRepository';
-import PrismaOrderRepository from '../repositories/PrismaOrderRepository';
-import PrismaOrderDetailRepository from '../repositories/PrismaOrderDetailRepository';
-import PrismaExchangeRateRepository from '../repositories/PrismaExchangeRateRepository';
-import PrismaSaleRepository from '../repositories/PrismaSaleRepository';
-import PrismaPaymentRepository from '../repositories/PrismaPaymentRepository';
-import PrismaInventoryAdjustmentRepository from '../repositories/PrismaInventoryAdjustmentRepository';
-import PrismaStoreInfoRepository from '../repositories/PrismaStoreInfoRepository';
-import PrismaDashboardRepository from '../repositories/PrismaDashboardRepository';
+import {
+    PrismaCategoryRepository,
+    PrismaProductRepository,
+    PrismaServiceRepository,
+    PrismaPaymentMethodRepository,
+    PrismaCustomerRepository,
+    PrismaNotificationContactRepository,
+    PrismaOrderRepository,
+    PrismaOrderDetailRepository,
+    PrismaExchangeRateRepository,
+    PrismaSaleRepository,
+    PrismaPaymentRepository,
+    PrismaInventoryAdjustmentRepository,
+    PrismaStoreInfoRepository,
+    PrismaDashboardRepository,
+} from '../repositories';
 
-import CategoryService from '../services/CategoryService';
-import ProductService from '../services/ProductService';
-import ServiceService from '../services/ServiceService';
-import PaymentMethodService from '../services/PaymentMethodService';
-import CustomerService from '../services/CustomerService';
-import NotificationContactService from '../services/NotificationContactService';
-import OrderService from '../services/OrderService';
-import SaleService from '../services/SaleService';
-import PaymentService from '../services/PaymentService';
-import InventoryAdjustmentService from '../services/InventoryAdjustmentService';
-import StoreInfoService from '../services/StoreInfoService';
-import { ExchangeRateService } from '../services/ExchangeRateService';
-import BCVExchangeRateProviderService from '../services/BCVExchangeRateProviderService';
-import DashboardService from '../services/DashboardService';
-import ReportService from '../services/ReportService';
+import {
+    CategoryService,
+    ProductService,
+    ServiceService,
+    PaymentMethodService,
+    CustomerService,
+    NotificationContactService,
+    OrderService,
+    SaleService,
+    PaymentService,
+    InventoryAdjustmentService,
+    StoreInfoService,
+    ExchangeRateService,
+    BCVExchangeRateProviderService,
+    DashboardService,
+    ReportService,
+} from '../services';
 
 export interface Container {
     prisma: PrismaClient;
