@@ -14,6 +14,7 @@ import createOrderRouter from './routers/OrderRouter';
 import createSaleRouter from './routers/SaleRouter';
 import { createPaymentsRouter } from './routers/PaymentRouter';
 import createInventoryAdjustmentRouter from './routers/InventoryAdjustmentRouter';
+import createStoreInfoRouter from './routers/StoreInfoRouter';
 import { createContainer } from './container/Container';
 import httpLogger from './middlewares/HttpLogger';
 import createExchangeRateRouter from './routers/ExchangeRateRouter';
@@ -41,6 +42,7 @@ app.use('/api/sales', createSaleRouter(container.saleService, container.paymentS
 app.use('/api/payments', createPaymentsRouter(container.paymentService));
 app.use('/api/exchange-rates', createExchangeRateRouter(container.exchangeRateService));
 app.use('/api/inventory/adjustments', createInventoryAdjustmentRouter(container.inventoryAdjustmentService));
+app.use('/api/config/store', createStoreInfoRouter(container.storeInfoService));
 
 app.use(globalErrorHandler);
 

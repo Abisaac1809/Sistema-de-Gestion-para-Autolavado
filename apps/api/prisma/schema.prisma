@@ -77,10 +77,10 @@ model StoreInfo {
   id          String    @id @default(uuid()) @db.Uuid
   name        String    @db.VarChar(100)
   rif         String    @unique @db.VarChar(20)
-  address     String?   @db.Text
-  phone       String?   @db.VarChar(20)
-  email       String?   @db.VarChar(100)
+  address     String    @db.Text
+  phone       String    @db.VarChar(20)
   logoUrl     String?   @map("logo_url") @db.Text
+  singleton   Boolean   @unique @default(true)
   lastUpdated DateTime  @default(now()) @map("last_updated") @db.Timestamp(6)
   createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)

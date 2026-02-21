@@ -185,6 +185,12 @@ export class PaymentExceedsSaleTotalError extends BusinessError {
     public readonly statusCode = 400;
 }
 
+// StoreInfo-specific errors
+export class StoreInfoNotFoundError extends BusinessError {
+    public readonly name = 'StoreInfoNotFoundError';
+    public readonly statusCode = 404;
+}
+
 // InventoryAdjustment-specific errors
 export class InventoryAdjustmentNotFoundError extends BusinessError {
     public readonly name = 'InventoryAdjustmentNotFoundError';

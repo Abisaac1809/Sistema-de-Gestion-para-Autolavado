@@ -9,7 +9,7 @@ export const CustomerToCreate = z.object({
         .nullable()
         .optional(),
     phone: z.string()
-        .max(20, 'Phone number must not exceed 20 characters')
+        .regex(/^(0414|0424|0412|0416|0426)-?\d{7}$/, "El teléfono no tiene un formato válido (ej: 0414-1234567)")
         .nullable()
         .optional(),
 });
