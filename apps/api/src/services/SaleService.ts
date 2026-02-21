@@ -3,14 +3,17 @@ import ISaleRepository from '../interfaces/IRepositories/ISaleRepository';
 import IProductRepository from '../interfaces/IRepositories/IProductRepository';
 import IServiceRepository from '../interfaces/IRepositories/IServiceRepository';
 import IOrderRepository from '../interfaces/IRepositories/IOrderRepository';
+import IPaymentMethodRepository from '../interfaces/IRepositories/IPaymentMethodRepository';
 import IExchangeRateService from '../interfaces/IServices/IExchangeRateService';
 import {
     SaleToSave,
     SaleDetailType,
+    SalePaymentToSave,
     PublicSale,
     SaleFiltersForService,
     ListOfSales,
 } from '../types/dtos/Sale.dto';
+import { SaleToCreateType } from '../schemas/Sale.schema';
 import { SaleStatus, OrderStatus, PaymentStatus } from '../types/enums';
 import {
     SaleNotFoundError,
@@ -22,6 +25,9 @@ import {
     InsufficientStockError,
     ServiceNotFoundError,
     ServiceInactiveError,
+    PaymentMethodNotFoundError,
+    PaymentMethodInactiveError,
+    SalePaymentsTotalMismatchError,
 } from '../errors/BusinessErrors';
 import SaleMapper from '../mappers/SaleMapper';
 
@@ -32,16 +38,32 @@ export default class SaleService implements ISaleService {
         [SaleStatus.CANCELLED]: [],
     };
 
+    private readonly ROUNDING_TOLERANCE = 0.01;
+
     constructor(
         private saleRepository: ISaleRepository,
         private productRepository: IProductRepository,
         private serviceRepository: IServiceRepository,
         private orderRepository: IOrderRepository,
-        private exchangeService: IExchangeRateService
+        private exchangeService: IExchangeRateService,
+        private paymentMethodRepository: IPaymentMethodRepository,
     ) { }
 
-    async createQuickSale(data: SaleToSave): Promise<PublicSale> {
+    async createQuickSale(data: SaleToCreateType): Promise<PublicSale> {
         const dollarRate = await this.exchangeService.getCurrentRate();
+
+        // Validate payment methods in bulk (1 query)
+        const paymentMethodIds = data.payments.map(p => p.paymentMethodId);
+        const paymentMethods = await this.paymentMethodRepository.getBulkByIds(paymentMethodIds);
+        for (const payment of data.payments) {
+            const method = paymentMethods.find(pm => pm.id === payment.paymentMethodId);
+            if (!method) {
+                throw new PaymentMethodNotFoundError(`Payment method ${payment.paymentMethodId} not found`);
+            }
+            if (!method.isActive) {
+                throw new PaymentMethodInactiveError(`Payment method "${method.name}" is inactive`);
+            }
+        }
 
         const resolvedDetails: SaleDetailType[] = [];
         const productsToDeduct: Array<{ id: string; newStock: number }> = [];
@@ -97,12 +119,45 @@ export default class SaleService implements ISaleService {
         const totalUsd = resolvedDetails.reduce((sum, d) => sum + d.subtotal, 0);
         const totalVes = totalUsd * dollarRate;
 
+        // Process payments (currency conversion)
+        const processedPayments: SalePaymentToSave[] = data.payments.map(payment => {
+            if (payment.amountUsd !== undefined) {
+                return {
+                    paymentMethodId: payment.paymentMethodId,
+                    amountUsd: payment.amountUsd,
+                    exchangeRate: dollarRate,
+                    amountVes: Math.round(payment.amountUsd * dollarRate * 100) / 100,
+                    originalCurrency: 'USD' as const,
+                    notes: payment.notes,
+                };
+            } else {
+                const amountVes = payment.amountVes!;
+                return {
+                    paymentMethodId: payment.paymentMethodId,
+                    amountUsd: Math.round((amountVes / dollarRate) * 100) / 100,
+                    exchangeRate: dollarRate,
+                    amountVes,
+                    originalCurrency: 'VES' as const,
+                    notes: payment.notes,
+                };
+            }
+        });
+
+        // Validate payments total matches sale total
+        const paymentsTotal = processedPayments.reduce((sum, p) => sum + p.amountUsd, 0);
+        if (Math.abs(paymentsTotal - totalUsd) > this.ROUNDING_TOLERANCE) {
+            throw new SalePaymentsTotalMismatchError(
+                `Payments total (${paymentsTotal.toFixed(2)} USD) does not match sale total (${totalUsd.toFixed(2)} USD)`
+            );
+        }
+
         const saleData: SaleToSave = {
             customerId: data.customerId,
             dollarRate,
             totalUsd,
             totalVes,
             details: resolvedDetails,
+            payments: processedPayments,
         };
 
         const sale = await this.saleRepository.create(saleData);

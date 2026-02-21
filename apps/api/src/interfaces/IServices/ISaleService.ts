@@ -1,13 +1,13 @@
 import {
-    SaleToSave,
     PublicSale,
     SaleFiltersForService,
     ListOfSales,
 } from '../../types/dtos/Sale.dto';
+import { SaleToCreateType } from '../../schemas/Sale.schema';
 import { SaleStatus } from '../../types/enums';
 
 export default interface ISaleService {
-    createQuickSale(data: SaleToSave): Promise<PublicSale>;
+    createQuickSale(data: SaleToCreateType): Promise<PublicSale>;
     createFromOrder(orderId: string): Promise<PublicSale>;
     getById(id: string): Promise<PublicSale>;
     list(filters: SaleFiltersForService): Promise<ListOfSales>;

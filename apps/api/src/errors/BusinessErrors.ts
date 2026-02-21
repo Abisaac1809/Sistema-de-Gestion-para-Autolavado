@@ -185,6 +185,11 @@ export class PaymentExceedsSaleTotalError extends BusinessError {
     public readonly statusCode = 400;
 }
 
+export class SalePaymentsTotalMismatchError extends BusinessError {
+    public readonly name = 'SalePaymentsTotalMismatchError';
+    public readonly statusCode = 422;
+}
+
 // StoreInfo-specific errors
 export class StoreInfoNotFoundError extends BusinessError {
     public readonly name = 'StoreInfoNotFoundError';

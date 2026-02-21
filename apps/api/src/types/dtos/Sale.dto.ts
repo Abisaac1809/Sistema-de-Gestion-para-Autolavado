@@ -24,6 +24,15 @@ export type SaleType = {
     deletedAt?: Date | null;
 }
 
+export type SalePaymentToSave = {
+    paymentMethodId: string;
+    amountUsd: number;
+    exchangeRate: number;
+    amountVes: number;
+    originalCurrency: 'USD' | 'VES';
+    notes?: string;
+}
+
 export type SaleToSave = {
     customerId: string;
     orderId?: string;
@@ -31,6 +40,7 @@ export type SaleToSave = {
     totalUsd: number;
     totalVes: number;
     details: SaleDetailType[];
+    payments?: SalePaymentToSave[];
 }
 
 export type PublicSale = {

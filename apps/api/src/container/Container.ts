@@ -112,7 +112,8 @@ export function createContainer(prisma: PrismaClient): Container {
         productRepository,
         serviceRepository,
         orderRepository,
-        exchangeRateService
+        exchangeRateService,
+        paymentMethodRepository,
     );
     const paymentService = new PaymentService(
         paymentRepository,

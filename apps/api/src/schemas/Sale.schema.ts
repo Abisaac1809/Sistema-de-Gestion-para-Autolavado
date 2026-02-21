@@ -1,11 +1,12 @@
 import { z } from 'zod';
 import { SaleStatus } from '../types/enums';
 import { SaleDetailToCreate } from './SaleDetail.schema';
+import { PaymentToCreate } from './Payment.schema';
 
 export const SaleToCreate = z.object({
     customerId: z.string().uuid('Invalid customer ID format'),
-    dollarRate: z.number().positive('Dollar rate must be greater than 0'),
     details: z.array(SaleDetailToCreate).min(1, 'Sale must have at least one item'),
+    payments: z.array(PaymentToCreate).min(1, 'Sale must have at least one payment'),
 });
 
 export type SaleToCreateType = z.infer<typeof SaleToCreate>;

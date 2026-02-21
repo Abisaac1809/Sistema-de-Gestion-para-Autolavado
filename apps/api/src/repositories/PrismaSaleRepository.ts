@@ -65,9 +65,19 @@ export default class PrismaSaleRepository implements ISaleRepository {
                         unitPrice: detail.unitPrice,
                         subtotal: detail.subtotal,
                     }))
-                }
+                },
+                payments: data.payments ? {
+                    create: data.payments.map(p => ({
+                        paymentMethodId: p.paymentMethodId,
+                        amountUsd: p.amountUsd,
+                        exchangeRate: p.exchangeRate,
+                        amountVes: p.amountVes,
+                        originalCurrency: p.originalCurrency,
+                        notes: p.notes ?? null,
+                    }))
+                } : undefined,
             },
-            include: this.includeRelationsBase,
+            include: this.includeRelationsDetail,
         });
 
         return this.mapToEntity(created);
