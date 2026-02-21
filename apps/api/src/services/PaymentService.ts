@@ -3,7 +3,7 @@ import IPaymentRepository from "../interfaces/IRepositories/IPaymentRepository";
 import IOrderRepository from "../interfaces/IRepositories/IOrderRepository";
 import ISaleRepository from "../interfaces/IRepositories/ISaleRepository";
 import IPaymentMethodRepository from "../interfaces/IRepositories/IPaymentMethodRepository";
-import IExchangeService from "../interfaces/IServices/IExchangeService";
+import IExchangeRateService from "../interfaces/IServices/IExchangeRateService";
 import { PaymentToCreateType } from "../schemas/Payment.schema";
 import {
     PublicPayment,
@@ -33,7 +33,7 @@ export default class PaymentService implements IPaymentService {
         private orderRepository: IOrderRepository,
         private saleRepository: ISaleRepository,
         private paymentMethodRepository: IPaymentMethodRepository,
-        private exchangeRateService: IExchangeService
+        private exchangeRateService: IExchangeRateService
     ) {}
     
     async getPaymentById(id: string): Promise<PublicPayment> {

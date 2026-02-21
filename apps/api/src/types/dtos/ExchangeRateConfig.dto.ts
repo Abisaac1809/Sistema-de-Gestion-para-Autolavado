@@ -22,3 +22,9 @@ export type PublicExchangeRateConfig = {
     createdAt: Date;
     updatedAt: Date;
 }
+
+export type CurrentExchangeRateInfo = {
+    source: string;
+    rate: number;
+    lastSync: Date;
+}

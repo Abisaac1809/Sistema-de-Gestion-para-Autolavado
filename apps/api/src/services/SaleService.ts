@@ -3,7 +3,7 @@ import ISaleRepository from '../interfaces/IRepositories/ISaleRepository';
 import IProductRepository from '../interfaces/IRepositories/IProductRepository';
 import IServiceRepository from '../interfaces/IRepositories/IServiceRepository';
 import IOrderRepository from '../interfaces/IRepositories/IOrderRepository';
-import IExchangeService from '../interfaces/IServices/IExchangeService';
+import IExchangeRateService from '../interfaces/IServices/IExchangeRateService';
 import {
     SaleToSave,
     SaleDetailType,
@@ -37,7 +37,7 @@ export default class SaleService implements ISaleService {
         private productRepository: IProductRepository,
         private serviceRepository: IServiceRepository,
         private orderRepository: IOrderRepository,
-        private exchangeService: IExchangeService
+        private exchangeService: IExchangeRateService
     ) { }
 
     async createQuickSale(data: SaleToSave): Promise<PublicSale> {

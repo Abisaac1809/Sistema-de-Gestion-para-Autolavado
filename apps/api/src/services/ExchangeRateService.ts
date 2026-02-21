@@ -1,13 +1,13 @@
 import { InvalidExchangeRateSourceError } from "../errors/InternalServerErrors";
 import IExchangeRateRepository from "../interfaces/IRepositories/IExchangeRateRepository";
 import IExchangeRateProviderService from "../interfaces/IServices/IExchangeProviderService";
-import IExchangeService from "../interfaces/IServices/IExchangeService";
+import IExchangeRateService from "../interfaces/IServices/IExchangeRateService";
 import ExchangeRateConfigMapper from "../mappers/ExchangeRateConfigMapper";
 import { ExchangeRateConfigToUpdateType } from "../schemas/ExchangeRateConfig.schema";
-import { PublicExchangeRateConfig } from "../types/dtos/ExchangeRateConfig.dto";
+import { CurrentExchangeRateInfo, PublicExchangeRateConfig } from "../types/dtos/ExchangeRateConfig.dto";
 import { ExchangeRateSource } from "../types/enums";
 
-export class ExchangeRateService implements IExchangeService {
+export class ExchangeRateService implements IExchangeRateService {
     private exchangeRateRepository: IExchangeRateRepository;
     private exchangeRateProviderService: IExchangeRateProviderService;
     
@@ -20,11 +20,17 @@ export class ExchangeRateService implements IExchangeService {
     }
 
     async getCurrentRate(): Promise<number> {
+        const exchangeRateInfo = await this.getCurrentExchangeRateInfo();
+        return exchangeRateInfo.rate;
+    }
+    
+    async getCurrentExchangeRateInfo(): Promise<CurrentExchangeRateInfo> {
         try {
+            let rate: number;
             const config = await this.exchangeRateRepository.getExchangeRateConfig();
 
             if (config.activeSource === ExchangeRateSource.CUSTOM) {
-                return Math.round(config.customRate * 100) / 100;
+                rate = config.customRate;
             }
 
             const [usdRate, eurRate] = await Promise.all([
@@ -39,7 +45,6 @@ export class ExchangeRateService implements IExchangeService {
                 await this.exchangeRateRepository.updateBCVRates(usdRate, eurRate);
             }
 
-            let rate: number;
             switch (config.activeSource) {
                 case ExchangeRateSource.BCV_USD:
                     rate = usdRate;
@@ -51,7 +56,11 @@ export class ExchangeRateService implements IExchangeService {
                     throw new InvalidExchangeRateSourceError(config.activeSource);
             }
 
-            return Math.round(rate * 100) / 100;
+            return {
+                source: config.activeSource,
+                rate: await this.roundRate(rate),
+                lastSync: config.lastSync
+            }
 
         } catch (error) {
             console.error('Error obteniendo tasa del BCV, usando última tasa conocida:', error);
@@ -72,8 +81,16 @@ export class ExchangeRateService implements IExchangeService {
                     throw new InvalidExchangeRateSourceError(config.activeSource);
             }
 
-            return Math.round(rate * 100) / 100;
+            return {
+                source: config.activeSource,
+                rate: await this.roundRate(rate),
+                lastSync: config.lastSync
+            };
         }
+    }
+
+    async roundRate(rate: number): Promise<number> {
+        return Math.round(rate * 100) / 100;
     }
 
     async getExchangeRateConfig(): Promise<PublicExchangeRateConfig> {

@@ -4,7 +4,7 @@ import IOrderDetailRepository from '../interfaces/IRepositories/IOrderDetailRepo
 import { ICustomerRepository } from '../interfaces/IRepositories/ICustomerRepository';
 import IProductRepository from '../interfaces/IRepositories/IProductRepository';
 import IServiceRepository from '../interfaces/IRepositories/IServiceRepository';
-import IExchangeService from '../interfaces/IServices/IExchangeService';
+import IExchangeRateService from '../interfaces/IServices/IExchangeRateService';
 import {
     OrderToCreateType,
     OrderToUpdateType,
@@ -43,7 +43,7 @@ export default class OrderService implements IOrderService {
         private customerRepository: ICustomerRepository,
         private productRepository: IProductRepository,
         private serviceRepository: IServiceRepository,
-        private exchangeRateService: IExchangeService
+        private exchangeRateService: IExchangeRateService
     ) { }
 
     async createOrder(data: OrderToCreateType): Promise<PublicOrder> {

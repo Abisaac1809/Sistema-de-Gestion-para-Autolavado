@@ -18,6 +18,8 @@ import createStoreInfoRouter from './routers/StoreInfoRouter';
 import { createContainer } from './container/Container';
 import httpLogger from './middlewares/HttpLogger';
 import createExchangeRateRouter from './routers/ExchangeRateRouter';
+import createDashboardRouter from './routers/DashboardRouter';
+import createReportRouter from './routers/ReportRouter';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -43,6 +45,8 @@ app.use('/api/payments', createPaymentsRouter(container.paymentService));
 app.use('/api/exchange-rates', createExchangeRateRouter(container.exchangeRateService));
 app.use('/api/inventory/adjustments', createInventoryAdjustmentRouter(container.inventoryAdjustmentService));
 app.use('/api/config/store', createStoreInfoRouter(container.storeInfoService));
+app.use('/api/dashboard', createDashboardRouter(container.dashboardService));
+app.use('/api/reports', createReportRouter(container.reportService));
 
 app.use(globalErrorHandler);
 

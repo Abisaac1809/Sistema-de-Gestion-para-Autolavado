@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import IExchangeService from "../interfaces/IServices/IExchangeService";
+import IExchangeRateService from "../interfaces/IServices/IExchangeRateService";
 
 export default class ExchangeRateController {
-    private exchangeService: IExchangeService;
+    private exchangeService: IExchangeRateService;
 
-    constructor(exchangeService: IExchangeService) {
+    constructor(exchangeService: IExchangeRateService) {
         this.exchangeService = exchangeService;
     }
 

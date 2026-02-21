@@ -13,6 +13,7 @@ import PrismaSaleRepository from '../repositories/PrismaSaleRepository';
 import PrismaPaymentRepository from '../repositories/PrismaPaymentRepository';
 import PrismaInventoryAdjustmentRepository from '../repositories/PrismaInventoryAdjustmentRepository';
 import PrismaStoreInfoRepository from '../repositories/PrismaStoreInfoRepository';
+import PrismaDashboardRepository from '../repositories/PrismaDashboardRepository';
 
 import CategoryService from '../services/CategoryService';
 import ProductService from '../services/ProductService';
@@ -27,6 +28,8 @@ import InventoryAdjustmentService from '../services/InventoryAdjustmentService';
 import StoreInfoService from '../services/StoreInfoService';
 import { ExchangeRateService } from '../services/ExchangeRateService';
 import BCVExchangeRateProviderService from '../services/BCVExchangeRateProviderService';
+import DashboardService from '../services/DashboardService';
+import ReportService from '../services/ReportService';
 
 export interface Container {
     prisma: PrismaClient;
@@ -44,6 +47,7 @@ export interface Container {
     paymentRepository: PrismaPaymentRepository;
     inventoryAdjustmentRepository: PrismaInventoryAdjustmentRepository;
     storeInfoRepository: PrismaStoreInfoRepository;
+    dashboardRepository: PrismaDashboardRepository;
 
     bcvExchangeRateProviderService: BCVExchangeRateProviderService;
     
@@ -59,6 +63,8 @@ export interface Container {
     paymentService: PaymentService;
     inventoryAdjustmentService: InventoryAdjustmentService;
     storeInfoService: StoreInfoService;
+    dashboardService: DashboardService;
+    reportService: ReportService;
 }
 
 export function createContainer(prisma: PrismaClient): Container {
@@ -75,6 +81,7 @@ export function createContainer(prisma: PrismaClient): Container {
     const paymentRepository = new PrismaPaymentRepository(prisma);
     const inventoryAdjustmentRepository = new PrismaInventoryAdjustmentRepository(prisma);
     const storeInfoRepository = new PrismaStoreInfoRepository(prisma);
+    const dashboardRepository = new PrismaDashboardRepository(prisma);
 
     const bcvExchangeRateProviderService = new BCVExchangeRateProviderService();
 
@@ -116,6 +123,9 @@ export function createContainer(prisma: PrismaClient): Container {
     );
     const storeInfoService = new StoreInfoService(storeInfoRepository);
 
+    const dashboardService = new DashboardService(dashboardRepository, exchangeRateService);
+    const reportService = new ReportService(dashboardService);
+
     return {
         prisma,
         categoryRepository,
@@ -131,6 +141,7 @@ export function createContainer(prisma: PrismaClient): Container {
         paymentRepository,
         inventoryAdjustmentRepository,
         storeInfoRepository,
+        dashboardRepository,
         bcvExchangeRateProviderService,
         categoryService,
         productService,
@@ -144,5 +155,7 @@ export function createContainer(prisma: PrismaClient): Container {
         paymentService,
         inventoryAdjustmentService,
         storeInfoService,
+        dashboardService,
+        reportService,
     };
 }
