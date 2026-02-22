@@ -1,13 +1,20 @@
+import { Currency } from '@car-wash/types';
 import PaymentMethod from '../../entities/PaymentMethod';
-import { PublicPaymentMethod } from './PaymentMethod.dto';
 
-export type Currency = 'USD' | 'VES';
+export type {
+    PaymentSumsResult,
+    PaymentToSave,
+    PublicPayment,
+    PaymentFiltersForService,
+    PaymentFiltersForRepository,
+    PaymentFiltersForCount,
+    ListOfPayments,
+} from '@car-wash/types';
 
-export type PaymentSumsResult = {
-    usd: number;
-    ves: number;
-};
+// Re-export Currency for backward compatibility (replaces local 'USD' | 'VES' union)
+export { Currency };
 
+// Internal type using entity classes — not in shared package
 export type PaymentType = {
     id: string;
     orderId: string | null;
@@ -22,69 +29,4 @@ export type PaymentType = {
     createdAt: Date;
     updatedAt: Date;
     deletedAt?: Date | null;
-}
-
-export type PaymentToSave = {
-    orderId?: string;
-    saleId?: string;
-    paymentMethodId: string;
-    amountUsd: number;
-    exchangeRate: number;
-    amountVes: number;
-    originalCurrency: Currency;
-    paymentDate?: Date;
-    notes?: string;
-}
-
-export type PublicPayment = {
-    id: string;
-    orderId: string | null;
-    saleId: string | null;
-    amountUsd: number;
-    exchangeRate: number;
-    amountVes: number;
-    originalCurrency: Currency;
-    paymentDate: Date;
-    notes: string | null;
-    createdAt: Date;
-    updatedAt: Date;
-    paymentMethod: PublicPaymentMethod;
-}
-
-export type PaymentFiltersForService = {
-    orderId?: string;
-    saleId?: string;
-    paymentMethodId?: string;
-    fromDate?: Date;
-    toDate?: Date;
-    page: number;
-    limit: number;
-}
-
-export type PaymentFiltersForRepository = {
-    orderId?: string;
-    saleId?: string;
-    paymentMethodId?: string;
-    fromDate?: Date;
-    toDate?: Date;
-    limit: number;
-    offset: number;
-}
-
-export type PaymentFiltersForCount = {
-    orderId?: string;
-    saleId?: string;
-    paymentMethodId?: string;
-    fromDate?: Date;
-    toDate?: Date;
-}
-
-export type ListOfPayments = {
-    data: PublicPayment[];
-    meta: {
-        totalRecords: number;
-        currentPage: number;
-        limit: number;
-        totalPages: number;
-    };
 }

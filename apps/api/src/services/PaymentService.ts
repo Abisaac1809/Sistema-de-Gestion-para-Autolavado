@@ -10,6 +10,7 @@ import {
     PublicPayment,
     PaymentFiltersForService,
     ListOfPayments,
+    Currency,
 } from "../types/dtos/Payment.dto";
 import { PaymentStatus, OrderStatus, SaleStatus } from "../types/enums";
 import {
@@ -128,14 +129,14 @@ export default class PaymentService implements IPaymentService {
 
         let amountUsd: number;
         let amountVes: number;
-        let originalCurrency: 'USD' | 'VES';
+        let originalCurrency: Currency;
 
         if (data.amountUsd !== undefined) {
-            originalCurrency = 'USD';
+            originalCurrency = Currency.USD;
             amountUsd = data.amountUsd;
             amountVes = Math.round(amountUsd * exchangeRate * 100) / 100;
         } else if (data.amountVes !== undefined) {
-            originalCurrency = 'VES';
+            originalCurrency = Currency.VES;
             amountVes = data.amountVes;
             amountUsd = Math.round((amountVes / exchangeRate) * 100) / 100;
         } else {
@@ -245,14 +246,14 @@ export default class PaymentService implements IPaymentService {
 
         let amountUsd: number;
         let amountVes: number;
-        let originalCurrency: 'USD' | 'VES';
+        let originalCurrency: Currency;
 
         if (data.amountUsd !== undefined) {
-            originalCurrency = 'USD';
+            originalCurrency = Currency.USD;
             amountUsd = data.amountUsd;
             amountVes = Math.round(amountUsd * exchangeRate * 100) / 100;
         } else if (data.amountVes !== undefined) {
-            originalCurrency = 'VES';
+            originalCurrency = Currency.VES;
             amountVes = data.amountVes;
             amountUsd = Math.round((amountVes / exchangeRate) * 100) / 100;
         } else {
@@ -308,7 +309,7 @@ export default class PaymentService implements IPaymentService {
             amountUsd: number;
             exchangeRate: number;
             amountVes: number;
-            originalCurrency: 'USD' | 'VES';
+            originalCurrency: Currency;
             notes: string | null;
             newTotalPaidUSD: number;
             newTotalPaidVES: number;

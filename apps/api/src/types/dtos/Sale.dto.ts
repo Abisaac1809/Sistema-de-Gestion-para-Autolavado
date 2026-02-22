@@ -1,14 +1,22 @@
-import { SaleStatus } from '../enums';
-import { PublicCustomer } from './Customer.dto';
-import { SaleDetailType, PublicSaleDetail } from './SaleDetail.dto';
-import { PublicPayment } from './Payment.dto';
+import { SaleStatus } from '@car-wash/types';
 import Customer from '../../entities/Customer';
 import Order from '../../entities/Order';
 import SaleDetail from '../../entities/SaleDetail';
 import Payment from '../../entities/Payment';
 
-export type { SaleDetailType, PublicSaleDetail };
+export type {
+    SaleDetailType,
+    PublicSaleDetail,
+    SalePaymentToSave,
+    SaleToSave,
+    PublicSale,
+    SaleFiltersForService,
+    SaleFiltersForRepository,
+    SaleFiltersForCount,
+    ListOfSales,
+} from '@car-wash/types';
 
+// Internal type using entity classes — not in shared package
 export type SaleType = {
     id: string;
     customer: Customer;
@@ -22,76 +30,4 @@ export type SaleType = {
     createdAt: Date;
     updatedAt: Date;
     deletedAt?: Date | null;
-}
-
-export type SalePaymentToSave = {
-    paymentMethodId: string;
-    amountUsd: number;
-    exchangeRate: number;
-    amountVes: number;
-    originalCurrency: 'USD' | 'VES';
-    notes?: string;
-}
-
-export type SaleToSave = {
-    customerId: string;
-    orderId?: string;
-    dollarRate: number;
-    totalUsd: number;
-    totalVes: number;
-    details: SaleDetailType[];
-    payments?: SalePaymentToSave[];
-}
-
-export type PublicSale = {
-    id: string;
-    customerId: string;
-    orderId: string | null;
-    dollarRate: number;
-    totalUSD: number;
-    totalVES: number;
-    status: SaleStatus;
-    createdAt: Date;
-    updatedAt: Date;
-    customer: PublicCustomer;
-    saleDetails: PublicSaleDetail[];
-    payments?: PublicPayment[];
-}
-
-export type SaleFiltersForService = {
-    search?: string;
-    status?: SaleStatus;
-    orderId?: string;
-    fromDate?: Date;
-    toDate?: Date;
-    page: number;
-    limit: number;
-}
-
-export type SaleFiltersForRepository = {
-    search?: string;
-    status?: SaleStatus;
-    orderId?: string;
-    fromDate?: Date;
-    toDate?: Date;
-    limit: number;
-    offset: number;
-}
-
-export type SaleFiltersForCount = {
-    search?: string;
-    status?: SaleStatus;
-    orderId?: string;
-    fromDate?: Date;
-    toDate?: Date;
-}
-
-export type ListOfSales = {
-    data: PublicSale[];
-    meta: {
-        totalRecords: number;
-        currentPage: number;
-        limit: number;
-        totalPages: number;
-    };
 }

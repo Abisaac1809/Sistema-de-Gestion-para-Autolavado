@@ -1,4 +1,4 @@
-import { PaymentType } from "../types/dtos/Payment.dto";
+import { PaymentType, Currency } from "../types/dtos/Payment.dto";
 import PaymentMethod from "./PaymentMethod";
 
 export default class Payment {
@@ -9,7 +9,7 @@ export default class Payment {
     public amountUsd: number;
     public exchangeRate: number;
     public amountVes: number;
-    public originalCurrency: 'USD' | 'VES';
+    public originalCurrency: Currency;
     public paymentDate: Date;
     public notes: string | null;
     public createdAt: Date;

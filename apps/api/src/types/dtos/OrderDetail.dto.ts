@@ -1,19 +1,14 @@
-import { OrderDetailToCreateType } from '../../schemas/OrderDetail.schema';
 import Service from '../../entities/Service';
 import Product from '../../entities/Product';
-import { PublicService } from './Service.dto';
-import { PublicProduct } from './Product.dto';
 
-export type { OrderDetailToCreateType };
+export type {
+    OrderDetailToCreateType,
+    OrderDetailToSave,
+    OrderDetailRecord,
+    PublicOrderDetail,
+} from '@car-wash/types';
 
-export type OrderDetailToSave = {
-    orderId: string;
-    serviceId: string | null;
-    productId: string | null;
-    quantity: number;
-    priceAtTime: number;
-}
-
+// Internal type using entity classes — not in shared package
 export type OrderDetailType = {
     id: string;
     orderId: string;
@@ -24,28 +19,4 @@ export type OrderDetailType = {
     createdAt: Date;
     updatedAt: Date;
     deletedAt?: Date | null;
-}
-
-export type OrderDetailRecord = {
-    id: string;
-    orderId: string;
-    serviceId: string | null;
-    productId: string | null;
-    quantity: number;
-    priceAtTime: number;
-    serviceName?: string | null;
-    productName?: string | null;
-    createdAt: Date;
-    updatedAt: Date;
-    deletedAt?: Date | null;
-}
-
-export type PublicOrderDetail = {
-    id: string;
-    orderId: string;
-    quantity: number;
-    priceAtTime: number;
-    subtotal: number;
-    service: PublicService | null;
-    product: PublicProduct | null;
 }

@@ -1,39 +1,10 @@
-import { ServiceToCreateType, ServiceToUpdateType, ServiceFiltersType } from '../../schemas/Service.schema';
-
-export type { ServiceToCreateType, ServiceToUpdateType, ServiceFiltersType };
-
-export type PublicService = {
-    id: string;
-    name: string;
-    description: string | null;
-    price: number;
-
-    status: boolean;
-    createdAt: Date;
-    updatedAt: Date;
-};
-
-
-export type ServiceFiltersForService = ServiceFiltersType;
-
-export type ServiceFiltersForRepository = {
-    search?: string;
-    status?: boolean;
-    limit: number;
-    offset: number;
-};
-
-export type ServiceFiltersForCount = {
-    search?: string;
-    status?: boolean;
-};
-
-export type ListOfServices = {
-    data: PublicService[];
-    meta: {
-        totalRecords: number;
-        currentPage: number;
-        limit: number;
-        totalPages: number;
-    };
-};
+export type {
+    ServiceToCreateType,
+    ServiceToUpdateType,
+    ServiceFiltersType,
+    PublicService,
+    ServiceFiltersForService,
+    ServiceFiltersForRepository,
+    ServiceFiltersForCount,
+    ListOfServices,
+} from '@car-wash/types';

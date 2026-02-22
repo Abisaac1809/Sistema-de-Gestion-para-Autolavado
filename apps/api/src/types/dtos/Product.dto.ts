@@ -1,8 +1,19 @@
-import { UnitType } from '../enums';
-import { ProductToCreateType, ProductToUpdateType, ProductFiltersType } from '../../schemas/Product.schema';
+import { UnitType } from '@car-wash/types';
 
-export type { ProductToCreateType, ProductToUpdateType, ProductFiltersType };
+export type {
+    ProductToCreateType,
+    ProductToUpdateType,
+    ProductFiltersType,
+    RawProduct,
+    PublicProduct,
+    StockUpdate,
+    ProductFiltersForService,
+    ProductFiltersForRepository,
+    ProductFiltersForCount,
+    ListOfProducts,
+} from '@car-wash/types';
 
+// Internal type used by Product entity — not in shared package
 export type ProductType = {
     id: string;
     categoryId: string | null;
@@ -17,63 +28,3 @@ export type ProductType = {
     updatedAt: Date;
     deletedAt?: Date | null;
 }
-
-export type RawProduct = {
-    id: string;
-    category_id: string | null;
-    name: string;
-    stock: string | number;
-    min_stock: string | number;
-    unit_type: string | null;
-    cost_price: string | number;
-    is_for_sale: boolean;
-    status: boolean;
-    created_at: Date;
-    updated_at: Date;
-    deleted_at: Date | null;
-};
-
-
-export type PublicProduct = {
-    id: string;
-    categoryId: string | null;
-    name: string;
-    stock: number;
-    minStock: number;
-    unitType: UnitType | null;
-    costPrice: number;
-    isForSale: boolean;
-    status: boolean;
-};
-
-export type StockUpdate = { id: string; newStock: number };
-
-export type ProductFiltersForService = ProductFiltersType;
-
-export type ProductFiltersForRepository = {
-    search?: string;
-    categoryId?: string;
-    isForSale?: boolean;
-    status?: boolean;
-    lowStock?: boolean;
-    limit: number;
-    offset: number;
-};
-
-export type ProductFiltersForCount = {
-    search?: string;
-    categoryId?: string;
-    isForSale?: boolean;
-    status?: boolean;
-    lowStock?: boolean;
-};
-
-export type ListOfProducts = {
-    data: PublicProduct[];
-    meta: {
-        totalRecords: number;
-        currentPage: number;
-        limit: number;
-        totalPages: number;
-    };
-};

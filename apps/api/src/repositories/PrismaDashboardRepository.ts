@@ -220,7 +220,6 @@ export default class PrismaDashboardRepository implements IDashboardRepository {
         const groups = await this.prisma.inventoryAdjustment.groupBy({
             by: ['adjustmentType', 'reason'],
             where: {
-                deletedAt: null,
                 createdAt: { gte: fromDate, lte: toDate },
             },
             _count: { id: true },
@@ -230,8 +229,8 @@ export default class PrismaDashboardRepository implements IDashboardRepository {
         return groups.map((g) => ({
             adjustmentType: g.adjustmentType as AdjustmentType,
             reason: g.reason as AdjustmentReason,
-            count: g._count.id,
-            totalQuantity: g._sum.quantity?.toNumber() ?? 0,
+            count: g._count?.id ?? 0,
+            totalQuantity: g._sum?.quantity?.toNumber() ?? 0,
         }));
     }
 

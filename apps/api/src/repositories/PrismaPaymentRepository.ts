@@ -7,6 +7,7 @@ import {
   PaymentFiltersForRepository,
   PaymentFiltersForCount,
   PaymentSumsResult,
+  Currency,
 } from "../types/dtos/Payment.dto";
 
 export default class PrismaPaymentRepository implements IPaymentRepository {
@@ -122,7 +123,7 @@ export default class PrismaPaymentRepository implements IPaymentRepository {
       amountUsd: prismaPayment.amountUsd.toNumber(),
       exchangeRate: prismaPayment.exchangeRate.toNumber(),
       amountVes: prismaPayment.amountVes.toNumber(),
-      originalCurrency: prismaPayment.originalCurrency as 'USD' | 'VES',
+      originalCurrency: prismaPayment.originalCurrency as Currency,
       paymentDate: prismaPayment.paymentDate,
       notes: prismaPayment.notes,
       createdAt: prismaPayment.createdAt,
