@@ -5,6 +5,7 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import pg from 'pg';
 import globalErrorHandler from './middlewares/GlobalErrorHandler';
 import httpLogger from './middlewares/HttpLogger';
+import cors from 'cors';
 
 import {
     createCategoryRouter,
@@ -34,6 +35,7 @@ const prisma = new PrismaClient({ adapter });
 
 app.use(httpLogger);
 app.use(express.json());
+app.use(cors());
 
 const container = createContainer(prisma);
 
