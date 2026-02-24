@@ -6,6 +6,7 @@ yarn-error.log*
 pnpm-debug.log*
 
 # Build output
+apps/*/dist/
 /dist/
 /build/
 /.next/
@@ -50,6 +51,8 @@ CLAUDE.md
 .opencode/
 .context/
 .agent/
+.agents/
+skills-lock.json
 
 # GSD planning (local-only)
 .planning/
