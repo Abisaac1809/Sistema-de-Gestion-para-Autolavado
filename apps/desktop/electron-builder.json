@@ -1,0 +1,17 @@
+{
+  "appId": "com.carwash.management",
+  "productName": "Car Wash Management",
+  "directories": {
+    "output": "release"
+  },
+  "files": [
+    "dist/**/*",
+    "!dist/**/*.map"
+  ],
+  "win": {
+    "target": ["nsis", "portable"]
+  },
+  "linux": {
+    "target": ["AppImage", "deb"]
+  }
+}

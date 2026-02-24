@@ -1,0 +1,20 @@
+{
+  "name": "car-wash-desktop",
+  "version": "0.0.1",
+  "description": "Electron wrapper for Car Wash Management System",
+  "license": "MIT",
+  "author": "Abisaac Carmona",
+  "main": "dist/main.js",
+  "scripts": {
+    "compile": "tsc",
+    "dev": "env GTK_MODULES='' tsc && electron .",
+    "dev:linux": "tsc && DISPLAY=${DISPLAY:-:0} electron --gtk-version=3 .",
+    "build": "tsc && electron-builder"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.0",
+    "electron": "^36.0.0",
+    "electron-builder": "^25.1.8",
+    "typescript": "^5.9.3"
+  }
+}

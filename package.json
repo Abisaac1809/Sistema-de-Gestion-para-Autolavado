@@ -15,7 +15,10 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "build-server": "tsc -p /apps/api/tsconfig.json"
+    "build-server": "tsc -p /apps/api/tsconfig.json",
+    "start-server": "npm run server -w apps/api",
+    "start-web": "npm run dev -w apps/web",
+    "run-electron": "npm run dev:linux -w apps/desktop"
   },
   "devDependencies": {
     "@types/node": "^25.2.0",
