@@ -61,8 +61,8 @@ export function Sidebar({businessName}: {businessName: string}) {
         </ul>
 
         {/* Nombre del carwash */}
-        <div className="flex gap-3 rounded-md px-2 py-2">
-          <span className="items-center justify-center text-sm font-medium text-gray-700">
+        <div className="flex px-2 py-2">
+          <span className="text-left text-sm font-medium text-gray-700">
             {businessName}
           </span>
         </div>
