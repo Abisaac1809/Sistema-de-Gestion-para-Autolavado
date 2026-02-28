@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { X, Plus, CloudUpload } from "lucide-react";
+import { CloudUpload } from "lucide-react";
 import type { PublicStoreInfo, StoreInfoToUpdateType } from "@car-wash/types";
 import type { GeneralTabFormValues } from "../../schemas/settings.schemas";
 
@@ -21,38 +21,24 @@ export function GeneralTab({
   onSave,
 }: GeneralTabProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [form, setForm] = useState<GeneralTabFormValues>({
+  const [form, setForm] = useState<StoreInfoToUpdateType>({
     name: "",
     rif: "",
     address: "",
-    phones: [""],
+    phone: "",
   });
-  const [newPhone, setNewPhone] = useState("");
 
   useEffect(() => {
+    console.log(storeInfo)
     if (storeInfo) {
       setForm({
         name: storeInfo.name,
         rif: storeInfo.rif,
         address: storeInfo.address,
-        phones: storeInfo.phone ? [storeInfo.phone] : [""],
+        phone: storeInfo.phone ?? "",
       });
     }
   }, [storeInfo]);
-
-  function handleAddPhone() {
-    const trimmed = newPhone.trim();
-    if (!trimmed) return;
-    setForm((prev) => ({ ...prev, phones: [...prev.phones, trimmed] }));
-    setNewPhone("");
-  }
-
-  function handleRemovePhone(index: number) {
-    setForm((prev) => ({
-      ...prev,
-      phones: prev.phones.filter((_, i) => i !== index),
-    }));
-  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -60,9 +46,7 @@ export function GeneralTab({
       name: form.name,
       rif: form.rif,
       address: form.address,
-      // Map phones[0] to the backend's single `phone` field.
-      // The backend only supports one phone number.
-      phone: form.phones[0] ?? undefined,
+      phone: form.phone || undefined,
     };
     onSave(payload);
   }
@@ -166,61 +150,22 @@ export function GeneralTab({
         />
       </div>
 
-      {/* Phones */}
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-700">
-          Teléfonos
+      {/* Phone */}
+      <div className="space-y-1">
+        <label
+          htmlFor="store-phone"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Teléfono
         </label>
-        <div className="space-y-2">
-          {form.phones.map((phone, index) => (
-            <div key={index} className="flex items-center gap-2">
-              <input
-                type="text"
-                value={phone || ""}
-                onChange={(e) => {
-                  const updated = [...form.phones];
-                  updated[index] = e.target.value;
-                  setForm((prev) => ({ ...prev, phones: updated }));
-                }}
-                className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
-                placeholder="Ej: 0414-1234567"
-              />
-              {form.phones.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => handleRemovePhone(index)}
-                  className="p-2 text-gray-400 hover:text-red-500 transition-colors"
-                  aria-label="Eliminar teléfono"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={newPhone}
-            onChange={(e) => setNewPhone(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                handleAddPhone();
-              }
-            }}
-            className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
-            placeholder="Agregar otro teléfono"
-          />
-          <button
-            type="button"
-            onClick={handleAddPhone}
-            className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            <Plus className="h-4 w-4" />
-            Agregar
-          </button>
-        </div>
+        <input
+          id="store-phone"
+          type="text"
+          value={form.phone || ""}
+          onChange={(e) => setForm((prev) => ({ ...prev, phone: e.target.value }))}
+          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+          placeholder="Ej: 0414-1234567"
+        />
       </div>
 
       {/* Submit */}
