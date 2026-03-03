@@ -10,6 +10,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/utils/cn";
+import { useStoreInfo } from "@/features/settings/hooks/useStoreInfo";
 
 type NavItem = {
   label: string;
@@ -30,7 +31,9 @@ const BOTTOM_ITEMS: NavItem[] = [
   { label: "Configuracion", href: "/configuracion", icon: Settings },
 ];
 
-export function Sidebar({businessName}: {businessName: string}) {
+export function Sidebar() {
+  const storeInfo = useStoreInfo();
+  const businessName = storeInfo.storeInfo?.name || "Mi Autolavado";
   return (
     <aside
       aria-label="Navegación principal"
@@ -63,7 +66,7 @@ export function Sidebar({businessName}: {businessName: string}) {
         {/* Nombre del carwash */}
         <div className="flex px-2 py-2">
           <span className="text-left text-sm font-medium text-gray-700">
-            {businessName}
+            {businessName} 
           </span>
         </div>
       </div>
@@ -84,6 +87,7 @@ function SidebarNavItem({ item }: { item: NavItem }) {
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-1",
             isActive
               ? "bg-gray-900 text-white"
+
               : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
           )
         }

@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { CloudUpload } from "lucide-react";
 import type { PublicStoreInfo, StoreInfoToUpdateType } from "@car-wash/types";
-import type { GeneralTabFormValues } from "../../schemas/settings.schemas";
 
 type GeneralTabProps = {
   storeInfo: PublicStoreInfo | undefined;

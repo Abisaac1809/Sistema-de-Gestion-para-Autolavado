@@ -1,14 +1,10 @@
 import { z } from "zod";
-import { ExchangeRateSource } from "@car-wash/types";
+import { ExchangeRateSource, StoreInfoToUpdate } from "@car-wash/types";
+import type { StoreInfoToUpdateType } from "@car-wash/types";
 
-export const GeneralTabFormSchema = z.object({
-  name: z.string().min(1, "El nombre es requerido").max(100),
-  rif: z.string().min(1, "El RIF es requerido"),
-  address: z.string().min(1, "La dirección es requerida").max(255),
-  phones: z.array(z.string()),
-});
+export const GeneralTabFormSchema = StoreInfoToUpdate;
 
-export type GeneralTabFormValues = z.infer<typeof GeneralTabFormSchema>;
+export type GeneralTabFormValues = StoreInfoToUpdateType;
 
 export const CurrencyTabFormSchema = z.object({
   activeSource: z.nativeEnum(ExchangeRateSource),
@@ -26,3 +22,12 @@ export const NewPaymentMethodSchema = z.object({
 });
 
 export type NewPaymentMethodValues = z.infer<typeof NewPaymentMethodSchema>;
+
+import { NotificationContactToCreate } from "@car-wash/types";
+import type { NotificationContactToCreateType } from "@car-wash/types";
+
+// Reuse the shared schema — same rules the backend router validates against.
+// Extend only if the UI needs extra UI-only fields; otherwise assign directly.
+export const NotificationContactFormSchema = NotificationContactToCreate;
+
+export type NotificationContactFormValues = NotificationContactToCreateType;

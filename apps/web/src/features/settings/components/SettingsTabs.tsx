@@ -3,11 +3,13 @@ import type { PublicPaymentMethod, PaymentMethodToUpdateType } from "@car-wash/t
 import { useStoreInfo } from "../hooks/useStoreInfo";
 import { useExchangeRate } from "../hooks/useExchangeRate";
 import { usePaymentMethods } from "../hooks/usePaymentMethods";
+import { useNotificationContacts } from "../hooks/useNotificationContacts";
 import { GeneralTab } from "./tabs/GeneralTab";
 import { CurrencyTab } from "./tabs/CurrencyTab";
 import { PaymentMethodsTab } from "./tabs/PaymentMethodsTab";
+import { NotificationContactsTab } from "./tabs/NotificationContactsTab";
 
-type Tab = "general" | "currency" | "paymentMethods";
+type Tab = "general" | "currency" | "paymentMethods" | "notificationContacts";
 
 type TabConfig = {
   id: Tab;
@@ -18,6 +20,7 @@ const TABS: TabConfig[] = [
   { id: "general", label: "General" },
   { id: "currency", label: "Configuración de Monedas" },
   { id: "paymentMethods", label: "Métodos de Pago" },
+  { id: "notificationContacts", label: "Contactos de Notificacion" },
 ];
 
 export function SettingsTabs() {
@@ -26,6 +29,7 @@ export function SettingsTabs() {
   const storeInfo = useStoreInfo();
   const exchangeRate = useExchangeRate();
   const paymentMethods = usePaymentMethods();
+  const notificationContacts = useNotificationContacts();
 
   function handleSaveChanges(methods: PublicPaymentMethod[]) {
     methods.forEach((method) => {
@@ -121,6 +125,24 @@ export function SettingsTabs() {
           onToggle={paymentMethods.update}
           onDelete={paymentMethods.remove}
           onSaveChanges={handleSaveChanges}
+        />
+      </div>
+
+      <div
+        id="panel-notificationContacts"
+        role="tabpanel"
+        aria-labelledby="tab-notificationContacts"
+        hidden={activeTab !== "notificationContacts"}
+      >
+        <NotificationContactsTab
+          contacts={notificationContacts.contacts}
+          isLoading={notificationContacts.isLoading}
+          isCreating={notificationContacts.isCreating}
+          isUpdating={notificationContacts.isUpdating}
+          isDeleting={notificationContacts.isDeleting}
+          onCreate={notificationContacts.create}
+          onUpdate={notificationContacts.update}
+          onDelete={notificationContacts.remove}
         />
       </div>
     </div>

@@ -12,7 +12,7 @@ export default function createNotificationContactRouter(notificationContactServi
     router.post('/', validateSchema(NotificationContactToCreate), controller.create);
     router.get('/', validateQueryParams(NotificationContactFilters), controller.list);
     router.get('/:id', controller.get);
-    router.put('/:id', validateSchema(NotificationContactToUpdate), controller.update);
+    router.patch('/:id', validateSchema(NotificationContactToUpdate), controller.update);
     router.delete('/:id', controller.delete);
 
     return router;

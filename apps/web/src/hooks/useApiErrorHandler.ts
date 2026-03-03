@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useError } from "@/contexts/ErrorContext";
+import { useError, ErrorNotificationType } from "@/contexts/ErrorContext";
 import { api } from "@/services/axiosInstance";
 import type { AxiosError } from "axios";
 
@@ -11,7 +11,7 @@ export function useApiErrorHandler() {
             (response) => response,
             (error: AxiosError) => {
                 let message = "Error desconocido";
-                let notificationType: "error" | "warning" = "error";
+                let notificationType: ErrorNotificationType = ErrorNotificationType.ERROR;
                 
                 if (error.response) {
                     const status = error.response.status;
@@ -20,18 +20,18 @@ export function useApiErrorHandler() {
                     switch (status) {
                         case 400:
                         message = data?.message || "Solicitud inválida";
-                        notificationType = "warning";
+                        notificationType = ErrorNotificationType.WARNING;
                         break;
                         case 404:
                         message = data?.message || "El recurso que buscas no existe";
                         break;
                         case 409:
                         message = data?.message || "El recurso ya existe";
-                        notificationType = "warning";
+                        notificationType = ErrorNotificationType.WARNING;
                         break;
                         case 422:
                         message = data?.message || "Datos inválidos";
-                        notificationType = "warning";
+                        notificationType = ErrorNotificationType.WARNING;
                         break;
                         case 500:
                         message = "Error interno. Consulta con el soporte";
@@ -42,7 +42,7 @@ export function useApiErrorHandler() {
                 }
                 else if (error.code === "ECONNABORTED") {
                     message = "La solicitud tardó demasiado tiempo (timeout)";
-                    notificationType = "warning";
+                    notificationType = ErrorNotificationType.WARNING;
                 }
                 else if (error.message === "Network Error") {
                     message = "No hay conexión con el servidor";

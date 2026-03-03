@@ -1,17 +1,14 @@
 import { Outlet } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
-
-const MOCK_USER = {
-  businessName: "Moreno Autoservicio",
-};
+import { useApiErrorHandler } from "@/hooks/useApiErrorHandler";
 
 export function AppLayout() {
+  useApiErrorHandler();
+
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
-      <Sidebar
-        businessName={MOCK_USER.businessName}
-      />
+      <Sidebar/>
 
       <div className="flex flex-1 flex-col overflow-hidden">
         <Topbar onCreateOrder={() => {

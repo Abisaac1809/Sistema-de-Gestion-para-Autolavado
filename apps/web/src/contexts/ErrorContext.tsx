@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useCallback, ReactNode } from "react";
 import { X, AlertCircle } from "lucide-react";
 
-enum ErrorNotificationType {
+export enum ErrorNotificationType {
     ERROR = "error",
     WARNING = "warning",
     INFO = "info",

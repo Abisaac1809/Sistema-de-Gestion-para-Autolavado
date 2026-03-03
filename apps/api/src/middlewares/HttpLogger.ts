@@ -17,7 +17,7 @@ const httpLogger: RequestHandler = morgan(
             console.log(`incoming-request`, data);
         }
     },
-    skip: (req: Request) => req.method === "HEAD" || req.url === "/"
+    skip: (req: Request) => req.method === "HEAD" || req.method === "OPTIONS" || req.url === "/"
 }
 );
 
