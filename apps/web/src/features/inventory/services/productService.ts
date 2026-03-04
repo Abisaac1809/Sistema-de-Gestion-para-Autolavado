@@ -3,19 +3,11 @@ import type {
   ListOfProducts,
   ProductToCreateType,
   ProductToUpdateType,
+  ProductFiltersType
 } from "@car-wash/types";
 import { api } from "@/services/axiosInstance";
 
-type ProductFilterParams = {
-  search?: string;
-  categoryId?: string;
-  isForSale?: boolean;
-  status?: boolean;
-  page?: number;
-  limit?: number;
-};
-
-export async function getProducts(params: ProductFilterParams): Promise<ListOfProducts> {
+export async function getProducts(params: ProductFiltersType): Promise<ListOfProducts> {
   const response = await api.get<ListOfProducts>("/api/products", { params });
   return response.data;
 }

@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-// Schema for creating a category
 export const CategoryToCreate = z.object({
     name: z.string()
         .min(2, 'Name must have at least 2 characters')
@@ -11,12 +10,10 @@ export const CategoryToCreate = z.object({
 
 export type CategoryToCreateType = z.infer<typeof CategoryToCreate>;
 
-// Schema for updating a category (all fields optional)
 export const CategoryToUpdate = CategoryToCreate.partial();
 
 export type CategoryToUpdateType = z.infer<typeof CategoryToUpdate>;
 
-// Schema for query parameters filtering
 export const CategoryFilters = z.object({
     search: z.string().min(1).optional(),
     status: z.coerce.boolean().optional(),
