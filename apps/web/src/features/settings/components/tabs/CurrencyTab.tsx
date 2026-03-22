@@ -11,11 +11,7 @@ type CurrencyTabProps = {
   config: PublicExchangeRateConfig | undefined;
   isLoading: boolean;
   isSaving: boolean;
-  saveSuccess: boolean;
-  saveError: string | null;
   isSyncing: boolean;
-  syncSuccess: boolean;
-  syncError: string | null;
   onSave: (payload: ExchangeRateConfigToUpdateType) => void;
   onSync: () => void;
 };
@@ -63,11 +59,7 @@ export function CurrencyTab({
   config,
   isLoading,
   isSaving,
-  saveSuccess,
-  saveError,
   isSyncing,
-  syncSuccess,
-  syncError,
   onSave,
   onSync,
 }: CurrencyTabProps) {
@@ -162,13 +154,6 @@ export function CurrencyTab({
         </div>
       </div>
 
-      {syncSuccess && (
-        <p className="text-sm text-green-600">
-          Tasas del BCV sincronizadas correctamente.
-        </p>
-      )}
-      {syncError && <p className="text-sm text-red-600">{syncError}</p>}
-
       {/* Source cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {SOURCE_CARDS.map((card) => {
@@ -262,12 +247,6 @@ export function CurrencyTab({
         >
           {isSaving ? "Guardando..." : "Guardar cambios"}
         </button>
-        {saveSuccess && (
-          <p className="text-sm text-green-600">
-            Configuración guardada correctamente.
-          </p>
-        )}
-        {saveError && <p className="text-sm text-red-600">{saveError}</p>}
       </div>
     </form>
   );

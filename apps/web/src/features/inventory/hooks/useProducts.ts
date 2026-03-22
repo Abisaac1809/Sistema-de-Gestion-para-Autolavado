@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { isAxiosError } from "axios";
 import type {
-  PublicProduct,
-  ListOfProducts,
-  ProductToCreateType,
   ProductToUpdateType,
+  ProductFiltersType,
 } from "@car-wash/types";
 import {
   getProducts,
@@ -12,118 +12,93 @@ import {
   updateProduct,
   deleteProduct,
 } from "../services/productService";
+import {
+  ProductFiltersState,
+  ProductFiltersActions,
+  IsForSaleFilter,
+  UseProductsResult,
+  UseProductFiltersReturn,
+  UseProductsMutationsReturn,
+} from "../types/products.dtos";
 
-type ProductFiltersState = {
-  search: string;
-  categoryId: string | null;
-  isForSale: "all" | "true" | "false";
-  page: number;
-  limit: number;
-};
-
-export type UseProductsResult = {
-  products: PublicProduct[];
-  meta: ListOfProducts["meta"] | null;
-  isLoading: boolean;
-  filters: ProductFiltersState;
-  setSearch: (search: string) => void;
-  setCategoryId: (categoryId: string | null) => void;
-  setIsForSale: (value: "all" | "true" | "false") => void;
-  setPage: (page: number) => void;
-  isCreating: boolean;
-  isUpdating: boolean;
-  isDeleting: boolean;
-  create: (payload: ProductToCreateType) => void;
-  update: (args: { id: string; payload: ProductToUpdateType }) => void;
-  remove: (id: string) => void;
-};
-
-export function useProducts(): UseProductsResult {
-  const queryClient = useQueryClient();
-
+function useProductFilters(): UseProductFiltersReturn {
   const [search, setSearchState] = useState<string>("");
   const [categoryId, setCategoryIdState] = useState<string | null>(null);
-  const [isForSale, setIsForSaleState] = useState<"all" | "true" | "false">("all");
+  const [isForSale, setIsForSaleState] = useState<IsForSaleFilter>(IsForSaleFilter.All);
   const [page, setPageState] = useState<number>(1);
   const limit = 10;
 
   const filters: ProductFiltersState = { search, categoryId, isForSale, page, limit };
 
-  const query = useQuery({
-    queryKey: ["inventory", "products", { search, categoryId, isForSale, page, limit }],
-    queryFn: () => {
-      const params: {
-        search?: string;
-        categoryId?: string;
-        isForSale?: boolean;
-        page: number;
-        limit: number;
-      } = { page, limit };
+  const actions: ProductFiltersActions = {
+    setSearch: (value) => { setSearchState(value); setPageState(1); },
+    setCategoryId: (value) => { setCategoryIdState(value); setPageState(1); },
+    setIsForSale: (value) => { setIsForSaleState(value); setPageState(1); },
+    setPage: setPageState,
+  };
 
-      if (search !== "") params.search = search;
-      if (categoryId !== null) params.categoryId = categoryId;
-      if (isForSale === "true") params.isForSale = true;
-      if (isForSale === "false") params.isForSale = false;
+  return { filters, actions };
+}
 
-      return getProducts(params);
-    },
-  });
+function useProductsMutations(): UseProductsMutationsReturn {
+  const queryClient = useQueryClient();
+
+  const invalidate = () =>
+    queryClient.invalidateQueries({ queryKey: ["inventory", "products"] });
 
   const createMutation = useMutation({
     mutationFn: createProduct,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["inventory", "products"] });
-    },
+    onSuccess: () => { invalidate(); toast.success("Producto creado correctamente"); },
+    onError: (error: unknown) => { if (!isAxiosError(error)) toast.error("Ocurrió un error inesperado"); },
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: ProductToUpdateType }) =>
       updateProduct(id, payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["inventory", "products"] });
-    },
+    onSuccess: () => { invalidate(); toast.success("Producto actualizado correctamente"); },
+    onError: (error: unknown) => { if (!isAxiosError(error)) toast.error("Ocurrió un error inesperado"); },
   });
 
   const deleteMutation = useMutation({
     mutationFn: deleteProduct,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["inventory", "products"] });
-    },
+    onSuccess: () => { invalidate(); toast.success("Producto eliminado"); },
+    onError: (error: unknown) => { if (!isAxiosError(error)) toast.error("Ocurrió un error inesperado"); },
   });
 
-  function setSearch(value: string): void {
-    setSearchState(value);
-    setPageState(1);
-  }
+  return { createMutation, updateMutation, deleteMutation };
+}
 
-  function setCategoryId(value: string | null): void {
-    setCategoryIdState(value);
-    setPageState(1);
-  }
+export function useProducts(): UseProductsResult {
+  const { filters, actions } = useProductFilters();
+  const { createMutation, updateMutation, deleteMutation } = useProductsMutations();
 
-  function setIsForSale(value: "all" | "true" | "false"): void {
-    setIsForSaleState(value);
-    setPageState(1);
-  }
+  const query = useQuery({
+    queryKey: ["inventory", "products", filters],
+    queryFn: () => {
+      const params: ProductFiltersType = { page: filters.page, limit: filters.limit };
 
-  function setPage(value: number): void {
-    setPageState(value);
-  }
+      if (filters.search !== "") params.search = filters.search;
+      if (filters.categoryId !== null) params.categoryId = filters.categoryId ?? undefined;
+      if (filters.isForSale === "true") params.isForSale = true;
+      if (filters.isForSale === "false") params.isForSale = false;
+
+      return getProducts(params);
+    },
+  });
 
   return {
     products: query.data?.data ?? [],
     meta: query.data?.meta ?? null,
     isLoading: query.isLoading,
-    filters,
-    setSearch,
-    setCategoryId,
-    setIsForSale,
-    setPage,
     isCreating: createMutation.isPending,
     isUpdating: updateMutation.isPending,
     isDeleting: deleteMutation.isPending,
-    create: createMutation.mutate,
-    update: updateMutation.mutate,
-    remove: deleteMutation.mutate,
+    filters,
+    filterActions: actions,
+    mutations: {
+      create: createMutation.mutate,
+      update: updateMutation.mutate,
+      remove: deleteMutation.mutate,
+    },
   };
 }

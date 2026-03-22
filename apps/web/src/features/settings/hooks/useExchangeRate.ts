@@ -1,4 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { isAxiosError } from "axios";
 import type {
   PublicExchangeRateConfig,
   ExchangeRateConfigToUpdateType,
@@ -13,11 +15,7 @@ export type UseExchangeRateResult = {
   config: PublicExchangeRateConfig | undefined;
   isLoading: boolean;
   isSaving: boolean;
-  saveSuccess: boolean;
-  saveError: string | null;
   isSyncing: boolean;
-  syncSuccess: boolean;
-  syncError: string | null;
   save: (payload: ExchangeRateConfigToUpdateType) => void;
   sync: () => void;
 };
@@ -34,29 +32,25 @@ export function useExchangeRate(): UseExchangeRateResult {
     mutationFn: updateExchangeRateConfig,
     onSuccess: (data) => {
       queryClient.setQueryData(["settings", "exchangeRate"], data);
+      toast.success("Configuración de monedas guardada correctamente");
     },
+    onError: (error: unknown) => { if (!isAxiosError(error)) toast.error("Ocurrió un error inesperado"); },
   });
 
   const syncMutation = useMutation({
     mutationFn: syncBcvRates,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["settings", "exchangeRate"] });
+      toast.success("Tasas del BCV sincronizadas correctamente");
     },
+    onError: (error: unknown) => { if (!isAxiosError(error)) toast.error("Error al sincronizar con el BCV"); },
   });
 
   return {
     config: query.data,
     isLoading: query.isLoading,
     isSaving: updateMutation.isPending,
-    saveSuccess: updateMutation.isSuccess,
-    saveError: updateMutation.isError
-      ? (updateMutation.error as Error)?.message ?? "Error al guardar"
-      : null,
     isSyncing: syncMutation.isPending,
-    syncSuccess: syncMutation.isSuccess,
-    syncError: syncMutation.isError
-      ? (syncMutation.error as Error)?.message ?? "Error al sincronizar"
-      : null,
     save: updateMutation.mutate,
     sync: syncMutation.mutate,
   };

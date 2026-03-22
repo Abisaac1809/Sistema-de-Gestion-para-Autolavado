@@ -10,9 +10,7 @@ type PaymentMethodsTabProps = {
   paymentMethods: PublicPaymentMethod[];
   isLoading: boolean;
   isCreating: boolean;
-  createError: string | null;
   isSaving: boolean;
-  saveSuccess: boolean;
   onCreate: (payload: PaymentMethodToCreateType) => void;
   onToggle: (args: { id: string; payload: PaymentMethodToUpdateType }) => void;
   onDelete: (id: string) => void;
@@ -23,9 +21,7 @@ export function PaymentMethodsTab({
   paymentMethods,
   isLoading,
   isCreating,
-  createError,
   isSaving,
-  saveSuccess,
   onCreate,
   onToggle,
   onDelete,
@@ -101,7 +97,6 @@ export function PaymentMethodsTab({
           {isCreating ? "Agregando..." : "Agregar"}
         </button>
       </div>
-      {createError && <p className="text-sm text-red-600">{createError}</p>}
 
       {/* Methods list */}
       {pendingMethods.length === 0 ? (
@@ -206,9 +201,6 @@ export function PaymentMethodsTab({
           >
             {isSaving ? "Guardando..." : "Guardar cambios"}
           </button>
-          {saveSuccess && (
-            <p className="text-sm text-green-600">Cambios guardados correctamente.</p>
-          )}
         </div>
       )}
     </div>

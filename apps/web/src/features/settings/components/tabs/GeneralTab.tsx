@@ -6,8 +6,6 @@ type GeneralTabProps = {
   storeInfo: PublicStoreInfo | undefined;
   isLoading: boolean;
   isSaving: boolean;
-  saveSuccess: boolean;
-  saveError: string | null;
   onSave: (payload: StoreInfoToUpdateType) => void;
 };
 
@@ -15,8 +13,6 @@ export function GeneralTab({
   storeInfo,
   isLoading,
   isSaving,
-  saveSuccess,
-  saveError,
   onSave,
 }: GeneralTabProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -28,7 +24,6 @@ export function GeneralTab({
   });
 
   useEffect(() => {
-    console.log(storeInfo)
     if (storeInfo) {
       setForm({
         name: storeInfo.name,
@@ -176,12 +171,6 @@ export function GeneralTab({
         >
           {isSaving ? "Guardando..." : "Guardar cambios"}
         </button>
-        {saveSuccess && (
-          <p className="text-sm text-green-600">Cambios guardados correctamente.</p>
-        )}
-        {saveError && (
-          <p className="text-sm text-red-600">{saveError}</p>
-        )}
       </div>
     </form>
   );

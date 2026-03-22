@@ -82,8 +82,6 @@ export function SettingsTabs() {
           storeInfo={storeInfo.storeInfo}
           isLoading={storeInfo.isLoading}
           isSaving={storeInfo.isSaving}
-          saveSuccess={storeInfo.saveSuccess}
-          saveError={storeInfo.saveError}
           onSave={storeInfo.save}
         />
       </div>
@@ -98,11 +96,7 @@ export function SettingsTabs() {
           config={exchangeRate.config}
           isLoading={exchangeRate.isLoading}
           isSaving={exchangeRate.isSaving}
-          saveSuccess={exchangeRate.saveSuccess}
-          saveError={exchangeRate.saveError}
           isSyncing={exchangeRate.isSyncing}
-          syncSuccess={exchangeRate.syncSuccess}
-          syncError={exchangeRate.syncError}
           onSave={exchangeRate.save}
           onSync={exchangeRate.sync}
         />
@@ -118,9 +112,7 @@ export function SettingsTabs() {
           paymentMethods={paymentMethods.paymentMethods}
           isLoading={paymentMethods.isLoading}
           isCreating={paymentMethods.isCreating}
-          createError={paymentMethods.createError}
           isSaving={paymentMethods.isSaving}
-          saveSuccess={paymentMethods.saveSuccess}
           onCreate={paymentMethods.create}
           onToggle={paymentMethods.update}
           onDelete={paymentMethods.remove}
