@@ -1,11 +1,7 @@
 import { Outlet } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
-import { useApiErrorHandler } from "@/hooks/useApiErrorHandler";
-
 export function AppLayout() {
-  useApiErrorHandler();
-
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
       <Sidebar/>

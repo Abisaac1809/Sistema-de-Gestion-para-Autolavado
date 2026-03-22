@@ -1,4 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
+import { toast } from "sonner";
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:3001",
@@ -14,30 +15,10 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
-    console.error("Error de API:", {
-      status: error.response?.status,
-      data: error.response?.data,
-      message: error.message,
-    });
-
-    if (error.response?.status === 403) {
-      console.warn("Acceso denegado");
-    }
-
-    if (error.response?.status === 404) {
-      console.warn("Recurso no encontrado");
-    }
-
-    if (error.response?.status === 500) {
-      console.error("Error interno del servidor");
-    }
-
     if (error.code === "ECONNABORTED") {
-      console.error("La solicitud tardó demasiado (timeout)");
-    }
-
-    if (error.message === "Network Error") {
-      console.error("Error de conexión con el servidor");
+      toast.warning("La solicitud tardó demasiado tiempo (timeout)");
+    } else if (error.message === "Network Error") {
+      toast.error("No hay conexión con el servidor");
     }
 
     return Promise.reject(error);
