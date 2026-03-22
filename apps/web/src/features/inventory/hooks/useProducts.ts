@@ -8,6 +8,7 @@ import type {
 } from "@car-wash/types";
 import {
   getProducts,
+  getProduct,
   createProduct,
   updateProduct,
   deleteProduct,
@@ -17,11 +18,11 @@ import {
   ProductFiltersActions,
   IsForSaleFilter,
   UseProductsResult,
-  UseProductFiltersReturn,
-  UseProductsMutationsReturn,
+  UseProductResult,
+  UseProductsMutationsResult,
 } from "../types/products.dtos";
 
-function useProductFilters(): UseProductFiltersReturn {
+function useProductFilters() {
   const [search, setSearchState] = useState<string>("");
   const [categoryId, setCategoryIdState] = useState<string | null>(null);
   const [isForSale, setIsForSaleState] = useState<IsForSaleFilter>(IsForSaleFilter.All);
@@ -30,17 +31,56 @@ function useProductFilters(): UseProductFiltersReturn {
 
   const filters: ProductFiltersState = { search, categoryId, isForSale, page, limit };
 
-  const actions: ProductFiltersActions = {
+  const filterActions: ProductFiltersActions = {
     setSearch: (value) => { setSearchState(value); setPageState(1); },
     setCategoryId: (value) => { setCategoryIdState(value); setPageState(1); },
     setIsForSale: (value) => { setIsForSaleState(value); setPageState(1); },
     setPage: setPageState,
   };
 
-  return { filters, actions };
+  return { filters, filterActions };
 }
 
-function useProductsMutations(): UseProductsMutationsReturn {
+export function useProducts(): UseProductsResult {
+  const { filters, filterActions } = useProductFilters();
+
+  const query = useQuery({
+    queryKey: ["inventory", "products", filters],
+    queryFn: () => {
+      const params: ProductFiltersType = { page: filters.page, limit: filters.limit };
+
+      if (filters.search !== "") params.search = filters.search;
+      if (filters.categoryId !== null) params.categoryId = filters.categoryId ?? undefined;
+      if (filters.isForSale === "true") params.isForSale = true;
+      if (filters.isForSale === "false") params.isForSale = false;
+
+      return getProducts(params);
+    },
+  });
+
+  return {
+    products: query.data?.data ?? [],
+    meta: query.data?.meta ?? null,
+    isLoading: query.isLoading,
+    filters,
+    filterActions,
+  };
+}
+
+export function useProduct(id: string | null): UseProductResult {
+  const query = useQuery({
+    queryKey: ["inventory", "products", id],
+    queryFn: () => getProduct(id!),
+    enabled: !!id,
+  });
+
+  return {
+    product: query.data ?? null,
+    isLoading: query.isLoading,
+  };
+}
+
+export function useProductsMutations(): UseProductsMutationsResult {
   const queryClient = useQueryClient();
 
   const invalidate = () =>
@@ -65,40 +105,12 @@ function useProductsMutations(): UseProductsMutationsReturn {
     onError: (error: unknown) => { if (!isAxiosError(error)) toast.error("Ocurrió un error inesperado"); },
   });
 
-  return { createMutation, updateMutation, deleteMutation };
-}
-
-export function useProducts(): UseProductsResult {
-  const { filters, actions } = useProductFilters();
-  const { createMutation, updateMutation, deleteMutation } = useProductsMutations();
-
-  const query = useQuery({
-    queryKey: ["inventory", "products", filters],
-    queryFn: () => {
-      const params: ProductFiltersType = { page: filters.page, limit: filters.limit };
-
-      if (filters.search !== "") params.search = filters.search;
-      if (filters.categoryId !== null) params.categoryId = filters.categoryId ?? undefined;
-      if (filters.isForSale === "true") params.isForSale = true;
-      if (filters.isForSale === "false") params.isForSale = false;
-
-      return getProducts(params);
-    },
-  });
-
   return {
-    products: query.data?.data ?? [],
-    meta: query.data?.meta ?? null,
-    isLoading: query.isLoading,
+    create: createMutation.mutate,
+    update: updateMutation.mutate,
+    remove: deleteMutation.mutate,
     isCreating: createMutation.isPending,
     isUpdating: updateMutation.isPending,
     isDeleting: deleteMutation.isPending,
-    filters,
-    filterActions: actions,
-    mutations: {
-      create: createMutation.mutate,
-      update: updateMutation.mutate,
-      remove: deleteMutation.mutate,
-    },
   };
 }

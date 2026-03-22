@@ -6,7 +6,7 @@ import type {
   ProductToUpdateType,
   CategoryToCreateType,
 } from "@car-wash/types";
-import { useProducts } from "../hooks/useProducts";
+import { useProducts, useProductsMutations } from "../hooks/useProducts";
 import { useCategories } from "../hooks/useCategories";
 import { FilterBar } from "./FilterBar";
 import { ProductTable } from "./ProductTable";
@@ -23,22 +23,8 @@ type ModalState = {
 };
 
 export function InventoryView() {
-  const {
-    products,
-    meta,
-    isLoading,
-    filters,
-    setSearch,
-    setCategoryId,
-    setIsForSale,
-    setPage,
-    isCreating,
-    isUpdating,
-    isDeleting,
-    create,
-    update,
-    remove,
-  } = useProducts();
+  const { products, meta, isLoading, filters, filterActions } = useProducts();
+  const { create, update, remove, isCreating, isUpdating, isDeleting } = useProductsMutations();
 
   const {
     categories,
@@ -101,9 +87,9 @@ export function InventoryView() {
   };
 
   const handleClearFilters = () => {
-    setSearch("");
-    setCategoryId(null);
-    setIsForSale("all");
+    filterActions.setSearch("");
+    filterActions.setCategoryId(null);
+    filterActions.setIsForSale("all");
   };
 
   const getCategoryName = (product: PublicProduct): string | null => {
@@ -135,11 +121,11 @@ export function InventoryView() {
       {/* FilterBar */}
       <FilterBar
         search={filters.search}
-        onSearchChange={setSearch}
+        onSearchChange={filterActions.setSearch}
         categoryId={filters.categoryId}
-        onCategoryChange={setCategoryId}
+        onCategoryChange={filterActions.setCategoryId}
         isForSale={filters.isForSale}
-        onIsForSaleChange={setIsForSale}
+        onIsForSaleChange={filterActions.setIsForSale}
         onClearFilters={handleClearFilters}
       />
 
@@ -165,7 +151,7 @@ export function InventoryView() {
             <button
               type="button"
               disabled={meta.currentPage <= 1}
-              onClick={() => setPage(meta.currentPage - 1)}
+              onClick={() => filterActions.setPage(meta.currentPage - 1)}
               className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Anterior
@@ -173,7 +159,7 @@ export function InventoryView() {
             <button
               type="button"
               disabled={meta.currentPage >= meta.totalPages}
-              onClick={() => setPage(meta.currentPage + 1)}
+              onClick={() => filterActions.setPage(meta.currentPage + 1)}
               className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Siguiente
@@ -212,7 +198,7 @@ export function InventoryView() {
           setModalState((prev) => ({ ...prev, productDetail: false }));
           setSelectedProduct(null);
         }}
-        product={selectedProduct}
+        productId={selectedProduct?.id ?? null}
         categoryName={selectedProduct ? getCategoryName(selectedProduct) : null}
       />
 
