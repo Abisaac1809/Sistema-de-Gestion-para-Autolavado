@@ -7,7 +7,7 @@ import type {
   CategoryToCreateType,
 } from "@car-wash/types";
 import { useProducts, useProductsMutations } from "../hooks/useProducts";
-import { useCategories } from "../hooks/useCategories";
+import { useCategories, useCategoriesMutations } from "../hooks/useCategories";
 import { FilterBar } from "./FilterBar";
 import { ProductTable } from "./ProductTable";
 import { ProductForm } from "./ProductForm";
@@ -26,11 +26,8 @@ export function InventoryView() {
   const { products, meta, isLoading, filters, filterActions } = useProducts();
   const { create, update, remove, isCreating, isUpdating, isDeleting } = useProductsMutations();
 
-  const {
-    categories,
-    isCreating: isCategoryCreating,
-    create: createCategory,
-  } = useCategories();
+  const { categories } = useCategories();
+  const { create: createCategory, isCreating: isCategoryCreating } = useCategoriesMutations();
 
   const [modalState, setModalState] = useState<ModalState>({
     productForm: false,
