@@ -3,7 +3,10 @@ import type { PublicPaymentMethod, PaymentMethodToUpdateType } from "@car-wash/t
 import { useStoreInfo } from "../hooks/useStoreInfo";
 import { useExchangeRate } from "../hooks/useExchangeRate";
 import { usePaymentMethods } from "../hooks/usePaymentMethods";
-import { useNotificationContacts } from "../hooks/useNotificationContacts";
+import {
+  useNotificationContacts,
+  useNotificationContactsMutations,
+} from "../hooks/useNotificationContacts";
 import { GeneralTab } from "./tabs/GeneralTab";
 import { CurrencyTab } from "./tabs/CurrencyTab";
 import { PaymentMethodsTab } from "./tabs/PaymentMethodsTab";
@@ -30,6 +33,7 @@ export function SettingsTabs() {
   const exchangeRate = useExchangeRate();
   const paymentMethods = usePaymentMethods();
   const notificationContacts = useNotificationContacts();
+  const notificationContactsMutations = useNotificationContactsMutations();
 
   function handleSaveChanges(methods: PublicPaymentMethod[]) {
     methods.forEach((method) => {
@@ -129,12 +133,12 @@ export function SettingsTabs() {
         <NotificationContactsTab
           contacts={notificationContacts.contacts}
           isLoading={notificationContacts.isLoading}
-          isCreating={notificationContacts.isCreating}
-          isUpdating={notificationContacts.isUpdating}
-          isDeleting={notificationContacts.isDeleting}
-          onCreate={notificationContacts.create}
-          onUpdate={notificationContacts.update}
-          onDelete={notificationContacts.remove}
+          isCreating={notificationContactsMutations.isCreating}
+          isUpdating={notificationContactsMutations.isUpdating}
+          isDeleting={notificationContactsMutations.isDeleting}
+          onCreate={notificationContactsMutations.create}
+          onUpdate={notificationContactsMutations.update}
+          onDelete={notificationContactsMutations.remove}
         />
       </div>
     </div>
