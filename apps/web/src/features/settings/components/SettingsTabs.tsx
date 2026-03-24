@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { PublicPaymentMethod, PaymentMethodToUpdateType } from "@car-wash/types";
-import { useStoreInfo } from "../hooks/useStoreInfo";
+import { useStoreInfo, useStoreInfoMutations } from "../hooks/useStoreInfo";
 import { useExchangeRate } from "../hooks/useExchangeRate";
 import {
   usePaymentMethods,
@@ -33,6 +33,7 @@ export function SettingsTabs() {
   const [activeTab, setActiveTab] = useState<Tab>("general");
 
   const storeInfo = useStoreInfo();
+  const storeInfoMutations = useStoreInfoMutations();
   const exchangeRate = useExchangeRate();
   const paymentMethods = usePaymentMethods();
   const paymentMethodsMutations = usePaymentMethodsMutations();
@@ -89,8 +90,8 @@ export function SettingsTabs() {
         <GeneralTab
           storeInfo={storeInfo.storeInfo}
           isLoading={storeInfo.isLoading}
-          isSaving={storeInfo.isSaving}
-          onSave={storeInfo.save}
+          isSaving={storeInfoMutations.isUpdating}
+          onSave={storeInfoMutations.update}
         />
       </div>
 

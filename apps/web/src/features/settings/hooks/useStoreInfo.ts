@@ -11,27 +11,32 @@ export type UseStoreInfoResult = {
   save: (payload: StoreInfoToUpdateType) => void;
 };
 
-export function useStoreInfo(): UseStoreInfoResult {
-  const queryClient = useQueryClient();
+const QUERY_KEY = ["settings", "storeInfo"] as const;
 
+export function useStoreInfo() {
   const query = useQuery({
-    queryKey: ["settings", "storeInfo"],
-    queryFn: getStoreInfo,
-  });
-
-  const mutation = useMutation({
-    mutationFn: updateStoreInfo,
-    onSuccess: (data) => {
-      queryClient.setQueryData(["settings", "storeInfo"], data);
-      toast.success("Información del negocio guardada correctamente");
-    },
-    onError: (error: unknown) => { if (!isAxiosError(error)) toast.error("Ocurrió un error inesperado"); },
+    queryKey: QUERY_KEY,
+    queryFn: getStoreInfo
   });
 
   return {
     storeInfo: query.data,
-    isLoading: query.isLoading,
-    isSaving: mutation.isPending,
-    save: mutation.mutate,
-  };
+    isLoading: query.isLoading
+  }
+}
+
+export function useStoreInfoMutations() {
+  const queryClient = useQueryClient();
+
+  const invalidate = () => queryClient.invalidateQueries({queryKey: QUERY_KEY});
+
+  const updateMutation = useMutation({
+    mutationFn: updateStoreInfo,
+    onSuccess: () => {invalidate(); toast.success("Información del autolavado actualizada correctamente");},
+    onError: (error: unknown) => {if (!isAxiosError(error)) toast.error("Ocurrió un error inesperado");} 
+  })
+  return {
+    update: updateMutation.mutate,
+    isUpdating: updateMutation.isPending
+  }
 }
