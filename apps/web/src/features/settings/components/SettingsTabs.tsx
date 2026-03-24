@@ -2,7 +2,10 @@ import { useState } from "react";
 import type { PublicPaymentMethod, PaymentMethodToUpdateType } from "@car-wash/types";
 import { useStoreInfo } from "../hooks/useStoreInfo";
 import { useExchangeRate } from "../hooks/useExchangeRate";
-import { usePaymentMethods } from "../hooks/usePaymentMethods";
+import {
+  usePaymentMethods,
+  usePaymentMethodsMutations,
+} from "../hooks/usePaymentMethods";
 import {
   useNotificationContacts,
   useNotificationContactsMutations,
@@ -32,6 +35,7 @@ export function SettingsTabs() {
   const storeInfo = useStoreInfo();
   const exchangeRate = useExchangeRate();
   const paymentMethods = usePaymentMethods();
+  const paymentMethodsMutations = usePaymentMethodsMutations();
   const notificationContacts = useNotificationContacts();
   const notificationContactsMutations = useNotificationContactsMutations();
 
@@ -40,7 +44,7 @@ export function SettingsTabs() {
       const original = paymentMethods.paymentMethods.find((m) => m.id === method.id);
       if (original && original.isActive !== method.isActive) {
         const payload: PaymentMethodToUpdateType = { isActive: method.isActive };
-        paymentMethods.update({ id: method.id, payload });
+        paymentMethodsMutations.update({ id: method.id, payload });
       }
     });
   }
@@ -115,11 +119,11 @@ export function SettingsTabs() {
         <PaymentMethodsTab
           paymentMethods={paymentMethods.paymentMethods}
           isLoading={paymentMethods.isLoading}
-          isCreating={paymentMethods.isCreating}
-          isSaving={paymentMethods.isSaving}
-          onCreate={paymentMethods.create}
-          onToggle={paymentMethods.update}
-          onDelete={paymentMethods.remove}
+          isCreating={paymentMethodsMutations.isCreating}
+          isSaving={paymentMethodsMutations.isUpdating}
+          onCreate={paymentMethodsMutations.create}
+          onToggle={paymentMethodsMutations.update}
+          onDelete={paymentMethodsMutations.remove}
           onSaveChanges={handleSaveChanges}
         />
       </div>
