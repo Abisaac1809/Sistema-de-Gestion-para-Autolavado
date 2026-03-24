@@ -1,6 +1,5 @@
 import { useState } from "react";
 import type { PublicPaymentMethod, PaymentMethodToUpdateType } from "@car-wash/types";
-import { useStoreInfo, useStoreInfoMutations } from "../hooks/useStoreInfo";
 import { useExchangeRate } from "../hooks/useExchangeRate";
 import {
   usePaymentMethods,
@@ -32,8 +31,6 @@ const TABS: TabConfig[] = [
 export function SettingsTabs() {
   const [activeTab, setActiveTab] = useState<Tab>("general");
 
-  const storeInfo = useStoreInfo();
-  const storeInfoMutations = useStoreInfoMutations();
   const exchangeRate = useExchangeRate();
   const paymentMethods = usePaymentMethods();
   const paymentMethodsMutations = usePaymentMethodsMutations();
@@ -87,12 +84,7 @@ export function SettingsTabs() {
         aria-labelledby="tab-general"
         hidden={activeTab !== "general"}
       >
-        <GeneralTab
-          storeInfo={storeInfo.storeInfo}
-          isLoading={storeInfo.isLoading}
-          isSaving={storeInfoMutations.isUpdating}
-          onSave={storeInfoMutations.update}
-        />
+        <GeneralTab />
       </div>
 
       <div

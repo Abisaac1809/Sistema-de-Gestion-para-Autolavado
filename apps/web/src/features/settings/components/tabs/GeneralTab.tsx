@@ -1,49 +1,37 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { CloudUpload } from "lucide-react";
-import type { PublicStoreInfo, StoreInfoToUpdateType } from "@car-wash/types";
+import { StoreInfoToUpdate } from "@car-wash/types";
+import type { StoreInfoToUpdateType } from "@car-wash/types";
+import { useStoreInfo, useStoreInfoMutations } from "../../hooks/useStoreInfo";
 
-type GeneralTabProps = {
-  storeInfo: PublicStoreInfo | undefined;
-  isLoading: boolean;
-  isSaving: boolean;
-  onSave: (payload: StoreInfoToUpdateType) => void;
-};
+export function GeneralTab() {
+  const { storeInfo, isLoading } = useStoreInfo();
+  const { isUpdating, update } = useStoreInfoMutations();
 
-export function GeneralTab({
-  storeInfo,
-  isLoading,
-  isSaving,
-  onSave,
-}: GeneralTabProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [form, setForm] = useState<StoreInfoToUpdateType>({
-    name: "",
-    rif: "",
-    address: "",
-    phone: "",
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isDirty },
+  } = useForm<StoreInfoToUpdateType>({
+    resolver: zodResolver(StoreInfoToUpdate),
+    defaultValues: { name: "", rif: "", address: "", phone: "" },
   });
 
   useEffect(() => {
-    if (storeInfo) {
-      setForm({
+    if (storeInfo && !isDirty) {
+      reset({
         name: storeInfo.name,
         rif: storeInfo.rif,
         address: storeInfo.address,
         phone: storeInfo.phone ?? "",
       });
     }
-  }, [storeInfo]);
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const payload: StoreInfoToUpdateType = {
-      name: form.name,
-      rif: form.rif,
-      address: form.address,
-      phone: form.phone || undefined,
-    };
-    onSave(payload);
-  }
+  }, [storeInfo]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (isLoading) {
     return (
@@ -62,7 +50,7 @@ export function GeneralTab({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit((data) => update(data))} className="space-y-6">
       <h2 className="text-lg font-semibold text-gray-900">
         Información del negocio
       </h2>
@@ -99,11 +87,13 @@ export function GeneralTab({
         <input
           id="store-name"
           type="text"
-          value={form.name || ""}
-          onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
+          {...register("name")}
           className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
           placeholder="Ej: Autolavado El Rápido"
         />
+        {errors.name && (
+          <p className="text-sm text-red-500">{errors.name.message}</p>
+        )}
       </div>
 
       {/* RIF */}
@@ -117,11 +107,13 @@ export function GeneralTab({
         <input
           id="store-rif"
           type="text"
-          value={form.rif || ""}
-          onChange={(e) => setForm((prev) => ({ ...prev, rif: e.target.value }))}
+          {...register("rif")}
           className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
           placeholder="Ej: J-12345678-9"
         />
+        {errors.rif && (
+          <p className="text-sm text-red-500">{errors.rif.message}</p>
+        )}
       </div>
 
       {/* Address */}
@@ -134,14 +126,14 @@ export function GeneralTab({
         </label>
         <textarea
           id="store-address"
-          value={form.address || ""}
-          onChange={(e) =>
-            setForm((prev) => ({ ...prev, address: e.target.value }))
-          }
+          {...register("address")}
           rows={3}
           className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 resize-none"
           placeholder="Dirección completa del negocio"
         />
+        {errors.address && (
+          <p className="text-sm text-red-500">{errors.address.message}</p>
+        )}
       </div>
 
       {/* Phone */}
@@ -155,21 +147,23 @@ export function GeneralTab({
         <input
           id="store-phone"
           type="text"
-          value={form.phone || ""}
-          onChange={(e) => setForm((prev) => ({ ...prev, phone: e.target.value }))}
+          {...register("phone")}
           className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
           placeholder="Ej: 0414-1234567"
         />
+        {errors.phone && (
+          <p className="text-sm text-red-500">{errors.phone.message}</p>
+        )}
       </div>
 
       {/* Submit */}
       <div className="flex items-center gap-4 pt-2">
         <button
           type="submit"
-          disabled={isSaving}
+          disabled={isUpdating || !isDirty}
           className="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-md hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
-          {isSaving ? "Guardando..." : "Guardar cambios"}
+          {isUpdating ? "Guardando..." : "Guardar cambios"}
         </button>
       </div>
     </form>
