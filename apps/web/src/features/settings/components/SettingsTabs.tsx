@@ -5,14 +5,10 @@ import {
   usePaymentMethods,
   usePaymentMethodsMutations,
 } from "../hooks/usePaymentMethods";
-import {
-  useNotificationContacts,
-  useNotificationContactsMutations,
-} from "../hooks/useNotificationContacts";
 import { GeneralTab } from "./tabs/GeneralTab";
 import { CurrencyTab } from "./tabs/CurrencyTab";
 import { PaymentMethodsTab } from "./tabs/PaymentMethodsTab";
-import { NotificationContactsTab } from "./tabs/NotificationContactsTab";
+import { NotificationContactsTab } from "./tabs/NotificationContactsTab/";
 
 type Tab = "general" | "currency" | "paymentMethods" | "notificationContacts";
 
@@ -34,8 +30,6 @@ export function SettingsTabs() {
   const exchangeRate = useExchangeRate();
   const paymentMethods = usePaymentMethods();
   const paymentMethodsMutations = usePaymentMethodsMutations();
-  const notificationContacts = useNotificationContacts();
-  const notificationContactsMutations = useNotificationContactsMutations();
 
   function handleSaveChanges(methods: PublicPaymentMethod[]) {
     methods.forEach((method) => {
@@ -127,16 +121,7 @@ export function SettingsTabs() {
         aria-labelledby="tab-notificationContacts"
         hidden={activeTab !== "notificationContacts"}
       >
-        <NotificationContactsTab
-          contacts={notificationContacts.contacts}
-          isLoading={notificationContacts.isLoading}
-          isCreating={notificationContactsMutations.isCreating}
-          isUpdating={notificationContactsMutations.isUpdating}
-          isDeleting={notificationContactsMutations.isDeleting}
-          onCreate={notificationContactsMutations.create}
-          onUpdate={notificationContactsMutations.update}
-          onDelete={notificationContactsMutations.remove}
-        />
+        <NotificationContactsTab/>
       </div>
     </div>
   );
