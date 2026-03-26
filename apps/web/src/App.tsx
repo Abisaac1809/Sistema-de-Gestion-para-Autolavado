@@ -5,6 +5,7 @@ import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
 import { SettingsPage } from "@/pages/SettingsPage";
 import { InventoryPage } from "@/pages/InventoryPage";
 import { ServicesPage } from "@/pages/ServicesPage";
+import PurchasesPage from "@/pages/PurchasesPage";
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -35,7 +36,7 @@ export default function App() {
 							<Route path="/dashboard" element={<PlaceholderPage title="Dashboard" />} />
 							<Route path="/ordenes" element={<PlaceholderPage title="Gestión de Órdenes" />} />
 							<Route path="/ventas" element={<PlaceholderPage title="Ventas" />} />
-							<Route path="/compras" element={<PlaceholderPage title="Compras" />} />
+							<Route path="/compras" element={<PurchasesPage />} />
 							<Route path="/inventario" element={<InventoryPage />} />
 							<Route path="/servicios" element={<ServicesPage />} />
 							<Route path="/configuracion" element={<SettingsPage />} />

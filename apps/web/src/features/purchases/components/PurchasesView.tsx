@@ -1,0 +1,232 @@
+import { useState } from "react";
+import { Plus, Search, ShoppingCart, DollarSign, Package, Truck } from "lucide-react";
+import type { PublicPurchase, PurchaseToCreateType } from "@car-wash/types";
+import { usePurchases, usePurchasesMutations } from "../hooks/usePurchases";
+import { usePaymentMethods } from "@/features/settings/hooks/usePaymentMethods";
+import { KpiCard } from "./KpiCard";
+import { PurchasesTable } from "./PurchasesTable";
+import { PurchaseForm } from "./PurchaseForm";
+import { PurchaseDetailModal } from "./PurchaseDetailModal";
+import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+
+export function PurchasesView() {
+  const { purchases, meta, isLoading, filters, filterActions } = usePurchases();
+  const { create, remove, isCreating, isDeleting } = usePurchasesMutations();
+  const { paymentMethods } = usePaymentMethods();
+
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [selectedPurchase, setSelectedPurchase] = useState<PublicPurchase | null>(null);
+
+  const handleCreate = (data: PurchaseToCreateType) => {
+    create(data);
+    setShowCreateModal(false);
+  };
+
+  const handleView = (purchase: PublicPurchase) => {
+    setSelectedPurchase(purchase);
+    setShowDetailModal(true);
+  };
+
+  const handleDeleteClick = (purchase: PublicPurchase) => {
+    setSelectedPurchase(purchase);
+    setShowDeleteDialog(true);
+  };
+
+  const handleDelete = () => {
+    if (selectedPurchase) {
+      remove(selectedPurchase.id);
+    }
+    setShowDeleteDialog(false);
+    setSelectedPurchase(null);
+  };
+
+  // KPI computations
+  const totalSpend = purchases.reduce((sum, p) => sum + p.totalUsd, 0);
+  const totalItemsReceived = purchases.reduce(
+    (sum, p) => sum + p.details.reduce((dSum, d) => dSum + d.quantity, 0),
+    0
+  );
+  const uniqueProviders = new Set(purchases.map((p) => p.providerName)).size;
+
+  return (
+    <div>
+      {/* KPI row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <KpiCard
+          title="Total Compras"
+          value={meta?.totalRecords ?? 0}
+          icon={<ShoppingCart size={18} className="text-blue-600" />}
+          color="bg-blue-100"
+          textColor="text-blue-700"
+        />
+        <KpiCard
+          title="Gasto Total"
+          value={`$${totalSpend.toFixed(2)}`}
+          icon={<DollarSign size={18} className="text-green-600" />}
+          color="bg-green-100"
+          textColor="text-green-700"
+        />
+        <KpiCard
+          title="Productos Recibidos"
+          value={totalItemsReceived}
+          icon={<Package size={18} className="text-purple-600" />}
+          color="bg-purple-100"
+          textColor="text-purple-700"
+        />
+        <KpiCard
+          title="Proveedores Unicos"
+          value={uniqueProviders}
+          icon={<Truck size={18} className="text-orange-600" />}
+          color="bg-orange-100"
+          textColor="text-orange-700"
+        />
+      </div>
+
+      {/* Header row */}
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Historial de Compras</h1>
+          <p className="mt-1 text-sm text-gray-500">Registra y consulta las compras de inventario.</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowCreateModal(true)}
+          className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
+        >
+          <Plus size={18} />
+          Registrar Compra
+        </button>
+      </div>
+
+      {/* Filter bar */}
+      <div className="flex flex-wrap gap-3 items-center mb-4">
+        <div className="relative flex-1 min-w-[200px] max-w-xs">
+          <Search
+            size={16}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+          />
+          <input
+            type="text"
+            placeholder="Buscar por proveedor..."
+            value={filters.search}
+            onChange={(e) => filterActions.setSearch(e.target.value)}
+            className="w-full rounded-lg border border-gray-200 pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+          />
+        </div>
+
+        <input
+          type="date"
+          value={filters.fromDate}
+          onChange={(e) => filterActions.setFromDate(e.target.value)}
+          className="rounded-lg border border-gray-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-900"
+          aria-label="Desde"
+          title="Desde"
+        />
+
+        <input
+          type="date"
+          value={filters.toDate}
+          onChange={(e) => filterActions.setToDate(e.target.value)}
+          className="rounded-lg border border-gray-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-900"
+          aria-label="Hasta"
+          title="Hasta"
+        />
+
+        <select
+          value={filters.paymentMethodId}
+          onChange={(e) => filterActions.setPaymentMethodId(e.target.value)}
+          className="rounded-lg border border-gray-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-900"
+        >
+          <option value="">Todos los metodos</option>
+          {paymentMethods.map((pm) => (
+            <option key={pm.id} value={pm.id}>
+              {pm.name}
+            </option>
+          ))}
+        </select>
+
+        {(filters.search || filters.fromDate || filters.toDate || filters.paymentMethodId) && (
+          <button
+            type="button"
+            onClick={filterActions.resetFilters}
+            className="text-sm text-gray-500 hover:text-gray-800 underline"
+          >
+            Limpiar filtros
+          </button>
+        )}
+      </div>
+
+      {/* Table */}
+      {isLoading ? (
+        <div className="flex items-center justify-center py-16">
+          <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-700 rounded-full animate-spin" />
+        </div>
+      ) : (
+        <PurchasesTable
+          purchases={purchases}
+          onView={handleView}
+          onDelete={handleDeleteClick}
+          disabled={isCreating || isDeleting}
+        />
+      )}
+
+      {/* Pagination */}
+      {meta && meta.totalPages > 1 && (
+        <div className="mt-4 flex items-center justify-between">
+          <p className="text-sm text-gray-500">
+            Pagina {meta.currentPage} de {meta.totalPages} ({meta.totalRecords} compras)
+          </p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              disabled={meta.currentPage <= 1}
+              onClick={() => filterActions.setPage(meta.currentPage - 1)}
+              className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Anterior
+            </button>
+            <button
+              type="button"
+              disabled={meta.currentPage >= meta.totalPages}
+              onClick={() => filterActions.setPage(meta.currentPage + 1)}
+              className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Siguiente
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Modals */}
+      <PurchaseForm
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSubmit={handleCreate}
+        isSubmitting={isCreating}
+      />
+
+      <PurchaseDetailModal
+        purchase={selectedPurchase}
+        isOpen={showDetailModal}
+        onClose={() => {
+          setShowDetailModal(false);
+          setSelectedPurchase(null);
+        }}
+      />
+
+      <ConfirmationDialog
+        isOpen={showDeleteDialog}
+        onConfirm={handleDelete}
+        onCancel={() => {
+          setShowDeleteDialog(false);
+          setSelectedPurchase(null);
+        }}
+        title="Eliminar compra"
+        message={`¿Estas seguro de que deseas eliminar la compra de "${selectedPurchase?.providerName}"? Esta accion no se puede deshacer.`}
+        isLoading={isDeleting}
+      />
+    </div>
+  );
+}
