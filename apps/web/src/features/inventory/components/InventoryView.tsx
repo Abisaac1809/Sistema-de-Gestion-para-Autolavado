@@ -8,6 +8,7 @@ import type {
 } from "@car-wash/types";
 import { useProducts, useProductsMutations } from "../hooks/useProducts";
 import { useCategories, useCategoriesMutations } from "../hooks/useCategories";
+import { IsForSaleFilter } from "../types/products.dtos";
 import { FilterBar } from "./FilterBar";
 import { ProductTable } from "./ProductTable";
 import { ProductForm } from "./ProductForm";
@@ -86,7 +87,7 @@ export function InventoryView() {
   const handleClearFilters = () => {
     filterActions.setSearch("");
     filterActions.setCategoryId(null);
-    filterActions.setIsForSale("all");
+    filterActions.setIsForSale(IsForSaleFilter.All);
   };
 
   const getCategoryName = (product: PublicProduct): string | null => {

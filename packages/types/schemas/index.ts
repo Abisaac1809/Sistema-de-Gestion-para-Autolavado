@@ -9,6 +9,8 @@ export * from './OrderDetail.schema.js';
 export * from './Payment.schema.js';
 export * from './PaymentMethod.schema.js';
 export * from './Product.schema.js';
+export * from './Purchase.schema.js';
+export * from './PurchaseDetail.schema.js';
 export * from './Report.schema.js';
 export * from './Sale.schema.js';
 export * from './SaleDetail.schema.js';

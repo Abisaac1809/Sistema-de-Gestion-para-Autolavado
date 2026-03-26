@@ -1,13 +1,14 @@
 import { Search } from "lucide-react";
 import { CategorySelect } from "./CategorySelect";
+import { IsForSaleFilter } from "../types/products.dtos";
 
 type FilterBarProps = {
   search: string;
   onSearchChange: (value: string) => void;
   categoryId: string | null;
   onCategoryChange: (value: string | null) => void;
-  isForSale: "all" | "true" | "false";
-  onIsForSaleChange: (value: "all" | "true" | "false") => void;
+  isForSale: IsForSaleFilter;
+  onIsForSaleChange: (value: IsForSaleFilter) => void;
   onClearFilters: () => void;
 };
 
@@ -60,7 +61,7 @@ export function FilterBar({
         <select
           value={isForSale}
           onChange={(e) =>
-            onIsForSaleChange(e.target.value as "all" | "true" | "false")
+            onIsForSaleChange(e.target.value as IsForSaleFilter)
           }
           className={inputClass}
         >

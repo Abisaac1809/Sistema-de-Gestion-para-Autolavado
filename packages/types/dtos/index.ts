@@ -9,6 +9,8 @@ export * from './OrderDetail.dto.js';
 export * from './Payment.dto.js';
 export * from './PaymentMethod.dto.js';
 export * from './Product.dto.js';
+export * from './Purchase.dto.js';
+export * from './PurchaseDetail.dto.js';
 export * from './Report.dto.js';
 export * from './Sale.dto.js';
 export * from './SaleDetail.dto.js';
