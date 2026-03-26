@@ -14,3 +14,4 @@ export { default as createStoreInfoRouter } from "./StoreInfoRouter";
 export { default as createExchangeRateRouter } from "./ExchangeRateRouter";
 export { default as createDashboardRouter } from "./DashboardRouter";
 export { default as createReportRouter } from "./ReportRouter";
+export { default as createPurchaseRouter } from "./PurchaseRouter";

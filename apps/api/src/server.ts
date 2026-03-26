@@ -22,6 +22,7 @@ import {
     createExchangeRateRouter,
     createDashboardRouter,
     createReportRouter,
+    createPurchaseRouter,
 } from './routers';
 
 import { createContainer } from './container/Container';
@@ -53,6 +54,7 @@ app.use('/api/inventory/adjustments', createInventoryAdjustmentRouter(container.
 app.use('/api/config/store', createStoreInfoRouter(container.storeInfoService));
 app.use('/api/dashboard', createDashboardRouter(container.dashboardService));
 app.use('/api/reports', createReportRouter(container.reportService));
+app.use('/api/purchases', createPurchaseRouter(container.purchaseService));
 
 app.use(globalErrorHandler);
 

@@ -15,6 +15,7 @@ import {
     PrismaInventoryAdjustmentRepository,
     PrismaStoreInfoRepository,
     PrismaDashboardRepository,
+    PrismaPurchaseRepository,
 } from '../repositories';
 
 import {
@@ -33,6 +34,7 @@ import {
     BCVExchangeRateProviderService,
     DashboardService,
     ReportService,
+    PurchaseService,
 } from '../services';
 
 export interface Container {
@@ -52,6 +54,7 @@ export interface Container {
     inventoryAdjustmentRepository: PrismaInventoryAdjustmentRepository;
     storeInfoRepository: PrismaStoreInfoRepository;
     dashboardRepository: PrismaDashboardRepository;
+    purchaseRepository: PrismaPurchaseRepository;
 
     bcvExchangeRateProviderService: BCVExchangeRateProviderService;
     
@@ -69,6 +72,7 @@ export interface Container {
     storeInfoService: StoreInfoService;
     dashboardService: DashboardService;
     reportService: ReportService;
+    purchaseService: PurchaseService;
 }
 
 export function createContainer(prisma: PrismaClient): Container {
@@ -86,6 +90,7 @@ export function createContainer(prisma: PrismaClient): Container {
     const inventoryAdjustmentRepository = new PrismaInventoryAdjustmentRepository(prisma);
     const storeInfoRepository = new PrismaStoreInfoRepository(prisma);
     const dashboardRepository = new PrismaDashboardRepository(prisma);
+    const purchaseRepository = new PrismaPurchaseRepository(prisma);
 
     const bcvExchangeRateProviderService = new BCVExchangeRateProviderService();
 
@@ -132,6 +137,7 @@ export function createContainer(prisma: PrismaClient): Container {
 
     const dashboardService = new DashboardService(dashboardRepository, exchangeRateService);
     const reportService = new ReportService(dashboardService);
+    const purchaseService = new PurchaseService(purchaseRepository, productRepository);
 
     return {
         prisma,
@@ -164,5 +170,7 @@ export function createContainer(prisma: PrismaClient): Container {
         storeInfoService,
         dashboardService,
         reportService,
+        purchaseRepository,
+        purchaseService,
     };
 }
