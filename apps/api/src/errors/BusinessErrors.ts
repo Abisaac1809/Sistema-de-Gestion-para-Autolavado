@@ -206,3 +206,9 @@ export class InsufficientAdjustmentStockError extends BusinessError {
     public readonly name = 'InsufficientAdjustmentStockError';
     public readonly statusCode = 422;
 }
+
+// Purchase-specific errors
+export class PurchaseNotFoundError extends BusinessError {
+    public readonly name = 'PurchaseNotFoundError';
+    public readonly statusCode = 404;
+}

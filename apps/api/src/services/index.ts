@@ -14,3 +14,4 @@ export { default as BCVExchangeRateProviderService } from "./BCVExchangeRateProv
 export { default as DashboardService } from "./DashboardService";
 export { default as ReportService } from "./ReportService";
 export { default as EmailService } from "./EmailService";
+export { default as PurchaseService } from "./PurchaseService";

@@ -13,3 +13,4 @@ export { default as IExchangeRateService } from "./IExchangeRateService";
 export { default as IDashboardService } from "./IDashboardService";
 export { default as IReportService } from "./IReportService";
 export { default as IEmailService } from "./IEmailService";
+export { default as IPurchaseService } from "./IPurchaseService";

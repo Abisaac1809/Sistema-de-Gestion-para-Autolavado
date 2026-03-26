@@ -188,6 +188,13 @@ export default class PrismaProductRepository implements IProductRepository {
         });
     }
 
+    async getByIds(ids: string[]): Promise<Product[]> {
+        const products = await this.prisma.product.findMany({
+            where: { id: { in: ids }, deletedAt: null },
+        });
+        return products.map(p => this.mapToEntity(p));
+    }
+
     async updateStock(id: string, newStock: number): Promise<void> {
         await this.prisma.product.update({
             where: { id },
