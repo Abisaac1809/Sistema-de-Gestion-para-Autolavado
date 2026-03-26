@@ -4,6 +4,7 @@ import { AppLayout } from "@/components/AppLayout";
 import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
 import { SettingsPage } from "@/pages/SettingsPage";
 import { InventoryPage } from "@/pages/InventoryPage";
+import { ServicesPage } from "@/pages/ServicesPage";
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -36,7 +37,7 @@ export default function App() {
 							<Route path="/ventas" element={<PlaceholderPage title="Ventas" />} />
 							<Route path="/compras" element={<PlaceholderPage title="Compras" />} />
 							<Route path="/inventario" element={<InventoryPage />} />
-							<Route path="/servicios" element={<PlaceholderPage title="Gestión de Servicios" />} />
+							<Route path="/servicios" element={<ServicesPage />} />
 							<Route path="/configuracion" element={<SettingsPage />} />
 							<Route path="/*" element={<Navigate to="/dashboard" replace />} />
 						</Route>
