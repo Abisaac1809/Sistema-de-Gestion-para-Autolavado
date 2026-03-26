@@ -12,3 +12,4 @@ export { default as PrismaPaymentRepository } from "./PrismaPaymentRepository";
 export { default as PrismaInventoryAdjustmentRepository } from "./PrismaInventoryAdjustmentRepository";
 export { default as PrismaStoreInfoRepository } from "./PrismaStoreInfoRepository";
 export { default as PrismaDashboardRepository } from "./PrismaDashboardRepository";
+export { default as PrismaPurchaseRepository } from "./PrismaPurchaseRepository";

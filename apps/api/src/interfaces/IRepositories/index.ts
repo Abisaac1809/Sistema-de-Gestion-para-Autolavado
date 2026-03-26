@@ -12,3 +12,4 @@ export { default as IPaymentRepository } from "./IPaymentRepository";
 export { default as IInventoryAdjustmentRepository } from "./IInventoryAdjustmentRepository";
 export { default as IStoreInfoRepository } from "./IStoreInfoRepository";
 export { default as IDashboardRepository } from "./IDashboardRepository";
+export { default as IPurchaseRepository } from "./IPurchaseRepository";
