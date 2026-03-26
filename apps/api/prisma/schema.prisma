@@ -232,7 +232,8 @@ model PaymentMethod {
   deletedAt     DateTime? @map("deleted_at") @db.Timestamp(6)
 
   // Relations
-  payments Payment[]
+  payments  Payment[]
+  purchases Purchase[]
 
   @@index([isActive])
   @@map("payment_methods")
@@ -339,20 +340,23 @@ model SaleDetail {
 }
 
 model Purchase {
-  id           String    @id @default(uuid()) @db.Uuid
-  providerName String    @map("provider_name") @db.VarChar(100)
-  purchaseDate DateTime  @default(now()) @map("purchase_date") @db.Timestamp(6)
-  dollarRate   Decimal   @map("dollar_rate") @db.Decimal(10, 2)
-  totalUsd     Decimal   @map("total_usd") @db.Decimal(10, 2)
-  notes        String?   @db.Text
-  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)
-  deletedAt    DateTime? @map("deleted_at") @db.Timestamp(6)
+  id              String    @id @default(uuid()) @db.Uuid
+  providerName    String    @map("provider_name") @db.VarChar(100)
+  purchaseDate    DateTime  @default(now()) @map("purchase_date") @db.Timestamp(6)
+  dollarRate      Decimal   @map("dollar_rate") @db.Decimal(10, 2)
+  totalUsd        Decimal   @map("total_usd") @db.Decimal(10, 2)
+  notes           String?   @db.Text
+  paymentMethodId String?   @map("payment_method_id") @db.Uuid
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt       DateTime? @map("deleted_at") @db.Timestamp(6)
 
   // Relations
   purchaseDetails PurchaseDetail[]
+  paymentMethod   PaymentMethod?   @relation(fields: [paymentMethodId], references: [id])
 
   @@index([purchaseDate])
+  @@index([paymentMethodId])
   @@map("purchases")
 }
 
