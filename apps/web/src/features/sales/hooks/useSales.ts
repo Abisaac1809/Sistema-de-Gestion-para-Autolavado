@@ -15,6 +15,7 @@ import type {
   UseSalesResult,
   UseSalesMutationsResult,
   SaleToCreateType,
+  SaleMutateOptions,
 } from "../types/sales.dtos";
 
 function useSaleFilters() {
@@ -130,7 +131,8 @@ export function useSalesMutations(): UseSalesMutationsResult {
   });
 
   return {
-    create: createMutation.mutate,
+    create: (payload: SaleToCreateType, options?: SaleMutateOptions) =>
+      createMutation.mutate(payload, { onSuccess: options?.onSuccess }),
     updateStatus: updateStatusMutation.mutate,
     isCreating: createMutation.isPending,
     isUpdatingStatus: updateStatusMutation.isPending,

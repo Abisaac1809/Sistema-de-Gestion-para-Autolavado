@@ -37,8 +37,12 @@ export type UseSalesResult = {
   filterActions: SaleFiltersActions;
 };
 
+export type SaleMutateOptions = {
+  onSuccess?: () => void;
+};
+
 export type UseSalesMutationsResult = {
-  create: (payload: SaleToCreateType) => void;
+  create: (payload: SaleToCreateType, options?: SaleMutateOptions) => void;
   updateStatus: (payload: { id: string; status: SaleStatus }) => void;
   isCreating: boolean;
   isUpdatingStatus: boolean;
