@@ -7,7 +7,8 @@ import {
   changeOrderStatus,
   addOrderPayment,
 } from "../services/orderService";
-import type { AddPaymentArgs, UseOrdersMutationsResult } from "../types/orders.dtos";
+import type { AddPaymentArgs, OrderMutateOptions, UseOrdersMutationsResult } from "../types/orders.dtos";
+import type { OrderToCreateType } from "@car-wash/types";
 
 export function useOrdersMutations(): UseOrdersMutationsResult {
   const queryClient = useQueryClient();
@@ -51,10 +52,14 @@ export function useOrdersMutations(): UseOrdersMutationsResult {
   });
 
   return {
-    createOrder: createMutation.mutate,
-    startOrder: startMutation.mutate,
-    completeOrder: completeMutation.mutate,
-    addPayment: addPaymentMutation.mutate,
+    createOrder: (payload: OrderToCreateType, options?: OrderMutateOptions) =>
+      createMutation.mutate(payload, options),
+    startOrder: (id: string, options?: OrderMutateOptions) =>
+      startMutation.mutate(id, options),
+    completeOrder: (id: string, options?: OrderMutateOptions) =>
+      completeMutation.mutate(id, options),
+    addPayment: (args: AddPaymentArgs, options?: OrderMutateOptions) =>
+      addPaymentMutation.mutate(args, options),
     isCreating: createMutation.isPending,
     isChangingStatus: startMutation.isPending || completeMutation.isPending,
     isAddingPayment: addPaymentMutation.isPending,

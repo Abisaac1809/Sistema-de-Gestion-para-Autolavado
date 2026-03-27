@@ -36,11 +36,16 @@ export type AddPaymentArgs = {
   payload: PaymentToCreateType;
 };
 
+export type OrderMutateOptions = {
+  onSuccess?: () => void;
+  onSettled?: () => void;
+};
+
 export type UseOrdersMutationsResult = {
-  createOrder: (payload: OrderToCreateType) => void;
-  startOrder: (id: string) => void;
-  completeOrder: (id: string) => void;
-  addPayment: (args: AddPaymentArgs) => void;
+  createOrder: (payload: OrderToCreateType, options?: OrderMutateOptions) => void;
+  startOrder: (id: string, options?: OrderMutateOptions) => void;
+  completeOrder: (id: string, options?: OrderMutateOptions) => void;
+  addPayment: (args: AddPaymentArgs, options?: OrderMutateOptions) => void;
   isCreating: boolean;
   isChangingStatus: boolean;
   isAddingPayment: boolean;
