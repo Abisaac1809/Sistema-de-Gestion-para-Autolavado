@@ -10,6 +10,7 @@ import { PurchasesTable } from "./PurchasesTable";
 import { PurchaseForm } from "./PurchaseForm";
 import { PurchaseDetailModal } from "./PurchaseDetailModal";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { Pagination } from "@/components/Pagination";
 
 export function PurchasesView() {
   const { purchases, meta, isLoading, filters, filterActions } = usePurchases();
@@ -145,44 +146,23 @@ export function PurchasesView() {
       </div>
 
       {/* Table */}
-      {isLoading ? (
-        <div className="flex items-center justify-center py-16">
-          <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-700 rounded-full animate-spin" />
-        </div>
-      ) : (
-        <PurchasesTable
-          purchases={purchases}
-          onView={handleView}
-          onDelete={handleDeleteClick}
-          disabled={isCreating || isDeleting}
-        />
-      )}
+      <PurchasesTable
+        purchases={purchases}
+        isLoading={isLoading}
+        onView={handleView}
+        onDelete={handleDeleteClick}
+        disabled={isCreating || isDeleting}
+      />
 
       {/* Pagination */}
-      {meta && meta.totalPages > 1 && (
-        <div className="mt-4 flex items-center justify-between">
-          <p className="text-sm text-gray-500">
-            Pagina {meta.currentPage} de {meta.totalPages} ({meta.totalRecords} compras)
-          </p>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              disabled={meta.currentPage <= 1}
-              onClick={() => filterActions.setPage(meta.currentPage - 1)}
-              className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Anterior
-            </button>
-            <button
-              type="button"
-              disabled={meta.currentPage >= meta.totalPages}
-              onClick={() => filterActions.setPage(meta.currentPage + 1)}
-              className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Siguiente
-            </button>
-          </div>
-        </div>
+      {meta && (
+        <Pagination
+          currentPage={meta.currentPage}
+          totalPages={meta.totalPages}
+          totalRecords={meta.totalRecords}
+          limit={meta.limit}
+          onPageChange={filterActions.setPage}
+        />
       )}
 
       {/* Modals */}

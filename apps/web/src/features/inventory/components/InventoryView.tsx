@@ -16,6 +16,7 @@ import { ProductForm } from "./ProductForm";
 import { CategoryForm } from "./CategoryForm";
 import { ProductDetailView } from "./ProductDetailView";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { Pagination } from "@/components/Pagination";
 
 type ModalState = {
   productForm: boolean;
@@ -127,30 +128,14 @@ export function InventoryView() {
       </div>
 
       {/* Pagination */}
-      {meta && meta.totalPages > 1 && (
-        <div className="mt-4 flex items-center justify-between">
-          <p className="text-sm text-gray-500">
-            Pagina {meta.currentPage} de {meta.totalPages} ({meta.totalRecords} productos)
-          </p>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              disabled={meta.currentPage <= 1}
-              onClick={() => filterActions.setPage(meta.currentPage - 1)}
-              className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Anterior
-            </button>
-            <button
-              type="button"
-              disabled={meta.currentPage >= meta.totalPages}
-              onClick={() => filterActions.setPage(meta.currentPage + 1)}
-              className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Siguiente
-            </button>
-          </div>
-        </div>
+      {meta && (
+        <Pagination
+          currentPage={meta.currentPage}
+          totalPages={meta.totalPages}
+          totalRecords={meta.totalRecords}
+          limit={meta.limit}
+          onPageChange={filterActions.setPage}
+        />
       )}
 
       {/* ProductForm modal */}

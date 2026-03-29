@@ -11,7 +11,6 @@ import { SalesTable } from "./SalesTable";
 import { QuickSaleModal } from "./QuickSaleModal";
 import { SaleDetailModal } from "./SaleDetailModal";
 import { Pagination } from "@/components/Pagination";
-import { LoadingIndicator } from "@/components/LoadingIndicator";
 import type { SaleToCreateType } from "../types/sales.dtos";
 
 export function SalesView() {
@@ -55,12 +54,8 @@ export function SalesView() {
         paymentMethods={paymentMethods}
       />
 
-      {/* Table / loading state */}
-      {isLoading ? (
-        <LoadingIndicator />
-      ) : (
-        <SalesTable sales={filteredSales} onView={handleView} />
-      )}
+      {/* Table */}
+      <SalesTable sales={filteredSales} isLoading={isLoading} onView={handleView} />
 
       {/* Pagination */}
       {meta && (
