@@ -4,7 +4,7 @@ import { CreateButton } from "@/components/CreateButton";
 import type { PublicPurchase, PurchaseToCreateType } from "@car-wash/types";
 import { usePurchases, usePurchasesMutations } from "../hooks/usePurchases";
 import { usePaymentMethods } from "@/features/settings/hooks/usePaymentMethods";
-import { KpiCard } from "./KpiCard";
+import { KpiCard } from "@/components/KpiCard";
 import { PurchasesTable } from "./PurchasesTable";
 import { PurchaseForm } from "./PurchaseForm";
 import { PurchaseDetailModal } from "./PurchaseDetailModal";
@@ -56,32 +56,28 @@ export function PurchasesView() {
       {/* KPI row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <KpiCard
-          title="Total Compras"
-          value={meta?.totalRecords ?? 0}
-          icon={<ShoppingCart size={18} className="text-blue-600" />}
-          color="bg-blue-100"
-          textColor="text-blue-700"
+          value={String(meta?.totalRecords ?? 0)}
+          label="Total Compras"
+          icon={ShoppingCart}
+          colorClass="bg-blue-50 text-blue-600"
         />
         <KpiCard
-          title="Gasto Total"
           value={`$${totalSpend.toFixed(2)}`}
-          icon={<DollarSign size={18} className="text-green-600" />}
-          color="bg-green-100"
-          textColor="text-green-700"
+          label="Gasto Total"
+          icon={DollarSign}
+          colorClass="bg-green-50 text-green-600"
         />
         <KpiCard
-          title="Productos Recibidos"
-          value={totalItemsReceived}
-          icon={<Package size={18} className="text-purple-600" />}
-          color="bg-purple-100"
-          textColor="text-purple-700"
+          value={String(totalItemsReceived)}
+          label="Productos Recibidos"
+          icon={Package}
+          colorClass="bg-purple-50 text-purple-600"
         />
         <KpiCard
-          title="Proveedores Unicos"
-          value={uniqueProviders}
-          icon={<Truck size={18} className="text-orange-600" />}
-          color="bg-orange-100"
-          textColor="text-orange-700"
+          value={String(uniqueProviders)}
+          label="Proveedores Unicos"
+          icon={Truck}
+          colorClass="bg-orange-50 text-orange-600"
         />
       </div>
 

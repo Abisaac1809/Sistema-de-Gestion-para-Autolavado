@@ -1,7 +1,7 @@
 import { DollarSign, ShoppingCart, TrendingUp } from "lucide-react";
 import { PieChart, Pie, Cell, Tooltip } from "recharts";
 import type { RevenueKpis, PaymentMethodBreakdownItem } from "@car-wash/types";
-import { SalesKpiCard } from "./SalesKpiCard";
+import { KpiCard } from "@/components/KpiCard";
 
 const COLORS = [
   "#10b981",
@@ -21,12 +21,10 @@ type SalesKpiSectionProps = {
 export function SalesKpiSectionSkeleton() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      {Array.from({ length: 4 }).map((_, i) => (
-        <div
-          key={i}
-          className="rounded-xl border border-gray-200 bg-white p-5 animate-pulse h-24"
-        />
-      ))}
+      <KpiCard value="" label="" icon={DollarSign} colorClass="" isLoading />
+      <KpiCard value="" label="" icon={ShoppingCart} colorClass="" isLoading />
+      <KpiCard value="" label="" icon={TrendingUp} colorClass="" isLoading />
+      <div className="rounded-xl border border-gray-200 bg-white p-5 animate-pulse h-24" />
     </div>
   );
 }
@@ -50,23 +48,26 @@ export function SalesKpiSection({
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <SalesKpiCard
-        label="Ingreso del dia"
+      <KpiCard
         value={`$${totalRevenueUsd.toFixed(2)}`}
-        sub={`Bs. ${totalRevenueVes.toFixed(2)}`}
-        icon={<DollarSign size={18} />}
+        label="Ingreso del dia"
+        icon={DollarSign}
+        colorClass="bg-green-50 text-green-600"
+        subtitle={`Bs. ${totalRevenueVes.toFixed(2)}`}
       />
 
-      <SalesKpiCard
-        label="Ventas totales"
+      <KpiCard
         value={String(salesCount)}
-        icon={<ShoppingCart size={18} />}
+        label="Ventas totales"
+        icon={ShoppingCart}
+        colorClass="bg-blue-50 text-blue-600"
       />
 
-      <SalesKpiCard
-        label="Ticket promedio"
+      <KpiCard
         value={`$${averageTicketUsd.toFixed(2)}`}
-        icon={<TrendingUp size={18} />}
+        label="Ticket promedio"
+        icon={TrendingUp}
+        colorClass="bg-purple-50 text-purple-600"
       />
 
       {/* Donut chart card */}
