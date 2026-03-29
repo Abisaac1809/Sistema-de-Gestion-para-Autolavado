@@ -5,6 +5,8 @@ import { z } from "zod";
 import { Plus, X } from "lucide-react";
 import { PurchaseDetailToCreate, type PurchaseToCreateType } from "@car-wash/types";
 import { Modal } from "@/components/Modal";
+import { SaveButton } from "@/components/buttons/SaveButton";
+import { CancelButton } from "@/components/buttons/CancelButton";
 import { usePaymentMethods } from "@/features/settings/hooks/usePaymentMethods";
 
 // Local form schema uses string for purchaseDate since HTML date input returns strings
@@ -294,20 +296,12 @@ export function PurchaseForm({ isOpen, onClose, onSubmit, isSubmitting }: Purcha
 
         {/* Actions */}
         <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
-          <button
-            type="button"
-            onClick={handleClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-md hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {isSubmitting ? "Registrando..." : "Registrar Compra"}
-          </button>
+          <CancelButton onClick={handleClose} />
+          <SaveButton
+            isSubmitting={isSubmitting}
+            label="Registrar Compra"
+            loadingLabel="Registrando..."
+          />
         </div>
       </form>
     </Modal>

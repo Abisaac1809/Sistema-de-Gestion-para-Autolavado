@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CreateButton } from "@/components/CreateButton";
+import { CreateButton } from "@/components/buttons/CreateButton";
 import { PageView } from "@/components/PageView";
 import type {
   PublicProduct,

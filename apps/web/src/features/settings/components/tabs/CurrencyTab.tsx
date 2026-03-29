@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { SaveButton } from "@/components/buttons/SaveButton";
 import { RefreshCw } from "lucide-react";
 import type {
   PublicExchangeRateConfig,
@@ -240,13 +241,7 @@ export function CurrencyTab({
 
       {/* Submit */}
       <div className="flex items-center gap-4 pt-2">
-        <button
-          type="submit"
-          disabled={isSaving}
-          className="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-md hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          {isSaving ? "Guardando..." : "Guardar cambios"}
-        </button>
+        <SaveButton isSubmitting={isSaving} label="Guardar cambios" />
       </div>
     </form>
   );

@@ -3,6 +3,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ServiceToCreate, type PublicService, type ServiceToCreateType } from "@car-wash/types";
 import { Modal } from "@/components/Modal";
+import { SaveButton } from "@/components/buttons/SaveButton";
+import { CancelButton } from "@/components/buttons/CancelButton";
 
 const ServiceFormSchema = ServiceToCreate.pick({
   name: true,
@@ -130,20 +132,11 @@ export function ServiceForm({
 
         {/* Action buttons */}
         <div className="flex justify-end gap-3 pt-2 border-t border-gray-100 mt-5">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-md hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {isSubmitting ? "Guardando..." : isEditing ? "Guardar cambios" : "Crear servicio"}
-          </button>
+          <CancelButton onClick={onClose} />
+          <SaveButton
+            isSubmitting={isSubmitting}
+            label={isEditing ? "Guardar cambios" : "Crear servicio"}
+          />
         </div>
       </form>
     </Modal>

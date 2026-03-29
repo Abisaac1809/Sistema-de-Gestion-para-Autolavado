@@ -8,6 +8,8 @@ import {
   type ProductToUpdateType,
 } from "@car-wash/types";
 import { Modal } from "@/components/Modal";
+import { SaveButton } from "@/components/buttons/SaveButton";
+import { CancelButton } from "@/components/buttons/CancelButton";
 import { CategorySelect } from "./CategorySelect";
 import { UNIT_TYPE_LABELS } from "../utils/unitTypeLabels";
 
@@ -347,20 +349,8 @@ export function ProductForm({
 
         {/* Footer buttons */}
         <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 mt-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {isSubmitting ? "Guardando..." : "Guardar"}
-          </button>
+          <CancelButton onClick={onClose} />
+          <SaveButton isSubmitting={isSubmitting} />
         </div>
       </form>
     </Modal>
