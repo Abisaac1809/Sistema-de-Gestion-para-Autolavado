@@ -1,57 +1,62 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { isAxiosError } from "axios";
-import type {
-  PublicExchangeRateConfig,
-  ExchangeRateConfigToUpdateType,
-} from "@car-wash/types";
 import {
   getExchangeRateConfig,
   updateExchangeRateConfig,
   syncBcvRates,
 } from "../services/exchangeRateService";
+import type {
+  UseExchangeRateConfigResult,
+  UseExchangeRateMutationsResult,
+} from "../types/exchangeRate.dtos";
 
-export type UseExchangeRateResult = {
-  config: PublicExchangeRateConfig | undefined;
-  isLoading: boolean;
-  isSaving: boolean;
-  isSyncing: boolean;
-  save: (payload: ExchangeRateConfigToUpdateType) => void;
-  sync: () => void;
-};
+const QUERY_KEY = ["settings", "exchangeRate"] as const;
 
-export function useExchangeRate(): UseExchangeRateResult {
-  const queryClient = useQueryClient();
-
+export function useExchangeRateConfig(): UseExchangeRateConfigResult {
   const query = useQuery({
-    queryKey: ["settings", "exchangeRate"],
+    queryKey: QUERY_KEY,
     queryFn: getExchangeRateConfig,
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: updateExchangeRateConfig,
-    onSuccess: (data) => {
-      queryClient.setQueryData(["settings", "exchangeRate"], data);
-      toast.success("Configuración de monedas guardada correctamente");
-    },
-    onError: (error: unknown) => { if (!isAxiosError(error)) toast.error("Ocurrió un error inesperado"); },
-  });
-
-  const syncMutation = useMutation({
-    mutationFn: syncBcvRates,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["settings", "exchangeRate"] });
-      toast.success("Tasas del BCV sincronizadas correctamente");
-    },
-    onError: (error: unknown) => { if (!isAxiosError(error)) toast.error("Error al sincronizar con el BCV"); },
   });
 
   return {
     config: query.data,
     isLoading: query.isLoading,
-    isSaving: updateMutation.isPending,
-    isSyncing: syncMutation.isPending,
+  };
+}
+
+export function useExchangeRateMutations(): UseExchangeRateMutationsResult {
+  const queryClient = useQueryClient();
+
+  const invalidate = () =>
+    queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+
+  const updateMutation = useMutation({
+    mutationFn: updateExchangeRateConfig,
+    onSuccess: (data) => {
+      queryClient.setQueryData(QUERY_KEY, data);
+      toast.success("Configuración de monedas guardada correctamente");
+    },
+    onError: (error: unknown) => {
+      if (!isAxiosError(error)) toast.error("Ocurrió un error inesperado");
+    },
+  });
+
+  const syncMutation = useMutation({
+    mutationFn: syncBcvRates,
+    onSuccess: () => {
+      invalidate();
+      toast.success("Tasas del BCV sincronizadas correctamente");
+    },
+    onError: (error: unknown) => {
+      if (!isAxiosError(error)) toast.error("Error al sincronizar con el BCV");
+    },
+  });
+
+  return {
     save: updateMutation.mutate,
     sync: syncMutation.mutate,
+    isSaving: updateMutation.isPending,
+    isSyncing: syncMutation.isPending,
   };
 }

@@ -26,6 +26,7 @@ export function SearchSelect<T>({
 }: SearchSelectProps<T>) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -43,18 +44,21 @@ export function SearchSelect<T>({
     if (!disabled) {
       setSearchText("");
       setIsOpen(true);
+      setHighlightedIndex(-1);
     }
   }
 
   function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
     setSearchText(e.target.value);
     setIsOpen(true);
+    setHighlightedIndex(-1);
   }
 
   function handleOptionSelect(option: T) {
     onChange(getOptionId(option));
     setSearchText("");
     setIsOpen(false);
+    setHighlightedIndex(-1);
   }
 
   function handleClear(e: React.MouseEvent) {
@@ -62,6 +66,7 @@ export function SearchSelect<T>({
     onChange(null);
     setSearchText("");
     setIsOpen(false);
+    setHighlightedIndex(-1);
     inputRef.current?.focus();
   }
 
@@ -69,6 +74,26 @@ export function SearchSelect<T>({
     if (e.key === "Escape") {
       setIsOpen(false);
       setSearchText("");
+      setHighlightedIndex(-1);
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (!isOpen) {
+        setIsOpen(true);
+      } else {
+        setHighlightedIndex((prev) =>
+          prev < filteredOptions.length - 1 ? prev + 1 : prev
+        );
+      }
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (isOpen) {
+        setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : prev));
+      }
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (isOpen && highlightedIndex >= 0 && highlightedIndex < filteredOptions.length) {
+        handleOptionSelect(filteredOptions[highlightedIndex]);
+      }
     }
   }
 
@@ -126,21 +151,22 @@ export function SearchSelect<T>({
 
       {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
 
-      {isOpen && !disabled && (
+      {isOpen && !disabled && (isLoading || filteredOptions.length > 0) && (
         <div className="absolute top-full left-0 right-0 z-50 mt-1 rounded-lg border border-gray-200 bg-white shadow-lg max-h-60 overflow-y-auto">
           {isLoading ? (
             <div className="px-3 py-2 text-sm text-gray-500">Cargando...</div>
-          ) : filteredOptions.length === 0 ? (
-            <div className="px-3 py-2 text-sm text-gray-500">Sin resultados</div>
           ) : (
-            filteredOptions.map((option) => {
+            filteredOptions.map((option, index) => {
               const optionId = getOptionId(option);
               const isSelected = optionId === value;
+              const isHighlighted = index === highlightedIndex;
               return (
                 <div
                   key={optionId}
                   onClick={() => handleOptionSelect(option)}
-                  className={`px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 ${
+                  className={`px-3 py-2 text-sm cursor-pointer ${
+                    isHighlighted ? "bg-gray-100" : "hover:bg-gray-100"
+                  } ${
                     isSelected ? "bg-gray-50 font-medium text-gray-900" : "text-gray-700"
                   }`}
                 >

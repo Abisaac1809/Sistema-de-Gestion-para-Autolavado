@@ -74,7 +74,7 @@ export function OrderCard({ order, onAction, isActionPending }: OrderCardProps) 
   const isPorCobrar = order.status === OrderStatus.COMPLETED;
 
   const containerClass = [
-    "bg-white rounded-xl border shadow-sm p-4 hover:shadow-md transition-shadow",
+    "bg-white rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow",
     isPorCobrar ? "border-l-4 border-l-amber-400 bg-amber-50/30" : "",
   ]
     .filter(Boolean)

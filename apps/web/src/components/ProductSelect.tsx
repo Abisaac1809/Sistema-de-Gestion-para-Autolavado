@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import type { PublicProduct } from "@car-wash/types";
 import { SearchSelect } from "@/components/SearchSelect";
-import { getProducts } from "../services/productService";
+import { getProducts } from "@/features/inventory/services/productService";
 
 type ProductSelectProps = {
   value: string | null;
@@ -10,15 +10,10 @@ type ProductSelectProps = {
   error?: string;
 };
 
-export function ProductSelect({
-  value,
-  onChange,
-  placeholder,
-  error,
-}: ProductSelectProps) {
+export function ProductSelect({ value, onChange, placeholder, error }: ProductSelectProps) {
   const query = useQuery({
     queryKey: ["inventory", "products", "select-all"],
-    queryFn: () => getProducts({ page: 1, limit: 200 }),
+    queryFn: () => getProducts({ page: 1, limit: 100 }),
   });
 
   return (

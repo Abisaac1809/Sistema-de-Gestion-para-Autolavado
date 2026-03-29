@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Plus, X } from "lucide-react";
@@ -7,6 +7,7 @@ import { PurchaseDetailToCreate, type PurchaseToCreateType } from "@car-wash/typ
 import { Modal } from "@/components/Modal";
 import { SaveButton } from "@/components/buttons/SaveButton";
 import { CancelButton } from "@/components/buttons/CancelButton";
+import { ProductSelect } from "@/components/ProductSelect";
 import { usePaymentMethods } from "@/features/settings/hooks/usePaymentMethods";
 
 // Local form schema uses string for purchaseDate since HTML date input returns strings
@@ -217,18 +218,18 @@ export function PurchaseForm({ isOpen, onClose, onSubmit, isSubmitting }: Purcha
                 <div key={field.id} className="flex items-start gap-2 p-3 bg-gray-50 rounded-lg border border-gray-100">
                   <div className="flex-1 grid grid-cols-3 gap-2">
                     <div className="col-span-3">
-                      <label className="block text-xs text-gray-500 mb-0.5">ID del Producto (UUID)</label>
-                      <input
-                        type="text"
-                        {...register(`details.${index}.productId`)}
-                        placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                        className={`w-full rounded-md border px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-gray-900 font-mono ${
-                          detailErrors?.productId ? "border-red-300" : "border-gray-300"
-                        }`}
+                      <label className="block text-xs text-gray-500 mb-0.5">Producto</label>
+                      <Controller
+                        control={control}
+                        name={`details.${index}.productId`}
+                        render={({ field }) => (
+                          <ProductSelect
+                            value={field.value || null}
+                            onChange={(val) => field.onChange(val ?? "")}
+                            error={detailErrors?.productId?.message}
+                          />
+                        )}
                       />
-                      {detailErrors?.productId && (
-                        <p className="mt-0.5 text-xs text-red-600">{detailErrors.productId.message}</p>
-                      )}
                     </div>
                     <div>
                       <label className="block text-xs text-gray-500 mb-0.5">Cantidad</label>

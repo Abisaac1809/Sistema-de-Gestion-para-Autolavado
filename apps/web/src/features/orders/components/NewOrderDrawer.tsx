@@ -6,7 +6,7 @@ import type { OrderToCreateType } from "@car-wash/types";
 import { Drawer } from "@/components/Drawer";
 import { SaveButton } from "@/components/buttons/SaveButton";
 import { CancelButton } from "@/components/buttons/CancelButton";
-import { ProductSelect } from "@/features/inventory/components/ProductSelect";
+import { ProductSelect } from "@/components/ProductSelect";
 import { CustomerSelect } from "./CustomerSelect";
 import { ServiceSelect } from "./ServiceSelect";
 import { NewOrderFormSchema, type NewOrderFormValues } from "../schemas/newOrderForm.schema";

@@ -1,6 +1,9 @@
 import { useState } from "react";
 import type { PublicPaymentMethod, PaymentMethodToUpdateType } from "@car-wash/types";
-import { useExchangeRate } from "../hooks/useExchangeRate";
+import {
+  useExchangeRateConfig,
+  useExchangeRateMutations,
+} from "../hooks/useExchangeRate";
 import {
   usePaymentMethods,
   usePaymentMethodsMutations,
@@ -27,7 +30,8 @@ const TABS: TabConfig[] = [
 export function SettingsTabs() {
   const [activeTab, setActiveTab] = useState<Tab>("general");
 
-  const exchangeRate = useExchangeRate();
+  const exchangeRateConfig = useExchangeRateConfig();
+  const exchangeRateMutations = useExchangeRateMutations();
   const paymentMethods = usePaymentMethods();
   const paymentMethodsMutations = usePaymentMethodsMutations();
 
@@ -88,12 +92,12 @@ export function SettingsTabs() {
         hidden={activeTab !== "currency"}
       >
         <CurrencyTab
-          config={exchangeRate.config}
-          isLoading={exchangeRate.isLoading}
-          isSaving={exchangeRate.isSaving}
-          isSyncing={exchangeRate.isSyncing}
-          onSave={exchangeRate.save}
-          onSync={exchangeRate.sync}
+          config={exchangeRateConfig.config}
+          isLoading={exchangeRateConfig.isLoading}
+          isSaving={exchangeRateMutations.isSaving}
+          isSyncing={exchangeRateMutations.isSyncing}
+          onSave={exchangeRateMutations.save}
+          onSync={exchangeRateMutations.sync}
         />
       </div>
 

@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import ReactDOM from "react-dom";
+import { useEffect, useState } from "react";
+import ReactDOM, { flushSync } from "react-dom";
 import { X } from "lucide-react";
 
 type DrawerWidth = "md" | "lg" | "xl";
@@ -15,10 +15,26 @@ type DrawerProps = {
 const widthClasses: Record<DrawerWidth, string> = {
   md: "max-w-md",
   lg: "max-w-lg",
-  xl: "max-w-xl",
+  xl: "max-w-2xl",
 };
 
+const ANIMATION_DURATION_MS = 1000;
+
 export function Drawer({ isOpen, onClose, title, children, width = "lg" }: DrawerProps) {
+  const [isMounted, setIsMounted] = useState(isOpen);
+  const [isVisible, setIsVisible] = useState(isOpen);
+
+  useEffect(() => {
+    if (isOpen) {
+      flushSync(() => setIsMounted(true));
+      requestAnimationFrame(() => setIsVisible(true));
+    } else {
+      setIsVisible(false);
+      const timer = setTimeout(() => setIsMounted(false), ANIMATION_DURATION_MS);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -34,15 +50,19 @@ export function Drawer({ isOpen, onClose, title, children, width = "lg" }: Drawe
     };
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
+  if (!isMounted) return null;
 
   return ReactDOM.createPortal(
     <div
-      className="fixed inset-0 z-50 bg-black/50"
+      className={`fixed inset-0 z-50 bg-black/50 transition-opacity duration-300 motion-reduce:transition-none ${
+        isVisible ? "opacity-100" : "opacity-0"
+      }`}
       onClick={onClose}
     >
       <div
-        className={`fixed inset-y-0 right-0 w-full ${widthClasses[width]} bg-white shadow-xl flex flex-col`}
+        className={`rounded-l-xl fixed inset-y-0 right-0 w-full ${widthClasses[width]} bg-white shadow-xl flex flex-col transition-transform duration-300 ease-out motion-reduce:transition-none ${
+          isVisible ? "translate-x-0" : "translate-x-full"
+        }`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
