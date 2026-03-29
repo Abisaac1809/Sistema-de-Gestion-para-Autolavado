@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { PublicSale } from "@car-wash/types";
-import { CreateButton } from "@/components/CreateButton";
+import { CreateButton } from "@/components/buttons/CreateButton";
 import { PageView } from "@/components/PageView";
 import { useSales, useSalesMutations } from "../hooks/useSales";
 import { useSalesKpis } from "../hooks/useSalesKpis";

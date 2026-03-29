@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Search } from "lucide-react";
-import { CreateButton } from "@/components/CreateButton";
+import { CreateButton } from "@/components/buttons/CreateButton";
+import { SearchInput } from "@/components/SearchInput";
 import { PageView } from "@/components/PageView";
 import type { PublicService, ServiceToCreateType, ServiceToUpdateType } from "@car-wash/types";
 import { useServices, useServicesMutations } from "../hooks/useServices";
@@ -74,17 +74,11 @@ export function ServicesView() {
 
       {/* Search / Filter bar */}
       <div className="flex gap-3 items-center mb-4">
-        <div className="relative flex-1 max-w-xs">
-          <Search
-            size={16}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-          />
-          <input
-            type="text"
-            placeholder="Buscar servicios..."
+        <div className="flex-1 max-w-xs">
+          <SearchInput
             value={filters.search}
-            onChange={(e) => filterActions.setSearch(e.target.value)}
-            className="w-full rounded-lg border border-gray-200 pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+            onChange={filterActions.setSearch}
+            placeholder="Buscar servicios..."
           />
         </div>
 

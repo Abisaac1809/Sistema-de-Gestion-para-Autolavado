@@ -4,6 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, X } from "lucide-react";
 import type { OrderToCreateType } from "@car-wash/types";
 import { Drawer } from "@/components/Drawer";
+import { SaveButton } from "@/components/buttons/SaveButton";
+import { CancelButton } from "@/components/buttons/CancelButton";
 import { ProductSelect } from "@/features/inventory/components/ProductSelect";
 import { CustomerSelect } from "./CustomerSelect";
 import { ServiceSelect } from "./ServiceSelect";
@@ -257,20 +259,12 @@ export function NewOrderDrawer({ isOpen, onClose, onSubmit, isSubmitting }: NewO
 
         {/* Actions */}
         <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
-          <button
-            type="button"
-            onClick={handleClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-md hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {isSubmitting ? "Creando..." : "Crear Orden"}
-          </button>
+          <CancelButton onClick={handleClose} />
+          <SaveButton
+            isSubmitting={isSubmitting}
+            label="Crear Orden"
+            loadingLabel="Creando..."
+          />
         </div>
       </form>
     </Drawer>

@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Search, ShoppingCart, DollarSign, Package, Truck } from "lucide-react";
-import { CreateButton } from "@/components/CreateButton";
+import { ShoppingCart, DollarSign, Package, Truck } from "lucide-react";
+import { SearchInput } from "@/components/SearchInput";
+import { CreateButton } from "@/components/buttons/CreateButton";
 import { PageView } from "@/components/PageView";
 import type { PublicPurchase, PurchaseToCreateType } from "@car-wash/types";
 import { usePurchases, usePurchasesMutations } from "../hooks/usePurchases";
@@ -89,17 +90,11 @@ export function PurchasesView() {
 
       {/* Filter bar */}
       <div className="flex flex-wrap gap-3 items-center mb-4">
-        <div className="relative flex-1 min-w-[200px] max-w-xs">
-          <Search
-            size={16}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-          />
-          <input
-            type="text"
-            placeholder="Buscar por proveedor..."
+        <div className="flex-1 min-w-[200px] max-w-xs">
+          <SearchInput
             value={filters.search}
-            onChange={(e) => filterActions.setSearch(e.target.value)}
-            className="w-full rounded-lg border border-gray-200 pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+            onChange={filterActions.setSearch}
+            placeholder="Buscar por proveedor..."
           />
         </div>
 

@@ -1,5 +1,5 @@
-import { Search } from "lucide-react";
 import { CategorySelect } from "./CategorySelect";
+import { SearchInput } from "@/components/SearchInput";
 import { IsForSaleFilter } from "../types/products.dtos";
 
 type FilterBarProps = {
@@ -34,19 +34,7 @@ export function FilterBar({
       {/* Search input */}
       <div className="w-full sm:w-64">
         <label className={labelClass}>Buscar</label>
-        <div className="relative">
-          <Search
-            size={16}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-          />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Buscar producto..."
-            className={`${inputClass} pl-9`}
-          />
-        </div>
+        <SearchInput value={search} onChange={onSearchChange} placeholder="Buscar producto..." />
       </div>
 
       {/* Category select */}

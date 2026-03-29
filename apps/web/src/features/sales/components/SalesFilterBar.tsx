@@ -1,5 +1,5 @@
-import { Search } from "lucide-react";
 import { SaleStatus } from "@car-wash/types";
+import { SearchInput } from "@/components/SearchInput";
 import type { PublicPaymentMethod } from "@car-wash/types";
 import type { SaleFiltersState, SaleFiltersActions } from "../types/sales.dtos";
 
@@ -26,17 +26,11 @@ export function SalesFilterBar({
   return (
     <div className="flex flex-wrap gap-3 items-center mb-4">
       {/* Search input */}
-      <div className="relative flex-1 min-w-[200px] max-w-xs">
-        <Search
-          size={16}
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-        />
-        <input
-          type="text"
-          placeholder="Buscar por cliente o placa..."
+      <div className="flex-1 min-w-[200px] max-w-xs">
+        <SearchInput
           value={filters.search}
-          onChange={(e) => filterActions.setSearch(e.target.value)}
-          className="w-full rounded-lg border border-gray-200 pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+          onChange={filterActions.setSearch}
+          placeholder="Buscar por cliente o placa..."
         />
       </div>
 

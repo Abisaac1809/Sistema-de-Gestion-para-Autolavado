@@ -6,6 +6,8 @@ import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import type { SaleToCreateType, ListOfCustomers } from "@car-wash/types";
 import { Modal } from "@/components/Modal";
+import { SaveButton } from "@/components/buttons/SaveButton";
+import { CancelButton } from "@/components/buttons/CancelButton";
 import { api } from "@/services/axiosInstance";
 import { usePaymentMethods } from "@/features/settings/hooks/usePaymentMethods";
 import { ProductSelect } from "@/features/inventory/components/ProductSelect";
@@ -340,20 +342,12 @@ export function QuickSaleModal({
 
         {/* Actions */}
         <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
-          <button
-            type="button"
-            onClick={handleClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-md hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {isSubmitting ? "Creando..." : "Crear Venta"}
-          </button>
+          <CancelButton onClick={handleClose} />
+          <SaveButton
+            isSubmitting={isSubmitting}
+            label="Crear Venta"
+            loadingLabel="Creando..."
+          />
         </div>
       </form>
     </Modal>

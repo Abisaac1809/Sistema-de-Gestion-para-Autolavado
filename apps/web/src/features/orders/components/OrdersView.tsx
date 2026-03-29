@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Search } from "lucide-react";
 import type { OrderSummary, OrderToCreateType } from "@car-wash/types";
-import { CreateButton } from "@/components/CreateButton";
+import { SearchInput } from "@/components/SearchInput";
+import { CreateButton } from "@/components/buttons/CreateButton";
 import { PageView } from "@/components/PageView";
 import { useOrders } from "../hooks/useOrders";
 import { useOrdersMutations } from "../hooks/useOrdersMutations";
@@ -71,13 +71,11 @@ export function OrdersView() {
 
       {/* Search bar */}
       <div className="flex gap-3 items-center mb-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-          <input
-            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
-            placeholder="Buscar por orden o cliente..."
+        <div className="flex-1 max-w-sm">
+          <SearchInput
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={setSearch}
+            placeholder="Buscar por orden o cliente..."
           />
         </div>
       </div>
