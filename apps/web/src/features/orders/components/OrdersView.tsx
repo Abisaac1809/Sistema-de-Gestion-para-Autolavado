@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Search } from "lucide-react";
 import type { OrderSummary, OrderToCreateType } from "@car-wash/types";
 import { CreateButton } from "@/components/CreateButton";
+import { PageView } from "@/components/PageView";
 import { useOrders } from "../hooks/useOrders";
 import { useOrdersMutations } from "../hooks/useOrdersMutations";
 import { KanbanBoard, KanbanBoardSkeleton } from "./KanbanBoard";
@@ -51,17 +52,11 @@ export function OrdersView() {
   }
 
   return (
-    <div className="p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Gestion de Ordenes</h1>
-          <p className="text-gray-500 text-sm mt-1">
-            Administra el flujo de trabajo de tu autolavado.
-          </p>
-        </div>
-        <CreateButton title="Nueva Orden" onClick={() => setDrawerOpen(true)} />
-      </div>
+      <PageView
+        title="Gestion de Ordenes"
+        subtitle="Administra el flujo de trabajo de tu autolavado."
+        action={<CreateButton title="Nueva Orden" onClick={() => setDrawerOpen(true)} />}
+      >
 
       {/* KPI Bar */}
       {isLoading ? (
@@ -116,6 +111,6 @@ export function OrdersView() {
         onAddPayment={handleAddPayment}
         isSubmitting={isAddingPayment}
       />
-    </div>
+      </PageView>
   );
 }

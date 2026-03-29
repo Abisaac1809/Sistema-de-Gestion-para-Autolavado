@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { CreateButton } from "@/components/CreateButton";
+import { PageView } from "@/components/PageView";
 import type { PublicService, ServiceToCreateType, ServiceToUpdateType } from "@car-wash/types";
 import { useServices, useServicesMutations } from "../hooks/useServices";
 import { ServiceCardGrid } from "./ServiceCardGrid";
@@ -64,17 +65,11 @@ export function ServicesView() {
   };
 
   return (
-    <div>
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Gestion de Servicios</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Administra los servicios de tu autolavado.
-          </p>
-        </div>
-        <CreateButton title="Crear Servicio" onClick={handleAddService} />
-      </div>
+    <PageView
+      title="Gestion de Servicios"
+      subtitle="Administra los servicios de tu autolavado."
+      action={<CreateButton title="Crear Servicio" onClick={handleAddService} />}
+    >
 
       {/* Search / Filter bar */}
       <div className="flex gap-3 items-center mb-4">
@@ -170,6 +165,6 @@ export function ServicesView() {
         message={`¿Estas seguro de que deseas eliminar "${deletingService?.name}"? Esta accion no se puede deshacer.`}
         isLoading={isDeleting}
       />
-    </div>
+    </PageView>
   );
 }

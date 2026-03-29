@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { PublicSale } from "@car-wash/types";
 import { CreateButton } from "@/components/CreateButton";
+import { PageView } from "@/components/PageView";
 import { useSales, useSalesMutations } from "../hooks/useSales";
 import { useSalesKpis } from "../hooks/useSalesKpis";
 import { usePaymentMethods } from "@/features/settings/hooks/usePaymentMethods";
@@ -39,20 +40,13 @@ export function SalesView() {
     : sales;
 
   return (
-    <div>
+    <PageView
+      title="Ventas"
+      subtitle="Consulta y gestiona las ventas del negocio."
+      action={<CreateButton title="Venta Rapida" onClick={() => setShowQuickSaleModal(true)} />}
+    >
       {/* KPI section */}
       <SalesKpiSection revenue={revenue} breakdown={breakdown} isLoading={kpisLoading} />
-
-      {/* Header row */}
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Ventas</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Consulta y gestiona las ventas del negocio.
-          </p>
-        </div>
-        <CreateButton title="Venta Rapida" onClick={() => setShowQuickSaleModal(true)} />
-      </div>
 
       {/* Filter bar */}
       <SalesFilterBar
@@ -96,6 +90,6 @@ export function SalesView() {
           setSelectedSale(null);
         }}
       />
-    </div>
+    </PageView>
   );
 }

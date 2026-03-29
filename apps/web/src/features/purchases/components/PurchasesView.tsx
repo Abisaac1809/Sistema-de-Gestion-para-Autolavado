@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Search, ShoppingCart, DollarSign, Package, Truck } from "lucide-react";
 import { CreateButton } from "@/components/CreateButton";
+import { PageView } from "@/components/PageView";
 import type { PublicPurchase, PurchaseToCreateType } from "@car-wash/types";
 import { usePurchases, usePurchasesMutations } from "../hooks/usePurchases";
 import { usePaymentMethods } from "@/features/settings/hooks/usePaymentMethods";
@@ -52,9 +53,13 @@ export function PurchasesView() {
   const uniqueProviders = new Set(purchases.map((p) => p.providerName)).size;
 
   return (
-    <div>
+    <PageView
+      title="Historial de Compras"
+      subtitle="Registra y consulta las compras de inventario."
+      action={<CreateButton title="Registrar Compra" onClick={() => setShowCreateModal(true)} />}
+    >
       {/* KPI row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard
           value={String(meta?.totalRecords ?? 0)}
           label="Total Compras"
@@ -79,15 +84,6 @@ export function PurchasesView() {
           icon={Truck}
           colorClass="bg-orange-50 text-orange-600"
         />
-      </div>
-
-      {/* Header row */}
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Historial de Compras</h1>
-          <p className="mt-1 text-sm text-gray-500">Registra y consulta las compras de inventario.</p>
-        </div>
-        <CreateButton title="Registrar Compra" onClick={() => setShowCreateModal(true)} />
       </div>
 
       {/* Filter bar */}
@@ -217,6 +213,6 @@ export function PurchasesView() {
         message={`¿Estas seguro de que deseas eliminar la compra de "${selectedPurchase?.providerName}"? Esta accion no se puede deshacer.`}
         isLoading={isDeleting}
       />
-    </div>
+    </PageView>
   );
 }

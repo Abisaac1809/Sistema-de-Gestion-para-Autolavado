@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { CreateButton } from "@/components/CreateButton";
+import { PageView } from "@/components/PageView";
 import type {
   PublicProduct,
   ProductToCreateType,
@@ -97,18 +98,11 @@ export function InventoryView() {
   };
 
   return (
-    <div>
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Inventario</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Gestiona tus productos, stock y categorias.
-          </p>
-        </div>
-        <CreateButton title="Nuevo producto" onClick={handleAddProduct} />
-      </div>
-
+    <PageView
+      title="Inventario"
+      subtitle="Gestiona tus productos, stock y categorias."
+      action={<CreateButton title="Nuevo producto" onClick={handleAddProduct} />}
+    >
       {/* FilterBar */}
       <FilterBar
         search={filters.search}
@@ -205,6 +199,6 @@ export function InventoryView() {
         message={`¿Estas seguro de que deseas eliminar "${deletingProduct?.name}"? Esta accion no se puede deshacer.`}
         isLoading={isDeleting}
       />
-    </div>
+    </PageView>
   );
 }
