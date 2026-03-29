@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Plus, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import type { OrderSummary, OrderToCreateType } from "@car-wash/types";
+import { CreateButton } from "@/components/CreateButton";
 import { useOrders } from "../hooks/useOrders";
 import { useOrdersMutations } from "../hooks/useOrdersMutations";
 import { KanbanBoard, KanbanBoardSkeleton } from "./KanbanBoard";
@@ -59,13 +60,7 @@ export function OrdersView() {
             Administra el flujo de trabajo de tu autolavado.
           </p>
         </div>
-        <button
-          onClick={() => setDrawerOpen(true)}
-          className="flex items-center gap-2 bg-gray-900 text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-gray-700 transition-colors"
-        >
-          <Plus size={18} />
-          Nueva Orden
-        </button>
+        <CreateButton title="Nueva Orden" onClick={() => setDrawerOpen(true)} />
       </div>
 
       {/* KPI Bar */}

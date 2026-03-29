@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Plus, Search, ShoppingCart, DollarSign, Package, Truck } from "lucide-react";
+import { Search, ShoppingCart, DollarSign, Package, Truck } from "lucide-react";
+import { CreateButton } from "@/components/CreateButton";
 import type { PublicPurchase, PurchaseToCreateType } from "@car-wash/types";
 import { usePurchases, usePurchasesMutations } from "../hooks/usePurchases";
 import { usePaymentMethods } from "@/features/settings/hooks/usePaymentMethods";
@@ -90,14 +91,7 @@ export function PurchasesView() {
           <h1 className="text-2xl font-bold text-gray-900">Historial de Compras</h1>
           <p className="mt-1 text-sm text-gray-500">Registra y consulta las compras de inventario.</p>
         </div>
-        <button
-          type="button"
-          onClick={() => setShowCreateModal(true)}
-          className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
-        >
-          <Plus size={18} />
-          Registrar Compra
-        </button>
+        <CreateButton title="Registrar Compra" onClick={() => setShowCreateModal(true)} />
       </div>
 
       {/* Filter bar */}

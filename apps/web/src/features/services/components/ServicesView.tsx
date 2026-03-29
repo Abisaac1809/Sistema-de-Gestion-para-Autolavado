@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Plus, Search } from "lucide-react";
+import { Search } from "lucide-react";
+import { CreateButton } from "@/components/CreateButton";
 import type { PublicService, ServiceToCreateType, ServiceToUpdateType } from "@car-wash/types";
 import { useServices, useServicesMutations } from "../hooks/useServices";
 import { ServiceCardGrid } from "./ServiceCardGrid";
@@ -72,14 +73,7 @@ export function ServicesView() {
             Administra los servicios de tu autolavado.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={handleAddService}
-          className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
-        >
-          <Plus size={18} />
-          Crear Servicio
-        </button>
+        <CreateButton title="Crear Servicio" onClick={handleAddService} />
       </div>
 
       {/* Search / Filter bar */}

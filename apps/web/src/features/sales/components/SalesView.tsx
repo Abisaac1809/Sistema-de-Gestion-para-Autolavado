@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Plus } from "lucide-react";
 import type { PublicSale } from "@car-wash/types";
+import { CreateButton } from "@/components/CreateButton";
 import { useSales, useSalesMutations } from "../hooks/useSales";
 import { useSalesKpis } from "../hooks/useSalesKpis";
 import { usePaymentMethods } from "@/features/settings/hooks/usePaymentMethods";
@@ -51,14 +51,7 @@ export function SalesView() {
             Consulta y gestiona las ventas del negocio.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => setShowQuickSaleModal(true)}
-          className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
-        >
-          <Plus size={18} />
-          Venta Rapida
-        </button>
+        <CreateButton title="Venta Rapida" onClick={() => setShowQuickSaleModal(true)} />
       </div>
 
       {/* Filter bar */}
