@@ -7,6 +7,7 @@ import { Drawer } from "@/components/Drawer";
 import { SaveButton } from "@/components/buttons/SaveButton";
 import { CancelButton } from "@/components/buttons/CancelButton";
 import { ProductSelect } from "@/components/ProductSelect";
+import { useExchangeRateConfig } from "@/features/settings/hooks/useExchangeRate";
 import { CustomerSelect } from "./CustomerSelect";
 import { ServiceSelect } from "./ServiceSelect";
 import { NewOrderFormSchema, type NewOrderFormValues } from "../schemas/newOrderForm.schema";
@@ -19,6 +20,14 @@ type NewOrderDrawerProps = {
 };
 
 export function NewOrderDrawer({ isOpen, onClose, onSubmit, isSubmitting }: NewOrderDrawerProps) {
+  const { config } = useExchangeRateConfig();
+
+  const activeRate = config
+    ? config.activeSource === "bcv"
+      ? config.bcvUsdRate
+      : config.customRate
+    : 0;
+
   const {
     register,
     handleSubmit,
@@ -33,7 +42,7 @@ export function NewOrderDrawer({ isOpen, onClose, onSubmit, isSubmitting }: NewO
       customerId: "",
       vehiclePlate: null,
       vehicleModel: "",
-      details: [{ itemType: "service", serviceId: null, productId: null, quantity: 1 }],
+      details: [{ itemType: "service", serviceId: null, productId: null, quantity: 1, unitPrice: 0 }],
     },
   });
 
@@ -42,13 +51,24 @@ export function NewOrderDrawer({ isOpen, onClose, onSubmit, isSubmitting }: NewO
     name: "details",
   });
 
+  const watchedDetails = watch("details");
+
+  const grandTotalUsd = watchedDetails
+    ? watchedDetails.reduce(
+        (sum, d) => sum + (Number(d.quantity) || 0) * (Number(d.unitPrice) || 0),
+        0
+      )
+    : 0;
+
+  const grandTotalVes = grandTotalUsd * activeRate;
+
   useEffect(() => {
     if (isOpen) {
       reset({
         customerId: "",
         vehiclePlate: null,
         vehicleModel: "",
-        details: [{ itemType: "service", serviceId: null, productId: null, quantity: 1 }],
+        details: [{ itemType: "service", serviceId: null, productId: null, quantity: 1, unitPrice: 0 }],
       });
     }
   }, [isOpen, reset]);
@@ -82,9 +102,32 @@ export function NewOrderDrawer({ isOpen, onClose, onSubmit, isSubmitting }: NewO
     onSubmit(payload);
   };
 
+  const drawerFooter = (
+    <div className="space-y-3">
+      <div className="flex justify-between items-baseline">
+        <p className="text-xs text-gray-500">Subtotal estimado</p>
+        <div className="text-right">
+          <p className="text-sm font-bold text-gray-900">${grandTotalUsd.toFixed(2)}</p>
+          {activeRate > 0 && (
+            <p className="text-xs text-gray-500">Bs. {grandTotalVes.toFixed(2)}</p>
+          )}
+        </div>
+      </div>
+      <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
+        <CancelButton onClick={handleClose} />
+        <SaveButton
+          isSubmitting={isSubmitting}
+          label="Crear Orden"
+          loadingLabel="Creando..."
+          form="new-order-form"
+        />
+      </div>
+    </div>
+  );
+
   return (
-    <Drawer isOpen={isOpen} onClose={handleClose} title="Nueva Orden" width="xl">
-      <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
+    <Drawer isOpen={isOpen} onClose={handleClose} title="Nueva Orden" width="xl" footer={drawerFooter}>
+      <form id="new-order-form" onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
         {/* Customer select */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -144,7 +187,7 @@ export function NewOrderDrawer({ isOpen, onClose, onSubmit, isSubmitting }: NewO
             <button
               type="button"
               onClick={() =>
-                append({ itemType: "service", serviceId: null, productId: null, quantity: 1 })
+                append({ itemType: "service", serviceId: null, productId: null, quantity: 1, unitPrice: 0 })
               }
               className="inline-flex items-center gap-1 text-xs text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md px-2 py-1 hover:bg-gray-50 transition-colors"
             >
@@ -160,6 +203,9 @@ export function NewOrderDrawer({ isOpen, onClose, onSubmit, isSubmitting }: NewO
           <div className="space-y-2">
             {fields.map((field, index) => {
               const itemType = watch(`details.${index}.itemType`);
+              const qty = Number(watchedDetails?.[index]?.quantity) || 0;
+              const price = Number(watchedDetails?.[index]?.unitPrice) || 0;
+              const subtotal = qty * price;
               const detailErrors = Array.isArray(errors.details)
                 ? errors.details[index]
                 : undefined;
@@ -180,6 +226,7 @@ export function NewOrderDrawer({ isOpen, onClose, onSubmit, isSubmitting }: NewO
                           setValue(`details.${index}.itemType`, newType);
                           setValue(`details.${index}.serviceId`, null);
                           setValue(`details.${index}.productId`, null);
+                          setValue(`details.${index}.unitPrice`, 0);
                         }}
                         className="w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-gray-900"
                       >
@@ -201,6 +248,9 @@ export function NewOrderDrawer({ isOpen, onClose, onSubmit, isSubmitting }: NewO
                             <ServiceSelect
                               value={f.value ?? null}
                               onChange={(val) => f.onChange(val)}
+                              onSelect={(item) => {
+                                setValue(`details.${index}.unitPrice`, item ? item.price : 0);
+                              }}
                               error={detailErrors?.serviceId?.message}
                             />
                           )}
@@ -213,6 +263,9 @@ export function NewOrderDrawer({ isOpen, onClose, onSubmit, isSubmitting }: NewO
                             <ProductSelect
                               value={f.value ?? null}
                               onChange={(val) => f.onChange(val)}
+                              onSelect={(item) => {
+                                setValue(`details.${index}.unitPrice`, item ? item.costPrice : 0);
+                              }}
                               error={detailErrors?.productId?.message}
                             />
                           )}
@@ -221,23 +274,33 @@ export function NewOrderDrawer({ isOpen, onClose, onSubmit, isSubmitting }: NewO
                     </div>
 
                     {/* Quantity */}
-                    <div>
-                      <label className="block text-xs text-gray-500 mb-0.5">Cantidad</label>
-                      <input
-                        type="number"
-                        min="0.01"
-                        step="0.01"
-                        {...register(`details.${index}.quantity`, { valueAsNumber: true })}
-                        placeholder="1"
-                        className={`w-full rounded-md border px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-gray-900 ${
-                          detailErrors?.quantity ? "border-red-300" : "border-gray-300"
-                        }`}
-                      />
-                      {detailErrors?.quantity && (
-                        <p className="mt-0.5 text-xs text-red-600">
-                          {detailErrors.quantity.message}
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-0.5">Cantidad</label>
+                        <input
+                          type="number"
+                          min="0.01"
+                          step="0.01"
+                          {...register(`details.${index}.quantity`, { valueAsNumber: true })}
+                          placeholder="1"
+                          className={`w-full rounded-md border px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-gray-900 ${
+                            detailErrors?.quantity ? "border-red-300" : "border-gray-300"
+                          }`}
+                        />
+                        {detailErrors?.quantity && (
+                          <p className="mt-0.5 text-xs text-red-600">
+                            {detailErrors.quantity.message}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex items-end pb-0.5">
+                        <p className="text-xs text-gray-500">
+                          Subtotal:{" "}
+                          <span className="font-medium text-gray-800">
+                            ${subtotal.toFixed(2)}
+                          </span>
                         </p>
-                      )}
+                      </div>
                     </div>
                   </div>
 
@@ -255,16 +318,6 @@ export function NewOrderDrawer({ isOpen, onClose, onSubmit, isSubmitting }: NewO
               );
             })}
           </div>
-        </div>
-
-        {/* Actions */}
-        <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
-          <CancelButton onClick={handleClose} />
-          <SaveButton
-            isSubmitting={isSubmitting}
-            label="Crear Orden"
-            loadingLabel="Creando..."
-          />
         </div>
       </form>
     </Drawer>

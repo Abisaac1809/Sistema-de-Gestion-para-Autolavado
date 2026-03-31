@@ -6,19 +6,28 @@ import { getServices } from "@/features/services/services/serviceService";
 type ServiceSelectProps = {
   value: string | null;
   onChange: (value: string | null) => void;
+  onSelect?: (item: PublicService | null) => void;
   error?: string;
 };
 
-export function ServiceSelect({ value, onChange, error }: ServiceSelectProps) {
+export function ServiceSelect({ value, onChange, onSelect, error }: ServiceSelectProps) {
   const query = useQuery({
     queryKey: ["services", "select-active"],
     queryFn: () => getServices({ page: 1, limit: 100, status: true }),
   });
 
+  const handleChange = (id: string | null) => {
+    onChange(id);
+    if (onSelect) {
+      const item = id ? (query.data?.data ?? []).find((s) => s.id === id) ?? null : null;
+      onSelect(item);
+    }
+  };
+
   return (
     <SearchSelect<PublicService>
       value={value}
-      onChange={onChange}
+      onChange={handleChange}
       options={query.data?.data ?? []}
       isLoading={query.isLoading}
       placeholder="Buscar servicio..."

@@ -9,6 +9,7 @@ type DrawerProps = {
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  footer?: React.ReactNode;
   width?: DrawerWidth;
 };
 
@@ -20,7 +21,7 @@ const widthClasses: Record<DrawerWidth, string> = {
 
 const ANIMATION_DURATION_MS = 1000;
 
-export function Drawer({ isOpen, onClose, title, children, width = "lg" }: DrawerProps) {
+export function Drawer({ isOpen, onClose, title, children, footer, width = "lg" }: DrawerProps) {
   const [isMounted, setIsMounted] = useState(isOpen);
   const [isVisible, setIsVisible] = useState(isOpen);
 
@@ -77,6 +78,9 @@ export function Drawer({ isOpen, onClose, title, children, width = "lg" }: Drawe
           </button>
         </div>
         <div className="flex-1 overflow-y-auto px-6 py-4">{children}</div>
+        {footer && (
+          <div className="border-t border-gray-200 px-6 py-4 bg-white">{footer}</div>
+        )}
       </div>
     </div>,
     document.body

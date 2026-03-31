@@ -6,20 +6,29 @@ import { getProducts } from "@/features/inventory/services/productService";
 type ProductSelectProps = {
   value: string | null;
   onChange: (value: string | null) => void;
+  onSelect?: (item: PublicProduct | null) => void;
   placeholder?: string;
   error?: string;
 };
 
-export function ProductSelect({ value, onChange, placeholder, error }: ProductSelectProps) {
+export function ProductSelect({ value, onChange, onSelect, placeholder, error }: ProductSelectProps) {
   const query = useQuery({
     queryKey: ["inventory", "products", "select-all"],
     queryFn: () => getProducts({ page: 1, limit: 100 }),
   });
 
+  const handleChange = (id: string | null) => {
+    onChange(id);
+    if (onSelect) {
+      const item = id ? (query.data?.data ?? []).find((p) => p.id === id) ?? null : null;
+      onSelect(item);
+    }
+  };
+
   return (
     <SearchSelect<PublicProduct>
       value={value}
-      onChange={onChange}
+      onChange={handleChange}
       options={query.data?.data ?? []}
       isLoading={query.isLoading}
       placeholder={placeholder ?? "Buscar producto..."}

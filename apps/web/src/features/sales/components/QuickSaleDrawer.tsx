@@ -5,12 +5,13 @@ import { z } from "zod";
 import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import type { SaleToCreateType, ListOfCustomers } from "@car-wash/types";
-import { Modal } from "@/components/Modal";
+import { Drawer } from "@/components/Drawer";
 import { SaveButton } from "@/components/buttons/SaveButton";
 import { CancelButton } from "@/components/buttons/CancelButton";
 import { api } from "@/services/axiosInstance";
 import { usePaymentMethods } from "@/features/settings/hooks/usePaymentMethods";
-import { ProductSelect } from "@/features/inventory/components/ProductSelect";
+import { useExchangeRateConfig } from "@/features/settings/hooks/useExchangeRate";
+import { ProductSelect } from "@/components/ProductSelect";
 import { CustomerSelect } from "./CustomerSelect";
 
 // Local form schema — customerId is optional in the form (anonymous customer resolved on submit)
@@ -32,20 +33,27 @@ const QuickSaleFormSchema = z.object({
 
 type QuickSaleFormValues = z.infer<typeof QuickSaleFormSchema>;
 
-type QuickSaleModalProps = {
+type QuickSaleDrawerProps = {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: SaleToCreateType) => void;
   isSubmitting: boolean;
 };
 
-export function QuickSaleModal({
+export function QuickSaleDrawer({
   isOpen,
   onClose,
   onSubmit,
   isSubmitting,
-}: QuickSaleModalProps) {
+}: QuickSaleDrawerProps) {
   const { paymentMethods } = usePaymentMethods();
+  const { config } = useExchangeRateConfig();
+
+  const activeRate = config
+    ? config.activeSource === "bcv"
+      ? config.bcvUsdRate
+      : config.customRate
+    : 0;
 
   const {
     register,
@@ -91,10 +99,8 @@ export function QuickSaleModal({
     let resolvedCustomerId: string;
 
     if (formValues.customerId && formValues.customerId.trim() !== "") {
-      // User selected a customer
       resolvedCustomerId = formValues.customerId;
     } else {
-      // Resolve anonymous customer via API
       const res = await api.get<ListOfCustomers>("/api/customers", {
         params: { search: "Anonimo", limit: 1 },
       });
@@ -133,11 +139,94 @@ export function QuickSaleModal({
       )
     : 0;
 
+  const grandTotalVes = grandTotal * activeRate;
+
+  const drawerFooter = (
+    <div className="space-y-3">
+      {/* Totales */}
+      <div className="flex justify-between items-baseline">
+        <p className="text-xs text-gray-500">Total</p>
+        <div className="text-right">
+          <p className="text-sm font-bold text-gray-900">${grandTotal.toFixed(2)}</p>
+          {activeRate > 0 && (
+            <p className="text-xs text-gray-500">Bs. {grandTotalVes.toFixed(2)}</p>
+          )}
+        </div>
+      </div>
+
+      {/* Payment section */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Metodo de Pago <span className="text-red-500">*</span>
+          </label>
+          <select
+            {...register("paymentMethodId")}
+            className={`w-full rounded-md border px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-900 ${
+              errors.paymentMethodId ? "border-red-300" : "border-gray-300"
+            }`}
+          >
+            <option value="">Seleccionar...</option>
+            {paymentMethods.map((pm) => (
+              <option key={pm.id} value={pm.id}>
+                {pm.name}
+              </option>
+            ))}
+          </select>
+          {errors.paymentMethodId && (
+            <p className="mt-1 text-xs text-red-600">
+              {errors.paymentMethodId.message}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Monto USD <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="number"
+            min="0.01"
+            step="0.01"
+            {...register("amountUsd", { valueAsNumber: true })}
+            placeholder="0.00"
+            className={`w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 ${
+              errors.amountUsd ? "border-red-300 focus:ring-red-500" : "border-gray-300"
+            }`}
+          />
+          {errors.amountUsd && (
+            <p className="mt-1 text-xs text-red-600">
+              {errors.amountUsd.message}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
+        <CancelButton onClick={handleClose} />
+        <SaveButton
+          isSubmitting={isSubmitting}
+          label="Crear Venta"
+          loadingLabel="Creando..."
+          form="quick-sale-form"
+        />
+      </div>
+    </div>
+  );
+
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="Venta Rapida" size="lg">
+    <Drawer
+      isOpen={isOpen}
+      onClose={handleClose}
+      title="Venta Rapida"
+      width="xl"
+      footer={drawerFooter}
+    >
       <form
+        id="quick-sale-form"
         onSubmit={handleSubmit(handleFormSubmit)}
-        className="mt-4 space-y-4"
+        className="space-y-4"
       >
         {/* Customer (optional) */}
         <div>
@@ -280,76 +369,8 @@ export function QuickSaleModal({
               );
             })}
           </div>
-
-          {/* Grand total */}
-          <div className="mt-3 flex justify-end">
-            <p className="text-sm text-gray-600">
-              Total estimado:{" "}
-              <span className="text-base font-bold text-gray-900">
-                ${grandTotal.toFixed(2)}
-              </span>
-            </p>
-          </div>
-        </div>
-
-        {/* Payment section */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Metodo de Pago <span className="text-red-500">*</span>
-            </label>
-            <select
-              {...register("paymentMethodId")}
-              className={`w-full rounded-md border px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-900 ${
-                errors.paymentMethodId ? "border-red-300" : "border-gray-300"
-              }`}
-            >
-              <option value="">Seleccionar...</option>
-              {paymentMethods.map((pm) => (
-                <option key={pm.id} value={pm.id}>
-                  {pm.name}
-                </option>
-              ))}
-            </select>
-            {errors.paymentMethodId && (
-              <p className="mt-1 text-xs text-red-600">
-                {errors.paymentMethodId.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Monto USD <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="number"
-              min="0.01"
-              step="0.01"
-              {...register("amountUsd", { valueAsNumber: true })}
-              placeholder="0.00"
-              className={`w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 ${
-                errors.amountUsd ? "border-red-300 focus:ring-red-500" : "border-gray-300"
-              }`}
-            />
-            {errors.amountUsd && (
-              <p className="mt-1 text-xs text-red-600">
-                {errors.amountUsd.message}
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
-          <CancelButton onClick={handleClose} />
-          <SaveButton
-            isSubmitting={isSubmitting}
-            label="Crear Venta"
-            loadingLabel="Creando..."
-          />
         </div>
       </form>
-    </Modal>
+    </Drawer>
   );
 }

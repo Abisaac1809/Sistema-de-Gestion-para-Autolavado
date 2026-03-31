@@ -5,6 +5,7 @@ const OrderLineItemSchema = z.object({
   serviceId: z.string().uuid().optional().nullable(),
   productId: z.string().uuid().optional().nullable(),
   quantity: z.number().min(0.01, "La cantidad debe ser mayor a 0"),
+  unitPrice: z.number().default(0),
 });
 
 export const NewOrderFormSchema = z.object({

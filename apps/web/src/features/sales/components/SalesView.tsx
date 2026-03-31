@@ -8,7 +8,7 @@ import { usePaymentMethods } from "@/features/settings/hooks/usePaymentMethods";
 import { SalesKpiSection } from "./SalesKpiSection";
 import { SalesFilterBar } from "./SalesFilterBar";
 import { SalesTable } from "./SalesTable";
-import { QuickSaleModal } from "./QuickSaleModal";
+import { QuickSaleDrawer } from "./QuickSaleDrawer";
 import { SaleDetailModal } from "./SaleDetailModal";
 import { Pagination } from "@/components/Pagination";
 import type { SaleToCreateType } from "../types/sales.dtos";
@@ -68,8 +68,8 @@ export function SalesView() {
         />
       )}
 
-      {/* Quick sale modal */}
-      <QuickSaleModal
+      {/* Quick sale drawer */}
+      <QuickSaleDrawer
         isOpen={showQuickSaleModal}
         onClose={() => setShowQuickSaleModal(false)}
         onSubmit={handleCreate}
