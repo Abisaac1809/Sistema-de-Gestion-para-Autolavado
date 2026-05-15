@@ -54,8 +54,8 @@ export default class PrismaCategoryRepository implements ICategoryRepository {
         // Apply search filter
         if (filters.search) {
             whereClause.OR = [
-                { name: { contains: filters.search, mode: 'insensitive' } },
-                { description: { contains: filters.search, mode: 'insensitive' } },
+                { name: { contains: filters.search } },
+                { description: { contains: filters.search } },
             ];
         }
 
@@ -84,8 +84,8 @@ export default class PrismaCategoryRepository implements ICategoryRepository {
         // Apply search filter
         if (filters.search) {
             whereClause.OR = [
-                { name: { contains: filters.search, mode: 'insensitive' } },
-                { description: { contains: filters.search, mode: 'insensitive' } },
+                { name: { contains: filters.search } },
+                { description: { contains: filters.search } },
             ];
         }
 

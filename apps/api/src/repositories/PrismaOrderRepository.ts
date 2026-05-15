@@ -75,11 +75,11 @@ export default class PrismaOrderRepository implements IOrderRepository {
             where.OR = [
                 {
                     customer: {
-                        fullName: { contains: filters.search, mode: 'insensitive' }
+                        fullName: { contains: filters.search }
                     }
                 },
                 {
-                    vehiclePlate: { contains: filters.search, mode: 'insensitive' }
+                    vehiclePlate: { contains: filters.search }
                 }
             ];
         }
@@ -118,11 +118,11 @@ export default class PrismaOrderRepository implements IOrderRepository {
             where.OR = [
                 {
                     customer: {
-                        fullName: { contains: filters.search, mode: 'insensitive' }
+                        fullName: { contains: filters.search }
                     }
                 },
                 {
-                    vehiclePlate: { contains: filters.search, mode: 'insensitive' }
+                    vehiclePlate: { contains: filters.search }
                 }
             ];
         }

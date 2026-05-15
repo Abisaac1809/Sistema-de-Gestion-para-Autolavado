@@ -101,7 +101,7 @@ export default class PrismaPurchaseRepository implements IPurchaseRepository {
 
         if (filters.search) {
             where.OR = [
-                { providerName: { contains: filters.search, mode: 'insensitive' } },
+                { providerName: { contains: filters.search } },
             ];
         }
 

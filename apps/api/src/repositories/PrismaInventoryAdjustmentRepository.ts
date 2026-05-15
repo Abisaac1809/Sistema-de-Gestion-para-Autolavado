@@ -64,8 +64,8 @@ export default class PrismaInventoryAdjustmentRepository implements IInventoryAd
 
         if (filters.search) {
             where.OR = [
-                { product: { name: { contains: filters.search, mode: 'insensitive' } } },
-                { notes: { contains: filters.search, mode: 'insensitive' } },
+                { product: { name: { contains: filters.search } } },
+                { notes: { contains: filters.search } },
             ];
         }
 
@@ -107,8 +107,8 @@ export default class PrismaInventoryAdjustmentRepository implements IInventoryAd
 
         if (filters.search) {
             where.OR = [
-                { product: { name: { contains: filters.search, mode: 'insensitive' } } },
-                { notes: { contains: filters.search, mode: 'insensitive' } },
+                { product: { name: { contains: filters.search } } },
+                { notes: { contains: filters.search } },
             ];
         }
 

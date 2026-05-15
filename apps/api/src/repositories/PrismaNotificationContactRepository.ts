@@ -38,8 +38,8 @@ export default class PrismaNotificationContactRepository implements INotificatio
 
         if (filters.search) {
             where.OR = [
-                { fullName: { contains: filters.search, mode: 'insensitive' } },
-                { email: { contains: filters.search, mode: 'insensitive' } },
+                { fullName: { contains: filters.search } },
+                { email: { contains: filters.search } },
             ];
         }
 
@@ -88,7 +88,7 @@ export default class PrismaNotificationContactRepository implements INotificatio
     async getByEmail(email: string): Promise<NotificationContact | null> {
         const contact = await this.prisma.notificationContact.findFirst({
             where: {
-                email: { equals: email, mode: 'insensitive' },
+                email: { equals: email },
             },
         });
         return contact ? this.mapToEntity(contact) : null;
@@ -111,8 +111,8 @@ export default class PrismaNotificationContactRepository implements INotificatio
 
         if (filters.search) {
             where.OR = [
-                { fullName: { contains: filters.search, mode: 'insensitive' } },
-                { email: { contains: filters.search, mode: 'insensitive' } },
+                { fullName: { contains: filters.search } },
+                { email: { contains: filters.search } },
             ];
         }
 

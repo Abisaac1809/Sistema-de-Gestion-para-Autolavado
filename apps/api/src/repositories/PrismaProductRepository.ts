@@ -33,7 +33,7 @@ export default class PrismaProductRepository implements IProductRepository {
 
     async getByName(name: string): Promise<Product | null> {
         const product = await this.prisma.product.findFirst({
-            where: { name: { equals: name, mode: 'insensitive' } },
+            where: { name: { equals: name } },
         });
         return product ? this.mapToEntity(product) : null;
     }
@@ -48,7 +48,7 @@ export default class PrismaProductRepository implements IProductRepository {
         };
 
         if (filters.search) {
-            where.name = { contains: filters.search, mode: 'insensitive' };
+            where.name = { contains: filters.search };
         }
         if (filters.categoryId) {
             where.categoryId = filters.categoryId;
@@ -74,10 +74,10 @@ export default class PrismaProductRepository implements IProductRepository {
         const conditionsSql: Prisma.Sql[] = [Prisma.sql`deleted_at IS NULL`, Prisma.sql`stock < min_stock`];
 
         if (filters.search) {
-            conditionsSql.push(Prisma.sql`name ILIKE ${'%' + filters.search + '%'}`);
+            conditionsSql.push(Prisma.sql`LOWER(name) LIKE LOWER(${'%' + filters.search + '%'})`);
         }
         if (filters.categoryId) {
-            conditionsSql.push(Prisma.sql`category_id = ${filters.categoryId}::uuid`);
+            conditionsSql.push(Prisma.sql`category_id = ${filters.categoryId}`);
         }
         if (filters.isForSale !== undefined) {
             conditionsSql.push(Prisma.sql`is_for_sale = ${filters.isForSale}`);
@@ -108,7 +108,7 @@ export default class PrismaProductRepository implements IProductRepository {
         };
 
         if (filters.search) {
-            where.name = { contains: filters.search, mode: 'insensitive' };
+            where.name = { contains: filters.search };
         }
         if (filters.categoryId) {
             where.categoryId = filters.categoryId;
@@ -127,10 +127,10 @@ export default class PrismaProductRepository implements IProductRepository {
         const conditionsSql: Prisma.Sql[] = [Prisma.sql`deleted_at IS NULL`, Prisma.sql`stock < min_stock`];
 
         if (filters.search) {
-            conditionsSql.push(Prisma.sql`name ILIKE ${'%' + filters.search + '%'}`);
+            conditionsSql.push(Prisma.sql`LOWER(name) LIKE LOWER(${'%' + filters.search + '%'})`);
         }
         if (filters.categoryId) {
-            conditionsSql.push(Prisma.sql`category_id = ${filters.categoryId}::uuid`);
+            conditionsSql.push(Prisma.sql`category_id = ${filters.categoryId}`);
         }
         if (filters.isForSale !== undefined) {
             conditionsSql.push(Prisma.sql`is_for_sale = ${filters.isForSale}`);
@@ -142,11 +142,11 @@ export default class PrismaProductRepository implements IProductRepository {
         const whereSql = Prisma.sql`WHERE ${Prisma.join(conditionsSql, ' AND ')}`;
 
         const result = await this.prisma.$queryRaw<{ count: number }[]>`
-        SELECT COUNT(*)::int as count FROM products
+        SELECT COUNT(*) as count FROM products
         ${whereSql}
         `;
 
-        return result[0]?.count || 0;
+        return Number(result[0]?.count) || 0;
     }
 
     async update(id: string, data: ProductToUpdateType): Promise<Product> {

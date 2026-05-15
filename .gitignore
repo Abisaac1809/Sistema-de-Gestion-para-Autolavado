@@ -11,6 +11,8 @@ apps/*/dist/
 /build/
 /.next/
 /.nuxt/
+apps/desktop/resources/
+apps/desktop/release/
 
 # TypeScript
 *.tsbuildinfo

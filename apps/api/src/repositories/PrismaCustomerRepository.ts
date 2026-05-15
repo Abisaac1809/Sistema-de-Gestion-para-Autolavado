@@ -60,14 +60,14 @@ export default class PrismaCustomerRepository implements ICustomerRepository {
 
         if (filters.search) {
             where.OR = [
-                { fullName: { contains: filters.search, mode: 'insensitive' } },
-                { phone: { contains: filters.search, mode: 'insensitive' } },
-                { idNumber: { contains: filters.search, mode: 'insensitive' } },
+                { fullName: { contains: filters.search } },
+                { phone: { contains: filters.search } },
+                { idNumber: { contains: filters.search } },
             ];
         }
 
         if (filters.idNumber) {
-            where.idNumber = { contains: filters.idNumber, mode: 'insensitive' };
+            where.idNumber = { contains: filters.idNumber };
         }
 
         const customers = await this.prisma.customer.findMany({
@@ -87,14 +87,14 @@ export default class PrismaCustomerRepository implements ICustomerRepository {
 
         if (filters.search) {
             where.OR = [
-                { fullName: { contains: filters.search, mode: 'insensitive' } },
-                { phone: { contains: filters.search, mode: 'insensitive' } },
-                { idNumber: { contains: filters.search, mode: 'insensitive' } },
+                { fullName: { contains: filters.search } },
+                { phone: { contains: filters.search } },
+                { idNumber: { contains: filters.search } },
             ];
         }
 
         if (filters.idNumber) {
-            where.idNumber = { contains: filters.idNumber, mode: 'insensitive' };
+            where.idNumber = { contains: filters.idNumber };
         }
 
         return await this.prisma.customer.count({ where });

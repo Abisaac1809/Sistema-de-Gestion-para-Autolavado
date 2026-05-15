@@ -33,8 +33,8 @@ export default class PrismaServiceRepository implements IServiceRepository {
 
         if (filters.search) {
             where.OR = [
-                { name: { contains: filters.search, mode: 'insensitive' } },
-                { description: { contains: filters.search, mode: 'insensitive' } },
+                { name: { contains: filters.search } },
+                { description: { contains: filters.search } },
             ];
         }
 
@@ -84,7 +84,7 @@ export default class PrismaServiceRepository implements IServiceRepository {
     async getByName(name: string): Promise<Service | null> {
         const service = await this.prisma.service.findFirst({
             where: {
-                name: { equals: name, mode: 'insensitive' },
+                name: { equals: name },
             },
         });
         return service ? this.mapToEntity(service) : null;
@@ -107,8 +107,8 @@ export default class PrismaServiceRepository implements IServiceRepository {
 
         if (filters.search) {
             where.OR = [
-                { name: { contains: filters.search, mode: 'insensitive' } },
-                { description: { contains: filters.search, mode: 'insensitive' } },
+                { name: { contains: filters.search } },
+                { description: { contains: filters.search } },
             ];
         }
 

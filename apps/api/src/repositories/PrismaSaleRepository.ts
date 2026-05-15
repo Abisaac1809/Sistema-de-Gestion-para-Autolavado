@@ -100,17 +100,17 @@ export default class PrismaSaleRepository implements ISaleRepository {
             where.OR = [
                 {
                     customer: {
-                        fullName: { contains: filters.search, mode: 'insensitive' }
+                        fullName: { contains: filters.search }
                     }
                 },
                 {
                     customer: {
-                        idNumber: { contains: filters.search, mode: 'insensitive' }
+                        idNumber: { contains: filters.search }
                     }
                 },
                 {
                     order: {
-                        vehiclePlate: { contains: filters.search, mode: 'insensitive' }
+                        vehiclePlate: { contains: filters.search }
                     }
                 }
             ];
@@ -154,17 +154,17 @@ export default class PrismaSaleRepository implements ISaleRepository {
             where.OR = [
                 {
                     customer: {
-                        fullName: { contains: filters.search, mode: 'insensitive' }
+                        fullName: { contains: filters.search }
                     }
                 },
                 {
                     customer: {
-                        idNumber: { contains: filters.search, mode: 'insensitive' }
+                        idNumber: { contains: filters.search }
                     }
                 },
                 {
                     order: {
-                        vehiclePlate: { contains: filters.search, mode: 'insensitive' }
+                        vehiclePlate: { contains: filters.search }
                     }
                 }
             ];

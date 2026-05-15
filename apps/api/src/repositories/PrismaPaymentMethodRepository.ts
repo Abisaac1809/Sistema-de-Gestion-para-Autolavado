@@ -40,8 +40,8 @@ export default class PrismaPaymentMethodRepository implements IPaymentMethodRepo
 
         if (filters.search) {
             where.OR = [
-                { name: { contains: filters.search, mode: 'insensitive' } },
-                { description: { contains: filters.search, mode: 'insensitive' } },
+                { name: { contains: filters.search } },
+                { description: { contains: filters.search } },
             ];
         }
 
@@ -100,7 +100,7 @@ export default class PrismaPaymentMethodRepository implements IPaymentMethodRepo
     async getByName(name: string): Promise<PaymentMethod | null> {
         const paymentMethod = await this.prisma.paymentMethod.findFirst({
             where: {
-                name: { equals: name, mode: 'insensitive' },
+                name: { equals: name },
             },
         });
         return paymentMethod ? this.mapToEntity(paymentMethod) : null;
@@ -123,8 +123,8 @@ export default class PrismaPaymentMethodRepository implements IPaymentMethodRepo
 
         if (filters.search) {
             where.OR = [
-                { name: { contains: filters.search, mode: 'insensitive' } },
-                { description: { contains: filters.search, mode: 'insensitive' } },
+                { name: { contains: filters.search } },
+                { description: { contains: filters.search } },
             ];
         }
 
