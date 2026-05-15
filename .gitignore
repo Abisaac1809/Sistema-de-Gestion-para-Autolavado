@@ -19,7 +19,11 @@ apps/desktop/release/
 
 # Env files
 .env*
+!.env.example
 .envrc
+
+# Database
+*.db
 
 # VS Code
 .vscode/

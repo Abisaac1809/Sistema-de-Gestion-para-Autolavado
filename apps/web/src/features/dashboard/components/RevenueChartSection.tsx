@@ -1,6 +1,6 @@
 import {
-  AreaChart,
-  Area,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -43,30 +43,20 @@ export function RevenueChartSection({ data, activePreset, isLoading }: Props) {
         </div>
       ) : (
         <ResponsiveContainer width="100%" height={280}>
-          <AreaChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
-            <defs>
-              <linearGradient id="gradUsd" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#10b981" stopOpacity={0.2} />
-                <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-              </linearGradient>
-              <linearGradient id="gradVes" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.2} />
-                <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0} />
-              </linearGradient>
-            </defs>
+          <LineChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
             <XAxis
               dataKey="timestamp"
               tickFormatter={(v) => formatXLabel(v, activePreset)}
               tick={{ fontSize: 11, fill: "#9ca3af" }}
-              axisLine={false}
-              tickLine={false}
+              axisLine={{ stroke: "#e5e7eb" }}
+              tickLine={{ stroke: "#e5e7eb" }}
             />
             <YAxis
               tick={{ fontSize: 11, fill: "#9ca3af" }}
-              axisLine={false}
-              tickLine={false}
-              width={50}
+              axisLine={{ stroke: "#e5e7eb" }}
+              tickLine={{ stroke: "#e5e7eb" }}
+              width={55}
             />
             <Tooltip
               contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e5e7eb" }}
@@ -76,21 +66,23 @@ export function RevenueChartSection({ data, activePreset, isLoading }: Props) {
               ]}
               labelFormatter={(label) => formatXLabel(label, activePreset)}
             />
-            <Area
+            <Line
               type="monotone"
               dataKey="totalUsd"
               stroke="#10b981"
               strokeWidth={2}
-              fill="url(#gradUsd)"
+              dot={{ r: 3, fill: "#10b981" }}
+              activeDot={{ r: 5 }}
             />
-            <Area
+            <Line
               type="monotone"
               dataKey="totalVes"
               stroke="#0ea5e9"
               strokeWidth={2}
-              fill="url(#gradVes)"
+              dot={{ r: 3, fill: "#0ea5e9" }}
+              activeDot={{ r: 5 }}
             />
-          </AreaChart>
+          </LineChart>
         </ResponsiveContainer>
       )}
     </div>

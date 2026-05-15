@@ -71,15 +71,17 @@ export default class PrismaDashboardRepository implements IDashboardRepository {
     }
 
     async getAverageServiceTimeMinutes(fromDate: Date, toDate: Date): Promise<number | null> {
+        const fromMs = fromDate.getTime();
+        const toMs = toDate.getTime();
         const avgResult = await this.prisma.$queryRaw<AvgServiceTimeResult[]>`
-            SELECT AVG((julianday(completed_at) - julianday(started_at)) * 24 * 60) AS avg_seconds
+            SELECT AVG((completed_at - started_at) / 60000.0) AS avg_seconds
             FROM orders
             WHERE deleted_at IS NULL
               AND status = 'COMPLETED'
               AND started_at IS NOT NULL
               AND completed_at IS NOT NULL
-              AND created_at >= ${fromDate}
-              AND created_at <= ${toDate}
+              AND created_at >= ${fromMs}
+              AND created_at <= ${toMs}
         `;
 
         const rawAvg = avgResult[0]?.avg_seconds;
@@ -235,6 +237,8 @@ export default class PrismaDashboardRepository implements IDashboardRepository {
         toDate: Date,
         limit: number,
     ): Promise<ActivityFeedItem[]> {
+        const fromMs = fromDate.getTime();
+        const toMs = toDate.getTime();
         const rows = await this.prisma.$queryRaw<RawActivityRow[]>`
             SELECT id, 'order' AS type,
                 'Order - Status: ' || status AS description,
@@ -242,8 +246,8 @@ export default class PrismaDashboardRepository implements IDashboardRepository {
                 CAST(total_usd AS TEXT) AS amount_usd
             FROM orders
             WHERE deleted_at IS NULL
-              AND created_at >= ${fromDate}
-              AND created_at <= ${toDate}
+              AND created_at >= ${fromMs}
+              AND created_at <= ${toMs}
             UNION ALL
             SELECT id, 'sale' AS type,
                 'Sale - $' || CAST(total_usd AS TEXT) AS description,
@@ -251,8 +255,8 @@ export default class PrismaDashboardRepository implements IDashboardRepository {
                 CAST(total_usd AS TEXT) AS amount_usd
             FROM sales
             WHERE deleted_at IS NULL
-              AND created_at >= ${fromDate}
-              AND created_at <= ${toDate}
+              AND created_at >= ${fromMs}
+              AND created_at <= ${toMs}
             UNION ALL
             SELECT id, 'payment' AS type,
                 'Payment - $' || CAST(amount_usd AS TEXT) AS description,
@@ -260,8 +264,8 @@ export default class PrismaDashboardRepository implements IDashboardRepository {
                 CAST(amount_usd AS TEXT) AS amount_usd
             FROM payments
             WHERE deleted_at IS NULL
-              AND payment_date >= ${fromDate}
-              AND payment_date <= ${toDate}
+              AND payment_date >= ${fromMs}
+              AND payment_date <= ${toMs}
             ORDER BY timestamp DESC
             LIMIT ${limit}
         `;
@@ -280,34 +284,36 @@ export default class PrismaDashboardRepository implements IDashboardRepository {
         toDate: Date,
         bucket: RevenueBucket,
     ): Promise<RevenueChartPoint[]> {
+        const fromMs = fromDate.getTime();
+        const toMs = toDate.getTime();
         let rows: ChartDataPoint[];
 
         if (bucket === 'hour') {
             rows = await this.prisma.$queryRaw<ChartDataPoint[]>`
                 SELECT
-                    strftime('%Y-%m-%dT%H:00:00', created_at) AS bucket,
+                    strftime('%Y-%m-%dT%H:00:00', created_at / 1000, 'unixepoch') AS bucket,
                     CAST(SUM(total_usd) AS TEXT) AS total_usd,
                     CAST(SUM(total_ves) AS TEXT) AS total_ves
                 FROM sales
                 WHERE deleted_at IS NULL
                   AND status = 'COMPLETED'
-                  AND created_at >= ${fromDate}
-                  AND created_at <= ${toDate}
-                GROUP BY strftime('%Y-%m-%dT%H:00:00', created_at)
+                  AND created_at >= ${fromMs}
+                  AND created_at <= ${toMs}
+                GROUP BY strftime('%Y-%m-%dT%H:00:00', created_at / 1000, 'unixepoch')
                 ORDER BY bucket ASC
             `;
         } else {
             rows = await this.prisma.$queryRaw<ChartDataPoint[]>`
                 SELECT
-                    strftime('%Y-%m-%d', created_at) AS bucket,
+                    strftime('%Y-%m-%d', created_at / 1000, 'unixepoch') AS bucket,
                     CAST(SUM(total_usd) AS TEXT) AS total_usd,
                     CAST(SUM(total_ves) AS TEXT) AS total_ves
                 FROM sales
                 WHERE deleted_at IS NULL
                   AND status = 'COMPLETED'
-                  AND created_at >= ${fromDate}
-                  AND created_at <= ${toDate}
-                GROUP BY strftime('%Y-%m-%d', created_at)
+                  AND created_at >= ${fromMs}
+                  AND created_at <= ${toMs}
+                GROUP BY strftime('%Y-%m-%d', created_at / 1000, 'unixepoch')
                 ORDER BY bucket ASC
             `;
         }
