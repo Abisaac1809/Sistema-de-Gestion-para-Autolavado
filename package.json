@@ -15,15 +15,18 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "build-server": "tsc -p /apps/api/tsconfig.json",
     "start-server": "npm run server -w apps/api",
     "start-web": "npm run dev -w apps/web",
-    "run-electron": "npm run dev:linux -w apps/desktop"
+    "dev": "concurrently -k -n API,WEB,APP \"npm run start-server\" \"npm run start-web\" \"wait-on http://localhost:3001/api/config/store http://localhost:5173 && npm run run-electron\"",
+    "run-electron": "npm run dev:linux -w apps/desktop",
+    "build-desktop": "npm run build -w apps/web && npm run build -w apps/desktop"
   },
   "devDependencies": {
     "@types/node": "^25.2.0",
+    "concurrently": "^9.1.2",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "wait-on": "^8.0.3"
   },
   "workspaces": [
     "apps/*",

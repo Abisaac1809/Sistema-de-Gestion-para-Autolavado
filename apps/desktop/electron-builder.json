@@ -8,10 +8,33 @@
     "dist/**/*",
     "!dist/**/*.map"
   ],
+  "extraResources": [
+    {
+      "from": "../web/dist",
+      "to": "web",
+      "filter": ["**/*"]
+    },
+    {
+      "from": "resources/server.js",
+      "to": "server.js"
+    },
+    {
+      "from": "resources",
+      "to": ".",
+      "filter": ["*.node"]
+    },
+    {
+      "from": "../api/dev.db",
+      "to": "car-wash-seed.db"
+    }
+  ],
   "win": {
     "target": ["nsis", "portable"]
   },
   "linux": {
     "target": ["AppImage", "deb"]
+  },
+  "mac": {
+    "target": ["dmg"]
   }
 }
