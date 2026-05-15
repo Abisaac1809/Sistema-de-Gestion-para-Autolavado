@@ -8,6 +8,7 @@ import { ServicesPage } from "@/pages/ServicesPage";
 import PurchasesPage from "@/pages/PurchasesPage";
 import SalesPage from "@/pages/SalesPage";
 import OrdersPage from "@/pages/OrdersPage";
+import DashboardPage from "@/pages/DashboardPage";
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -18,14 +19,6 @@ const queryClient = new QueryClient({
 	},
 });
 
-function PlaceholderPage({ title }: { title: string }) {
-	return (
-		<div>
-		<h1 className="text-2xl font-bold text-gray-900">{title}</h1>
-		<p className="mt-1 text-sm text-gray-500">Página en construcción.</p>
-		</div>
-	);
-}
 
 export default function App() {
 	return (
@@ -35,7 +28,7 @@ export default function App() {
 					<Routes>
 						<Route element={<AppLayout />}>
 							<Route index element={<Navigate to="/dashboard" replace />} />
-							<Route path="/dashboard" element={<PlaceholderPage title="Dashboard" />} />
+							<Route path="/dashboard" element={<DashboardPage />} />
 							<Route path="/ordenes" element={<OrdersPage />} />
 							<Route path="/ventas" element={<SalesPage />} />
 							<Route path="/compras" element={<PurchasesPage />} />

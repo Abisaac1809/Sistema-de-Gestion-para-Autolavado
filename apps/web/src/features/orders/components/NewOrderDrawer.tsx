@@ -127,7 +127,7 @@ export function NewOrderDrawer({ isOpen, onClose, onSubmit, isSubmitting }: NewO
 
   return (
     <Drawer isOpen={isOpen} onClose={handleClose} title="Nueva Orden" width="xl" footer={drawerFooter}>
-      <form id="new-order-form" onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
+      <form id="new-order-form" onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
         {/* Customer select */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -157,7 +157,7 @@ export function NewOrderDrawer({ isOpen, onClose, onSubmit, isSubmitting }: NewO
               {...register("vehicleModel")}
               placeholder="Toyota Corolla"
               className={`w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 ${
-                errors.vehicleModel ? "border-red-300 focus:ring-red-500" : "border-gray-300"
+                errors.vehicleModel ? "border-red-500" : "border-gray-300"
               }`}
             />
             {errors.vehicleModel && (
@@ -284,7 +284,7 @@ export function NewOrderDrawer({ isOpen, onClose, onSubmit, isSubmitting }: NewO
                           {...register(`details.${index}.quantity`, { valueAsNumber: true })}
                           placeholder="1"
                           className={`w-full rounded-md border px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-gray-900 ${
-                            detailErrors?.quantity ? "border-red-300" : "border-gray-300"
+                            detailErrors?.quantity ? "border-red-500" : "border-gray-300"
                           }`}
                         />
                         {detailErrors?.quantity && (

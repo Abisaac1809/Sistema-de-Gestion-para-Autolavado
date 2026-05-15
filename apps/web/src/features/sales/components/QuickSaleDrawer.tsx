@@ -163,7 +163,7 @@ export function QuickSaleDrawer({
           <select
             {...register("paymentMethodId")}
             className={`w-full rounded-md border px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-900 ${
-              errors.paymentMethodId ? "border-red-300" : "border-gray-300"
+              errors.paymentMethodId ? "border-red-500" : "border-gray-300"
             }`}
           >
             <option value="">Seleccionar...</option>
@@ -191,7 +191,7 @@ export function QuickSaleDrawer({
             {...register("amountUsd", { valueAsNumber: true })}
             placeholder="0.00"
             className={`w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 ${
-              errors.amountUsd ? "border-red-300 focus:ring-red-500" : "border-gray-300"
+              errors.amountUsd ? "border-red-500" : "border-gray-300"
             }`}
           />
           {errors.amountUsd && (
@@ -313,7 +313,7 @@ export function QuickSaleDrawer({
                         placeholder="1"
                         className={`w-full rounded-md border px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-gray-900 ${
                           detailErrors?.quantity
-                            ? "border-red-300"
+                            ? "border-red-500"
                             : "border-gray-300"
                         }`}
                       />
@@ -335,7 +335,7 @@ export function QuickSaleDrawer({
                         placeholder="0.00"
                         className={`w-full rounded-md border px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-gray-900 ${
                           detailErrors?.unitPrice
-                            ? "border-red-300"
+                            ? "border-red-500"
                             : "border-gray-300"
                         }`}
                       />

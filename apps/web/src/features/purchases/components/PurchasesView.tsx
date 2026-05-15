@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { ShoppingCart, DollarSign, Package, Truck } from "lucide-react";
-import { SearchInput } from "@/components/SearchInput";
 import { CreateButton } from "@/components/buttons/CreateButton";
 import { PageView } from "@/components/PageView";
 import type { PublicPurchase, PurchaseToCreateType } from "@car-wash/types";
@@ -8,6 +7,7 @@ import { usePurchases, usePurchasesMutations } from "../hooks/usePurchases";
 import { usePaymentMethods } from "@/features/settings/hooks/usePaymentMethods";
 import { KpiCard } from "@/components/KpiCard";
 import { PurchasesTable } from "./PurchasesTable";
+import { PurchasesFilterBar } from "./PurchasesFilterBar";
 import { PurchaseForm } from "./PurchaseForm";
 import { PurchaseDetailModal } from "./PurchaseDetailModal";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
@@ -89,56 +89,19 @@ export function PurchasesView() {
       </div>
 
       {/* Filter bar */}
-      <div className="flex flex-wrap gap-3 items-center mb-4">
-        <div className="flex-1 min-w-[200px] max-w-xs">
-          <SearchInput
-            value={filters.search}
-            onChange={filterActions.setSearch}
-            placeholder="Buscar por proveedor..."
-          />
-        </div>
-
-        <input
-          type="date"
-          value={filters.fromDate}
-          onChange={(e) => filterActions.setFromDate(e.target.value)}
-          className="rounded-lg border border-gray-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-900"
-          aria-label="Desde"
-          title="Desde"
-        />
-
-        <input
-          type="date"
-          value={filters.toDate}
-          onChange={(e) => filterActions.setToDate(e.target.value)}
-          className="rounded-lg border border-gray-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-900"
-          aria-label="Hasta"
-          title="Hasta"
-        />
-
-        <select
-          value={filters.paymentMethodId}
-          onChange={(e) => filterActions.setPaymentMethodId(e.target.value)}
-          className="rounded-lg border border-gray-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-900"
-        >
-          <option value="">Todos los metodos</option>
-          {paymentMethods.map((pm) => (
-            <option key={pm.id} value={pm.id}>
-              {pm.name}
-            </option>
-          ))}
-        </select>
-
-        {(filters.search || filters.fromDate || filters.toDate || filters.paymentMethodId) && (
-          <button
-            type="button"
-            onClick={filterActions.resetFilters}
-            className="text-sm text-gray-500 hover:text-gray-800 underline"
-          >
-            Limpiar filtros
-          </button>
-        )}
-      </div>
+      <PurchasesFilterBar
+        search={filters.search}
+        onSearchChange={filterActions.setSearch}
+        fromDate={filters.fromDate}
+        onFromDateChange={filterActions.setFromDate}
+        toDate={filters.toDate}
+        onToDateChange={filterActions.setToDate}
+        paymentMethodId={filters.paymentMethodId}
+        onPaymentMethodChange={filterActions.setPaymentMethodId}
+        paymentMethods={paymentMethods}
+        hasActiveFilters={!!(filters.search || filters.fromDate || filters.toDate || filters.paymentMethodId)}
+        onClearFilters={filterActions.resetFilters}
+      />
 
       {/* Table */}
       <PurchasesTable

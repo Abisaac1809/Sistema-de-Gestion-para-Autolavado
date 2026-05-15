@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import type { PublicPurchase } from "@car-wash/types";
 import { DataTable, type Column } from "@/components/DataTable";
 import { TableActions } from "@/components/TableActions";
+import { PaymentMethodBadge } from "@/components/PaymentMethodBadge";
 
 type PurchasesTableProps = {
   purchases: PublicPurchase[];
@@ -10,21 +11,6 @@ type PurchasesTableProps = {
   onDelete: (purchase: PublicPurchase) => void;
   disabled?: boolean;
 };
-
-function getPaymentMethodBadgeClass(name: string | null): string {
-  if (!name) return "bg-gray-100 text-gray-600";
-  const lower = name.toLowerCase();
-  if (lower.includes("efectivo") || lower.includes("cash")) return "bg-green-100 text-green-700";
-  if (lower.includes("transfer") || lower.includes("pago movil")) return "bg-blue-100 text-blue-700";
-  if (
-    lower.includes("tarjeta") ||
-    lower.includes("card") ||
-    lower.includes("credito") ||
-    lower.includes("debito")
-  )
-    return "bg-purple-100 text-purple-700";
-  return "bg-gray-100 text-gray-600";
-}
 
 export function PurchasesTable({
   purchases,
@@ -53,11 +39,7 @@ export function PurchasesTable({
         header: "Metodo de Pago",
         render: (p) =>
           p.paymentMethodName ? (
-            <span
-              className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getPaymentMethodBadgeClass(p.paymentMethodName)}`}
-            >
-              {p.paymentMethodName}
-            </span>
+            <PaymentMethodBadge name={p.paymentMethodName} />
           ) : (
             <span className="text-gray-400">—</span>
           ),

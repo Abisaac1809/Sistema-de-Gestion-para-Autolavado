@@ -3,6 +3,8 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { OrderSummary, PaymentToCreateType } from "@car-wash/types";
 import { Modal } from "@/components/Modal";
+import { SaveButton } from "@/components/buttons/SaveButton";
+import { CancelButton } from "@/components/buttons/CancelButton";
 import { usePaymentMethods } from "@/features/settings/hooks/usePaymentMethods";
 import type { AddPaymentArgs } from "../types/orders.dtos";
 
@@ -115,7 +117,7 @@ export function OrderPaymentModal({
               <select
                 {...register("paymentMethodId")}
                 className={`w-full rounded-md border px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-900 ${
-                  errors.paymentMethodId ? "border-red-300 focus:ring-red-500" : "border-gray-300"
+                  errors.paymentMethodId ? "border-red-500" : "border-gray-300"
                 }`}
               >
                 <option value="">Seleccionar metodo...</option>
@@ -177,7 +179,7 @@ export function OrderPaymentModal({
                 {...register("amount", { valueAsNumber: true })}
                 placeholder="0.00"
                 className={`w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 ${
-                  errors.amount ? "border-red-300 focus:ring-red-500" : "border-gray-300"
+                  errors.amount ? "border-red-500" : "border-gray-300"
                 }`}
               />
               {errors.amount && (
@@ -200,20 +202,12 @@ export function OrderPaymentModal({
 
             {/* Actions */}
             <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
-              <button
-                type="button"
-                onClick={handleClose}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-md hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {isSubmitting ? "Registrando..." : "Registrar Pago"}
-              </button>
+              <CancelButton onClick={handleClose} />
+              <SaveButton
+                isSubmitting={isSubmitting}
+                label="Registrar Pago"
+                loadingLabel="Registrando..."
+              />
             </div>
           </form>
         </div>

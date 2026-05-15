@@ -123,7 +123,7 @@ export function SearchSelect<T>({
         className={`flex items-center border rounded-lg bg-white transition-colors ${
           error
             ? "border-red-500 focus-within:ring-2 focus-within:ring-red-500"
-            : "border-gray-300 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500"
+            : "border-gray-300 focus-within:ring-2 focus-within:ring-gray-900 focus-within:border-gray-300"
         } ${disabled ? "bg-gray-50 opacity-60 cursor-not-allowed" : ""}`}
       >
         <input
